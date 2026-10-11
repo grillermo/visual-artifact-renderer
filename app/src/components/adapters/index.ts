@@ -1,7 +1,7 @@
 export { renderFileTree, renderImage, renderProse, renderCode } from "./leaf-adapters"
 export { renderExecutionTrace } from "./execution-trace-adapter"
 export { renderClaimTree, renderClaim } from "./plan/claim-tree-adapter"
-export { renderCallStack } from "./plan/call-stack-adapter"
+export { renderWalkthrough } from "./walkthrough-adapter"
 export { renderStateMachine } from "./plan/state-machine-adapter"
 export { renderSequence } from "./plan/sequence-diagram-adapter"
 export { renderMockup, renderWireframe } from "./plan/mockup-adapter"

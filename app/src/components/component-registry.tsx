@@ -28,7 +28,7 @@ export const componentRegistry = {
   prose: createAdapter(adapters.renderProse),
   "claim-tree": createAdapter(adapters.renderClaimTree),
   claim: createAdapter(adapters.renderClaim),
-  "call-stack": createAdapter(adapters.renderCallStack),
+  walkthrough: createAdapter(adapters.renderWalkthrough),
   "state-machine": createAdapter(adapters.renderStateMachine),
   mockup: createAdapter(adapters.renderMockup),
   wireframe: createAdapter(adapters.renderWireframe),

@@ -39,76 +39,8 @@ export const QUOTE_SOURCES = ["prompt", "slack", "github", "doc", "email", "meet
 // code-block (improved)
 // ---------------------------------------------------------------------------
 
-export const CodeAnnotationToneSchema = z.enum(["info", "warn", "risk", "ok"])
-export const CodeBlockPropsSchema = z
-  .object({
-    title: z.string().min(1).optional(),
-    language: z.string().min(1).optional(),
-    code: z.string().min(1),
-    caption: z.string().min(1).optional(),
-    lineNumbers: z.boolean().optional(),
-    startLine: z.number().int().min(1).max(1_000_000).optional(),
-    highlight: z.array(z.union([z.number().int().min(1), z.string().regex(/^\d+-\d+$/)])).max(40).optional(),
-    annotations: z
-      .array(
-        z
-          .object({
-            line: z.number().int().min(1),
-            title: ShortLabel(80),
-            body: ShortLabel(280).optional(),
-            tone: CodeAnnotationToneSchema.optional(),
-          })
-          .strict(),
-      )
-      .max(12)
-      .optional(),
-    diff: z.boolean().optional(),
-    sketch: z.boolean().optional(),
-    src: SourceRefSchema.optional(),
-  })
-  .strict()
-  .superRefine((props, ctx) => {
-    const lines = props.code.replace(/\r\n/g, "\n").replace(/\n$/, "").split("\n")
-    const first = props.startLine ?? 1
-    const last = first + lines.length - 1
-    const inRange = (n: number) => n >= first && n <= last
-    const seen = new Set<number>()
-    props.annotations?.forEach((annotation, index) => {
-      if (!inRange(annotation.line)) {
-        report(ctx, ["annotations", index, "line"], `code-block annotation ${index + 1}: line ${annotation.line} is outside ${first}-${last}`)
-      }
-      if (seen.has(annotation.line)) {
-        report(ctx, ["annotations", index, "line"], `code-block annotation ${index + 1}: line ${annotation.line} already has an annotation`)
-      }
-      seen.add(annotation.line)
-    })
-    props.highlight?.forEach((entry, index) => {
-      const [a, b] = typeof entry === "number" ? [entry, entry] : entry.split("-").map(Number)
-      if (b < a || !inRange(a) || !inRange(b)) {
-        report(ctx, ["highlight", index], `code-block highlight ${index + 1}: "${entry}" is outside ${first}-${last}`)
-      }
-    })
-    if (props.diff) {
-      lines.forEach((line, index) => {
-        if (line === "" || /^[+\- ]/.test(line) || line.startsWith("@@")) return
-        report(ctx, ["code"], `line ${index + 1}: diff lines start with "+ ", "- ", "  " or "@@"`)
-      })
-    }
-  })
-export type CodeBlockProps = z.infer<typeof CodeBlockPropsSchema>
-
-/** True when a code-block uses any structured (annotated) prop. */
-export function codeBlockIsStructured(props: CodeBlockProps): boolean {
-  return Boolean(
-    props.lineNumbers !== undefined ||
-      props.startLine !== undefined ||
-      props.highlight?.length ||
-      props.annotations?.length ||
-      props.diff ||
-      props.sketch ||
-      props.src,
-  )
-}
+export { CodeBlockPropsSchema, CodeAnnotationToneSchema, codeBlockIsStructured, WalkthroughPropsSchema } from "./code-schemas.js"
+export type { CodeBlockProps, WalkthroughProps } from "./code-schemas.js"
 
 // ---------------------------------------------------------------------------
 // call-stack

@@ -394,7 +394,7 @@ import {
   type TrendProps,
 } from "./editorial-schemas.js"
 import {
-  CallStackPropsSchema,
+  WalkthroughPropsSchema,
   ClaimPropsSchema,
   ClaimTreePropsSchema,
   CodeBlockPropsSchema,
@@ -405,7 +405,7 @@ import {
   WireframePropsSchema,
   flattenFileTreePaths,
   lintPlanSpec,
-  type CallStackProps,
+  type WalkthroughProps,
   type ClaimProps,
   type ClaimTreeProps,
   type CodeBlockProps,
@@ -728,7 +728,7 @@ export type ArtifactNode =
       props: TimelineProps
       metadata?: { id?: string }
     }
-  | { type: "call-stack"; props: CallStackProps; metadata?: { id?: string } }
+  | { type: "walkthrough"; props: WalkthroughProps; metadata?: { id?: string } }
   | { type: "wireframe"; props: WireframeProps; metadata?: { id?: string } }
   | { type: "decision"; props: DecisionProps; metadata?: { id?: string } }
   | { type: "chapter"; props: ChapterProps; children?: ArtifactNode[]; metadata?: { id?: string } }
@@ -1135,7 +1135,7 @@ export const ArtifactNodeSchema: z.ZodType<ArtifactNode> = z.lazy(() => {
       height: DiagramHeightSchema.optional(),
     }),
     planLeaf("timeline", TimelinePropsSchema),
-    planLeaf("call-stack", CallStackPropsSchema),
+    planLeaf("walkthrough", WalkthroughPropsSchema),
     planLeaf("wireframe", WireframePropsSchema),
     planLeaf("decision", DecisionPropsSchema),
     planLeaf("code", CodeBlockPropsSchema),

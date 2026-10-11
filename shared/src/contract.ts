@@ -154,7 +154,7 @@ export const CORE_NODE_TYPES = [
 export const SPECIALISED_NODE_TYPES = [
   "claim-tree",
   "claim",
-  "call-stack",
+  "walkthrough",
   "state-machine",
   "mockup",
   "wireframe",
@@ -441,12 +441,12 @@ export const artifactManifest = {
     children: "nodes",
     example: { type: "claim", props: { text: "A worker claims due messages once a minute." }, children: [{ type: "prose", props: { content: "Exhibit." } }] },
   },
-  "call-stack": {
-    type: "call-stack",
-    description: "Annotated call stack. Terse rows: column 0 is a mark (+ added, - removed, ~ changed, ? proposed, space context), column 1 a space, the call from column 2; indent 2 spaces per depth. End with \" @ path/file.ts:12\" and \" -- note\". Use **bold** for the focus call. Object rows add id, kind and an inline excerpt shown on click.",
-    props: { title: "string?", caption: "string?", rows: '(string | { call, depth, mark?, at?, note?, kind?: "call"|"ui"|"net"|"cond"|"io"|"gap", id?, excerpt?: { code, language?, startLine? } })[] ≤60', repo: "{ name, ref?, baseUrl? (https) }? — links locations", initialRow: "number?" },
+  walkthrough: {
+    type: "walkthrough",
+    description: "An ordered source walkthrough. The active range follows the reader; narrow screens show excerpts per step.",
+    props: { title: "string?", caption: "string?", files: "{ path ≤200, language?, code? OR src? OR before+after, startLine?, diff? }[] 1-4; 400 lines / 24 KB per side", steps: '{ file? (required with multiple files), lines: "n" | "a-b", title ≤80, body? ≤400, tone?, text? ≤80, side?: "old" | "new" }[] 2-8; lines and text must exist' },
     children: false,
-    example: { type: "call-stack", props: { title: "The list", rows: ["~ <Sidebar/> @ web/src/nav/Sidebar.tsx:30", "+   <ScheduledFolder/> @ web/src/scheduled/ScheduledFolder.tsx:14", "+     GET /api/scheduled @ web/src/api/scheduled.ts:21"] } },
+    example: { type: "walkthrough", props: { files: [{ path: "src/retry.ts", code: "const pending = new Map()\npending.clear()", language: "typescript" }], steps: [{ lines: "1", title: "Track pending work", tone: "idea" }, { lines: "2", title: "Release settled jobs" }] } },
   },
   "state-machine": {
     type: "state-machine",
@@ -591,10 +591,10 @@ export const artifactManifest = {
   },
   code: {
     type: "code",
-    description: "Syntax-highlighted code on a flat surface, with title above. Use for commands, config and env contracts. Set diff: true for +/- lines.",
-    props: { title: "string?", language: "string?", code: "string", caption: "string?", lineNumbers: "boolean?", startLine: "number?", highlight: '(number | "a-b")[]?', annotations: '{ line, title ≤80, body? ≤280, tone? }[]? — max 12', diff: 'boolean? — lines start with "+ ", "- ", "  " or "@@"', sketch: "boolean?", src: '"path:12-30"? — create inlines the range' },
+    description: "Explained excerpt = code + ranged annotations. Also commands, config and before/after diffs. Flat surface; notes align to source. 400 lines and 24 KB per side; split longer source or use walkthrough.",
+    props: { title: "string?", file: "string? ≤200", language: "string?", code: "string? — exactly one of code (or src) OR before+after", before: "string?", after: "string?", caption: "string?", lineNumbers: "boolean?", startLine: "number?", highlight: '(number | "a-b")[]?', annotations: '{ line, end? inclusive, title ≤80, body? ≤400, tone?: info|warn|risk|ok|idea, text? ≤80, side?: old|new }[]? max 12; no overlaps; diffs allow only info/risk/idea', diff: "boolean? — unified patch", diffMode: '"unified" | "split"?; split falls back below 720px or p90 >70 columns', sketch: "boolean?", src: '"path:12-30"? — create inlines the range' },
     children: false,
-    example: { type: "code", props: { title: "Smoke release", language: "bash", code: "pnpm export:contract\npnpm verify:artifacts" } },
+    example: { type: "code", props: { file: "src/cache.ts", language: "typescript", code: "const cache = new Map()\ncache.clear()", annotations: [{ line: 1, end: 2, title: "Bound the cache lifetime", body: "Clear it when the request settles.", tone: "idea", text: "new Map()" }] } },
   },
   trend: {
     type: "trend",
