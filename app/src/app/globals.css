@@ -503,3 +503,14 @@ html.dark {
 .mm-state .edgeLabel rect { fill: var(--background) !important; opacity: 1; }
 .mm-state .edgePaths path { fill: none; }
 .mm-state .edgeLabel, .mm-state .edgeLabel p, .mm-state .edgeLabel span, .mm-state .labelBkg { background: var(--background) !important; background-color: var(--background) !important; }
+/* sequence (Mermaid sequenceDiagram) */
+.mm-seq .actor { fill: var(--background) !important; stroke: var(--rule-strong) !important; stroke-width: 1.2px !important; }
+.mm-seq text.actor, .mm-seq .actor tspan { fill: var(--ink) !important; stroke: none !important; font-family: var(--font-sans); font-size: 14px; font-weight: 600; }
+.mm-seq .actor-line { stroke: var(--ink) !important; stroke-opacity: 0.25; stroke-dasharray: 2 5; }
+.mm-seq .messageText { fill: var(--ink) !important; stroke: var(--background) !important; stroke-width: 7px; stroke-linejoin: round; paint-order: stroke;  font-family: var(--font-sans); font-size: 14px; }
+.mm-seq .sequenceNumber { fill: var(--ink) !important; stroke: none !important; font-family: var(--font-sans); font-size: 13px !important; font-weight: 600; }
+.mm-seq marker circle { fill: var(--background) !important; stroke: var(--ink) !important; stroke-width: 1.2px; r: 6px; }
+.mm-seq .note { fill: var(--background) !important; stroke: var(--rule) !important; stroke-dasharray: 3 4; }
+.mm-seq .noteText, .mm-seq .noteText tspan { fill: var(--ink-muted) !important; font-family: var(--font-sans); font-size: 14px; font-style: italic; }
+.mm-seq #arrowhead path, .mm-seq #crosshead path { fill: var(--ink-muted) !important; stroke: var(--ink-muted) !important; }
+.mm-seq .labelBox { fill: var(--background) !important; stroke: none !important; }

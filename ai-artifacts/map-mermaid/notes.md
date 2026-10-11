@@ -29,3 +29,10 @@
 - Parallel edges (working<->blocked, working<->done) render as two separate curves, labels apart. Screenshots: `after-state-machine/`.
 - Open: `state-diagram` label backgrounds follow `--background`, not `--paper` (they match the page there). Mobile scrolls sideways as intended. `dev.log` shows as modified (tracked by the lead's commit).
 - Review fixes: selected state = 3px --ink outline + bold (DOM-verified: node id state-s<i> matches, stroke needed !important); shared `scroll-frame.tsx` adds right-edge fade when more content scrolls (map, story, state-machine); edge-label padding reduced.
+
+## Phase B: sequence-diagram + sequence (uncommitted)
+- `lib/diagram/sequence-to-mermaid.ts` (+ test): `sequenceDiagram` with `autonumber`; ids `p<i>`; actor kind -> `actor`; `->>` call, `-->>` reply, `-x` lost; notes -> `Note over`; dividers -> upper-cased `Note over` across all participants (Mermaid has no label divider that keeps the schema's meaning).
+- `components/mermaid/sequence-mermaid.tsx`: post-render styling per message (proposed dashed `--signal-new`, `key` messages 2.2px + bold), lifelines trimmed (Mermaid leaves them at 2000px when actors are not mirrored), crop to whole-SVG bbox. Uses shared `MermaidScrollFrame`.
+- `sequence-diagram-adapter.tsx` shared by `sequence-diagram` and `sequence`; hand-rolled layout deleted, plus `text-width.ts` and all SVG helpers in `diagram-svg.tsx` (only `usePrefersReducedMotion` stays, used by story).
+- Autonumber numbers every message, including those in a long `sequence-diagram`. Tradeoff: spec asked for steps only; notes/dividers are not numbered.
+- Screenshots: `after-sequence/`.
