@@ -102,7 +102,7 @@ export function SiteHeader() {
                   ? ["comments"]
                   : panelParams.panel === "colab"
                     ? ["colab"]
-                    : undefined
+                    : []
               }
               onValueChange={(values: string[]) => {
                 const v = values[0] as "comments" | "colab" | undefined
