@@ -1,7 +1,7 @@
 import { test } from "node:test"
 import assert from "node:assert/strict"
 import { bundledThemes } from "shiki"
-import { contrast, accessibleSyntaxColor, CODE_CONTRAST_SURFACES } from "./code-contrast"
+import { contrast, accessibleSyntaxColor, CODE_CONTRAST_SURFACES, WORD_CONTRAST_SURFACES } from "./code-contrast"
 test("high-contrast theme foregrounds meet AA on code, row and word tints",async()=>{
   for(const dark of [false,true]){
     const name=dark?"github-dark-high-contrast":"github-light-high-contrast",theme=(await bundledThemes[name]()).default
@@ -9,8 +9,11 @@ test("high-contrast theme foregrounds meet AA on code, row and word tints",async
     for(const setting of theme.tokenColors??[]) {
       const color=setting.settings.foreground
       if(!color)continue
-      const actual=accessibleSyntaxColor(color,foreground,dark)
-      for(const bg of CODE_CONTRAST_SURFACES[dark?"dark":"light"])assert.ok(contrast(actual,bg)>=4.5,`${name}: ${actual} on ${bg}`)
+      for(const context of ["row","word"] as const){
+        const actual=accessibleSyntaxColor(color,foreground,dark,context)
+        const surfaces=context==="word"?WORD_CONTRAST_SURFACES:CODE_CONTRAST_SURFACES
+        for(const bg of surfaces[dark?"dark":"light"])assert.ok(contrast(actual,bg)>=4.5,`${name}: ${actual} on ${bg}`)
+      }
     }
   }
 })

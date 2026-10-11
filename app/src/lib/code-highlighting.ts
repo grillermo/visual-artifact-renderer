@@ -14,6 +14,7 @@ const COMMON_LANGUAGES = [
   "javascript",
   "jsx",
   "python",
+  "lua",
   "yaml",
   "yml",
   "json",

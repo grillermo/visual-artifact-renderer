@@ -613,8 +613,8 @@ html.dark {
 .va-code-row { display: flex; min-height: 24px; --row-change: transparent; transition: background-color 160ms ease-out, opacity 160ms ease-out; }
 .va-code-row[data-diff="add"] { --row-change: var(--change-added); background: color-mix(in oklch,var(--change-added) 12%,transparent); }
 .va-code-row[data-diff="remove"] { --row-change: var(--change-removed); background: color-mix(in oklch,var(--change-removed) 12%,transparent); }
-.va-code-row[data-range] { background: color-mix(in oklch,var(--note-tone) 6%,transparent); }
-.va-code-row[data-active], .va-code-row[data-highlighted] { background: color-mix(in oklch,var(--brand) 10%,transparent); }
+.va-code-row[data-range] { background-image: linear-gradient(color-mix(in oklch,var(--note-tone) 6%,transparent),color-mix(in oklch,var(--note-tone) 6%,transparent)); }
+.va-code-row[data-active], .va-code-row[data-highlighted] { background: color-mix(in oklch,var(--brand) 10%,transparent); background-image: none; }
 .va-code-gutter { position: sticky; left: 0; display: flex; flex-shrink: 0; background: var(--code-bg); color: var(--ink-muted); user-select: none; }
 .va-code-number { min-width: 2.75rem; padding-right: .5rem; text-align: right; font-variant-numeric: tabular-nums; }
 .va-code-mark { display: grid; place-items: center; width: 1.5rem; color: var(--brand); }

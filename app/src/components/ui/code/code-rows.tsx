@@ -1,10 +1,11 @@
+import { accessibleSyntaxColor } from "@/lib/code-contrast"
 import type { CSSProperties } from "react"
 import type { CodeBlockProps } from "@/lib/contract/artifact-manifest"
 import { sliceTokens, type DiffLine, type Token } from "@/lib/code-lines"
 export type CodeNote=NonNullable<CodeBlockProps["annotations"]>[number]&{n:number}
 export const noteTone=(tone:CodeNote["tone"])=>`var(${({info:"--ink",warn:"--signal-wait",risk:"--signal-risk",ok:"--signal-new",idea:"--brand"} as const)[tone??"info"]})`
 export function NotePin({note}:{note:CodeNote}) { return <span className="va-code-pin" style={{background:noteTone(note.tone)}} aria-label={`Note ${note.n}: ${note.title}`}>{note.n}</span> }
-export function CodeRow({row,tokens,notes,highlighted,active,dimmed,numbers=true,diff=false,view="unified"}:{row:DiffLine;tokens?:Token[];notes:CodeNote[];highlighted?:boolean;active?:boolean;dimmed?:boolean;numbers?:boolean;diff?:boolean;view?:"unified"|"old"|"new"}) {
+export function CodeRow({row,tokens,notes,highlighted,active,dimmed,numbers=true,diff=false,view="unified",dark=false}:{row:DiffLine;tokens?:Token[];notes:CodeNote[];highlighted?:boolean;active?:boolean;dimmed?:boolean;numbers?:boolean;diff?:boolean;view?:"unified"|"old"|"new";dark?:boolean}) {
   const number=view==="old"?row.oldLine:row.newLine??row.oldLine
   const note=notes.find(note=>{
     if(view!=="unified" && (note.side??"new")!==view) return false
@@ -25,7 +26,7 @@ export function CodeRow({row,tokens,notes,highlighted,active,dimmed,numbers=true
     <code>{segments.map((token,i)=>{
       const from=segments.slice(0,i).reduce((sum,segment)=>sum+segment.content.length,0)
       const word=row.words?.some(([a,b])=>from>=a&&from<b), text=noteRanges.some(([a,b])=>from>=a&&from<b)
-      return <span key={i} data-word-change={word||undefined} data-note-text={text||undefined} style={{color:token.color,fontStyle:token.fontStyle && token.fontStyle&1?"italic":undefined,fontWeight:token.fontStyle && token.fontStyle&2?700:undefined}}>{token.content}</span>
+      return <span key={i} data-word-change={word||undefined} data-note-text={text||undefined} style={{color:word&&token.color?accessibleSyntaxColor(token.color,"var(--ink)",dark,"word"):token.color,fontStyle:token.fontStyle && token.fontStyle&1?"italic":undefined,fontWeight:token.fontStyle && token.fontStyle&2?700:undefined}}>{token.content}</span>
     })}</code>
   </div>
 }
