@@ -26,6 +26,12 @@ export interface RecentArtifact {
   topics?: string[]
   modifiedAt: string
   project: string
+  /** Open annotation threads. Absent from older or static-export indexes. */
+  openThreads?: number
+  /** First message of the newest open thread, one line. */
+  openExcerpt?: string
+  /** Published to a remote host (publish.json). */
+  published?: boolean
 }
 
 export interface ArtifactIndex {

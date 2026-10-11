@@ -26,7 +26,34 @@ const ASSET_TYPES: Record<string, string> = {
 const KEBAB = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 const ARTIFACT_TYPE_SET = new Set<string>(ARTIFACT_TYPES)
 
-type ListEntry = { slug: string; title?: string; description?: string; artifactType?: string; topics?: string[]; modifiedAt: string }
+type Signals = { openThreads: number; openExcerpt?: string; published: boolean }
+type ListEntry = Signals & { slug: string; title?: string; description?: string; artifactType?: string; topics?: string[]; modifiedAt: string }
+
+const EXCERPT_MAX = 80
+
+async function readJson(file: string): Promise<unknown> {
+  try { return JSON.parse(await readFile(file, "utf8")) } catch { return undefined }
+}
+
+// Mirrors readArtifactSignals in cli/src/lib/scan.ts.
+async function readSignals(bundleDir: string): Promise<Signals> {
+  const annotations = await readJson(resolve(bundleDir, "annotations.json"))
+  const publish = await readJson(resolve(bundleDir, "publish.json"))
+  const threads = annotations && typeof annotations === "object" && Array.isArray((annotations as { threads?: unknown }).threads)
+    ? (annotations as { threads: unknown[] }).threads
+    : []
+  const open = threads.filter((thread): thread is { updatedAt?: unknown; messages?: unknown } =>
+    !!thread && typeof thread === "object" && (thread as { status?: unknown }).status === "open")
+  const newest = [...open].sort((a, b) => String(b.updatedAt ?? "").localeCompare(String(a.updatedAt ?? "")))[0]
+  const firstMessage = newest && Array.isArray(newest.messages) ? newest.messages[0] : undefined
+  const body = firstMessage && typeof firstMessage === "object" ? (firstMessage as { body?: unknown }).body : undefined
+  const line = typeof body === "string" ? body.replace(/\s+/g, " ").trim() : ""
+  return {
+    openThreads: open.length,
+    openExcerpt: line ? (line.length > EXCERPT_MAX ? `${line.slice(0, EXCERPT_MAX - 1)}…` : line) : undefined,
+    published: !!publish && typeof publish === "object" && (publish as { status?: unknown }).status === "published",
+  }
+}
 
 // Mirrors cli/src/lib/scan.ts. Importing that file drags cli/node_modules into webpack, which can't parse it.
 async function listProject(projectDir: string): Promise<ListEntry[]> {
@@ -53,6 +80,7 @@ async function listProject(projectDir: string): Promise<ListEntry[]> {
     try { meta = JSON.parse(raw) } catch { /* keep the entry, without metadata */ }
     const str = (v: unknown) => (typeof v === "string" && v.length > 0 ? v : undefined)
     out.push({
+      ...(await readSignals(resolve(projectDir, entry.name))),
       slug: entry.name,
       title: str(meta.title),
       description: str(meta.description),
@@ -81,7 +109,7 @@ async function serveHomeIndex(artifactsDir: string): Promise<Response> {
   }
   projects.sort((a, b) => b.lastModifiedAt.localeCompare(a.lastModifiedAt))
   artifacts.sort((a, b) => b.modifiedAt.localeCompare(a.modifiedAt))
-  return Response.json({ projects, recent: artifacts.slice(0, 3), artifacts: artifacts.slice(0, 100) }, { headers: NO_STORE })
+  return Response.json({ projects, recent: artifacts.slice(0, 3), artifacts }, { headers: NO_STORE })
 }
 
 /** Same shape as the CLI static server's /data/artifacts/<project>/index.json. */

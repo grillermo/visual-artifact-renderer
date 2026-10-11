@@ -84,3 +84,55 @@ it("serves home and project indexes in dev, 404 for unknown projects", async () 
     await rm(dir, { recursive: true, force: true })
   }
 })
+
+// Keep in step with "home index" in cli/src/lib/scan.test.ts: both servers must return the same rows.
+async function writeLibraryFixture(dir: string): Promise<void> {
+  for (let i = 0; i < 105; i++) {
+    const bundle = join(dir, "bulk", `artifact-${i}`)
+    await mkdir(bundle, { recursive: true })
+    await writeFile(join(bundle, "artifact.json"), JSON.stringify({ title: `Artifact ${i}`, artifactType: "report" }))
+  }
+  const reviewed = join(dir, "reviews", "reviewed")
+  await mkdir(reviewed, { recursive: true })
+  await writeFile(join(reviewed, "artifact.json"), JSON.stringify({ title: "Reviewed", artifactType: "review" }))
+  const thread = (id: string, status: string, updatedAt: string, body: string) => ({
+    id, status, createdAt: updatedAt, updatedAt, anchor: { nodePath: "nodes.0", nodeType: "prose" },
+    messages: [{ id: `${id}-m`, author: { name: "R" }, body, createdAt: updatedAt, updatedAt }],
+  })
+  await writeFile(join(reviewed, "annotations.json"), JSON.stringify({ version: 1, project: "reviews", slug: "reviewed", threads: [
+    thread("a", "open", "2026-10-01T00:00:00.000Z", "older note"),
+    thread("b", "open", "2026-10-02T00:00:00.000Z", "  the last\n row is   incorrect "),
+    thread("c", "resolved", "2026-10-03T00:00:00.000Z", "done"),
+  ] }))
+  await writeFile(join(reviewed, "publish.json"), JSON.stringify({ version: 1, status: "published" }))
+  const broken = join(dir, "reviews", "broken-sidecars")
+  await mkdir(broken, { recursive: true })
+  await writeFile(join(broken, "artifact.json"), JSON.stringify({ title: "Broken" }))
+  await writeFile(join(broken, "annotations.json"), "{not json")
+  await writeFile(join(broken, "publish.json"), JSON.stringify({ status: "unpublished" }))
+}
+
+it("home index parity: serves every artifact with open-comment and publish signals", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "va-dev-library-"))
+  try {
+    await writeLibraryFixture(dir)
+    const body = await (await serveDevArtifactRequest(new Request("http://x/data/artifacts/index.json"), dir)).json()
+    assert.equal(body.artifacts.length, 107)
+    assert.equal(body.recent.length, 3)
+    const reviewed = body.artifacts.find((a: { slug: string }) => a.slug === "reviewed")
+    assert.equal(reviewed.project, "reviews")
+    assert.equal(reviewed.openThreads, 2)
+    assert.equal(reviewed.openExcerpt, "the last row is incorrect")
+    assert.equal(reviewed.published, true)
+    const broken = body.artifacts.find((a: { slug: string }) => a.slug === "broken-sidecars")
+    assert.equal(broken.openThreads, 0)
+    assert.equal(broken.published, false)
+    assert.equal(broken.openExcerpt, undefined)
+    const project = await (await serveDevArtifactRequest(new Request("http://x/data/artifacts/reviews/index.json"), dir)).json()
+    const row = project.artifacts.find((a: { slug: string }) => a.slug === "reviewed")
+    assert.equal(row.openThreads, 2)
+    assert.equal(row.published, true)
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
