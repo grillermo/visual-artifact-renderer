@@ -100,7 +100,7 @@
     {
       "type": "prose",
       "props": {
-        "content": "Compaction should hand over *working state*, not just shorten the chat. A small model writes the summary; persistent memory stays separate."
+        "content": "Compaction should hand over *working state*, not just a shorter chat."
       }
     },
     {
@@ -108,7 +108,7 @@
       "props": {
         "kicker": "Flow",
         "title": "How a summary gets made",
-        "deck": "The order matters: facts are saved before the old text is replaced.",
+        "deck": "Facts are saved before the old text is replaced.",
         "takeaway": "The summary is only as good as the facts saved before it."
       },
       "children": [

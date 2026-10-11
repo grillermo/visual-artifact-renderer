@@ -88,7 +88,7 @@
     {
       "type": "prose",
       "props": {
-        "content": "agents2 builds Pi and the other agent tools on each Mac from one set of profiles. This week it moved from *Pi works* to *Pi runs a team*: long sessions keep their facts, skills reach every runtime, and most fixes were for tools that failed silently."
+        "content": "This week agents2 moved from *Pi works* to *Pi runs a team*."
       }
     },
     {

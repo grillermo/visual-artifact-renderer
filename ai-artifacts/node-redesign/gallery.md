@@ -25,7 +25,24 @@ Each after spec keeps the content of its before spec. Plan 3 keeps the `claim-tr
 
 Chapter rule: one main exhibit, plus at most one supporting `prose`, `details` or `callout`.
 
+## First-screen check (390px, 844px viewport)
+
+Measured with agent-browser; y is the top of the first figures, ledger, steps, story, claim-tree or compare node.
+
+| Example | First visual | y (px) |
+|---|---|---|
+| 1 weekly report | steps | 813 |
+| 2 design explainer | story | 827 |
+| 3 implementation plan | claim-tree | 724 |
+| 4 decision | ledger | 808 |
+| 5 status board | figures | 760 |
+
+All five start within 844px. Examples 1, 2 and 5 failed first (925, 883 and 1088) and were fixed by shortening opening prose and the hero title in the spec. Some pass by under 40px, so any longer hero copy breaks the rule.
+
+Screenshots: `after/<n>-<shape>-{light,dark}-{desktop,mobile}.png`.
+
 ## Known gaps
 
-- Shots were taken against the dev server at the time of writing; re-shoot after any adapter change.
-- Plan 3 is long because it keeps every before-spec fact. The `claim-tree` collapses to its claim titles in the contents rail.
+- Measured with the dev server; re-measure after adapter or typography changes.
+- Plan 3 is long because it keeps every before-spec fact.
+- In example 5 the "Source only" callout now sits inside the Coverage chapter, so the opening prose is a single line.

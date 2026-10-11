@@ -1,6 +1,6 @@
 {
   "slug": "after-tool-ui-status",
-  "title": "Tool UI inventory: hooks exist, visual compliance is untested",
+  "title": "Tool UI inventory: hooks, not visuals",
   "description": "Read-only snapshot from 6 October 2026, installed Pi 1.0.0.",
   "artifactType": "report",
   "topics": [
@@ -265,22 +265,14 @@
     {
       "type": "prose",
       "props": {
-        "content": "Review shared renderer families, not every tool separately."
-      }
-    },
-    {
-      "type": "callout",
-      "props": {
-        "tone": "risk",
-        "title": "Not verified",
-        "body": "This inventory inspected source. It did not apply the patch, run renderer tests or certify styling. Fallback rendering does not automatically mean wrong styling."
+        "content": "Review renderer families, not every tool."
       }
     },
     {
       "type": "chapter",
       "props": {
         "title": "Most tools have hooks; none has been checked by eye",
-        "deck": "Of 120 observed names, 104 have call and result hooks, 2 have result-only hooks and 14 have neither.",
+        "deck": "104 of 120 names have call and result hooks.",
         "takeaway": "A custom renderer is not automatically right, and a fallback is not automatically wrong."
       },
       "children": [
@@ -308,23 +300,12 @@
           }
         },
         {
-          "type": "details",
+          "type": "callout",
           "props": {
-            "summary": "Captured group counts"
-          },
-          "children": [
-            {
-              "type": "table",
-              "props": {
-                "dataKey": "groups",
-                "columns": [
-                  "group",
-                  "count"
-                ],
-                "dense": true
-              }
-            }
-          ]
+            "tone": "risk",
+            "title": "Not verified",
+            "body": "Source only: no patch applied, no renderer test run, no styling certified."
+          }
         }
       ]
     },
@@ -466,6 +447,25 @@
           "type": "prose",
           "props": {
             "content": "`ai-artifacts/node-redesign/sources/5-status-open-loops.md`, summarising tool-ui-inventory `README.md`, `providers.md` and `tool-list.md`. Inspected 6 October 2026; Pi 1.0.0; agents2 `dceaa3f`; pi-extensions `6f66e2a`. No tidy-tools override was present during inspection. Package replacement removes the version-pinned patch, but the snapshot does not prove that caused its absence. `pi.getAllTools()` exposes names, schemas and source, not renderer hooks."
+          }
+        }
+      ]
+    },
+    {
+      "type": "details",
+      "props": {
+        "summary": "Captured group counts"
+      },
+      "children": [
+        {
+          "type": "table",
+          "props": {
+            "dataKey": "groups",
+            "columns": [
+              "group",
+              "count"
+            ],
+            "dense": true
           }
         }
       ]
