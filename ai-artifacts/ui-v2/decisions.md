@@ -65,3 +65,13 @@ The comments panel stays 360px. At 1440px with comments open, exhibits retain 10
 | Fixed stack rows with truncated labels | Auto-height frame rows, visible locations and full-width inspector | Frame identity survives an open feedback panel |
 
 Automated re-checks cover ranges, collisions, diff pairing, keyboard behavior, narrow excerpts, reduced motion and theme contrast. Screenshot evidence is recorded in the cycle 1 QA results.
+
+## Library
+
+Defaults taken while the contract fields (`series`, `supersedes`, `purpose`) and `meta.json` are out of scope:
+
+- Projects stay the top grouping. The repo is a quiet subheading in the project rail and project header, from an interim map in `library.ts` until `source.repo` lands.
+- Copies and `-vN` versions fold under one row with a disclosure. Nothing is deleted.
+- No archive or dismiss action yet. Fixtures are hidden by legacy topic and title signals; `is:fixture` shows them.
+- The query string in `?q=` is the only filter state. Old `?project=` and `?type=` links become operators.
+- Library CSS lives in `@layer components` so Tailwind utilities (`lg:hidden`) still win.

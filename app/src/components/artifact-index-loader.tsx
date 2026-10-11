@@ -161,7 +161,7 @@ function Library({ index }: { index: ArtifactIndex }) {
             onChange={setQuery}
             inputRef={inputRef}
             label="Search the library"
-            placeholder="Search titles, topics, projects. Try is:open or type:review"
+            placeholder="Search, or try is:open type:review"
           />
         </div>
         <Sheet>
