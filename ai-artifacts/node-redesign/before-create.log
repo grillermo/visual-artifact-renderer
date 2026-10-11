@@ -1,0 +1,120 @@
+
+/Users/iurysouza/dev/worktrees/var/node-redesign/ai-artifacts/node-redesign/examples/before/1-weekly-report.json
+{
+  "schemaVersion": 1,
+  "command": "create",
+  "ok": true,
+  "slug": "agents2-week-2026-10-04",
+  "projectName": "node-redesign",
+  "projectPath": "/Users/iurysouza/dev/worktrees/var/node-redesign",
+  "path": "/Users/iurysouza/dev/worktrees/var/node-redesign/ai-artifacts/node-redesign/store-before/node-redesign/agents2-week-2026-10-04/artifact.json",
+  "bundleDir": "/Users/iurysouza/dev/worktrees/var/node-redesign/ai-artifacts/node-redesign/store-before/node-redesign/agents2-week-2026-10-04",
+  "url": "http://127.0.0.1:9991/node-redesign/agents2-week-2026-10-04/",
+  "localUrl": "http://127.0.0.1:9991/node-redesign/agents2-week-2026-10-04/",
+  "totalNodes": 29,
+  "datasetCount": 2,
+  "safety": {
+    "diskSources": {
+      "included": false,
+      "count": 0,
+      "totalBytes": 0,
+      "files": []
+    }
+  }
+}
+
+/Users/iurysouza/dev/worktrees/var/node-redesign/ai-artifacts/node-redesign/examples/before/2-design-explainer-data-flow.json
+{
+  "schemaVersion": 1,
+  "command": "create",
+  "ok": true,
+  "slug": "before-compaction-design",
+  "projectName": "node-redesign",
+  "projectPath": "/Users/iurysouza/dev/worktrees/var/node-redesign",
+  "path": "/Users/iurysouza/dev/worktrees/var/node-redesign/ai-artifacts/node-redesign/store-before/node-redesign/before-compaction-design/artifact.json",
+  "bundleDir": "/Users/iurysouza/dev/worktrees/var/node-redesign/ai-artifacts/node-redesign/store-before/node-redesign/before-compaction-design",
+  "url": "http://127.0.0.1:9991/node-redesign/before-compaction-design/",
+  "localUrl": "http://127.0.0.1:9991/node-redesign/before-compaction-design/",
+  "totalNodes": 18,
+  "datasetCount": 3,
+  "safety": {
+    "diskSources": {
+      "included": false,
+      "count": 0,
+      "totalBytes": 0,
+      "files": []
+    }
+  }
+}
+
+/Users/iurysouza/dev/worktrees/var/node-redesign/ai-artifacts/node-redesign/examples/before/3-implementation-plan.json
+{
+  "schemaVersion": 1,
+  "command": "create",
+  "ok": true,
+  "slug": "before-agents2-implementation-plan",
+  "projectName": "node-redesign",
+  "projectPath": "/Users/iurysouza/dev/worktrees/var/node-redesign",
+  "path": "/Users/iurysouza/dev/worktrees/var/node-redesign/ai-artifacts/node-redesign/store-before/node-redesign/before-agents2-implementation-plan/artifact.json",
+  "bundleDir": "/Users/iurysouza/dev/worktrees/var/node-redesign/ai-artifacts/node-redesign/store-before/node-redesign/before-agents2-implementation-plan",
+  "url": "http://127.0.0.1:9991/node-redesign/before-agents2-implementation-plan/",
+  "localUrl": "http://127.0.0.1:9991/node-redesign/before-agents2-implementation-plan/",
+  "totalNodes": 31,
+  "datasetCount": 5,
+  "safety": {
+    "diskSources": {
+      "included": false,
+      "count": 0,
+      "totalBytes": 0,
+      "files": []
+    }
+  }
+}
+
+/Users/iurysouza/dev/worktrees/var/node-redesign/ai-artifacts/node-redesign/examples/before/4-decision-comparison.json
+{
+  "schemaVersion": 1,
+  "command": "create",
+  "ok": true,
+  "slug": "before-skill-distribution-decision",
+  "projectName": "node-redesign",
+  "projectPath": "/Users/iurysouza/dev/worktrees/var/node-redesign",
+  "path": "/Users/iurysouza/dev/worktrees/var/node-redesign/ai-artifacts/node-redesign/store-before/node-redesign/before-skill-distribution-decision/artifact.json",
+  "bundleDir": "/Users/iurysouza/dev/worktrees/var/node-redesign/ai-artifacts/node-redesign/store-before/node-redesign/before-skill-distribution-decision",
+  "url": "http://127.0.0.1:9991/node-redesign/before-skill-distribution-decision/",
+  "localUrl": "http://127.0.0.1:9991/node-redesign/before-skill-distribution-decision/",
+  "totalNodes": 19,
+  "datasetCount": 4,
+  "safety": {
+    "diskSources": {
+      "included": false,
+      "count": 0,
+      "totalBytes": 0,
+      "files": []
+    }
+  }
+}
+
+/Users/iurysouza/dev/worktrees/var/node-redesign/ai-artifacts/node-redesign/examples/before/5-status-open-loops.json
+{
+  "schemaVersion": 1,
+  "command": "create",
+  "ok": true,
+  "slug": "before-tool-ui-status",
+  "projectName": "node-redesign",
+  "projectPath": "/Users/iurysouza/dev/worktrees/var/node-redesign",
+  "path": "/Users/iurysouza/dev/worktrees/var/node-redesign/ai-artifacts/node-redesign/store-before/node-redesign/before-tool-ui-status/artifact.json",
+  "bundleDir": "/Users/iurysouza/dev/worktrees/var/node-redesign/ai-artifacts/node-redesign/store-before/node-redesign/before-tool-ui-status",
+  "url": "http://127.0.0.1:9991/node-redesign/before-tool-ui-status/",
+  "localUrl": "http://127.0.0.1:9991/node-redesign/before-tool-ui-status/",
+  "totalNodes": 18,
+  "datasetCount": 5,
+  "safety": {
+    "diskSources": {
+      "included": false,
+      "count": 0,
+      "totalBytes": 0,
+      "files": []
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "urls": [
+    "http://127.0.0.1:9991/node-redesign/agents2-week-2026-10-04/",
+    "http://127.0.0.1:9991/node-redesign/before-compaction-design/",
+    "http://127.0.0.1:9991/node-redesign/before-agents2-implementation-plan/",
+    "http://127.0.0.1:9991/node-redesign/before-skill-distribution-decision/",
+    "http://127.0.0.1:9991/node-redesign/before-tool-ui-status/"
+  ],
+  "existingWeeklyScreenshots": {
+    "weekly-report-dark-desktop.png": [
+      1440,
+      4835
+    ],
+    "weekly-report-dark-mobile.png": [
+      390,
+      8801
+    ],
+    "weekly-report-light-desktop.png": [
+      1440,
+      4835
+    ],
+    "weekly-report-light-mobile.png": [
+      390,
+      8801
+    ]
+  }
+}

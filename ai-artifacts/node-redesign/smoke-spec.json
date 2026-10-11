@@ -1,0 +1,12 @@
+{
+  "slug": "dev-store-smoke",
+  "title": "Isolated dev store smoke test",
+  "artifactType": "report",
+  "topics": ["node-redesign", "dev-environment"],
+  "nodes": [
+    {
+      "type": "text",
+      "props": { "text": "Created by the workspace CLI in the isolated node-redesign store." }
+    }
+  ]
+}

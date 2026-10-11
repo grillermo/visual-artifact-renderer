@@ -1,0 +1,474 @@
+{
+  "slug": "after-tool-ui-status",
+  "title": "Tool UI inventory: hooks exist, visual compliance is untested",
+  "description": "Read-only snapshot from 6 October 2026, installed Pi 1.0.0.",
+  "artifactType": "report",
+  "topics": [
+    "pi",
+    "tool-ui",
+    "coverage"
+  ],
+  "layout": {
+    "type": "default"
+  },
+  "data": {
+    "openLoops": [
+      {
+        "item": "Compact subagent patch",
+        "group": "Can break something",
+        "detail": "Read-only status returned not applied; installed get_subagent_result and steer_subagent have no hooks.",
+        "next": "Review the version-pinned two-line repo patch."
+      },
+      {
+        "item": "Representative fixture coverage",
+        "group": "Waiting on you",
+        "detail": "tool-presentation tests were inspected, not run; no visual execution generated these findings.",
+        "next": "Create fixtures and run actual renderer functions."
+      },
+      {
+        "item": "Visual standard",
+        "group": "Waiting on you",
+        "detail": "No compliance manifest or visual standard governs this inventory.",
+        "next": "Agree owner, required fixtures and review status."
+      },
+      {
+        "item": "Complete discovery",
+        "group": "Can break something",
+        "detail": "This session's list is not a complete pi.getAllTools() dump; hidden, deferred or later tools may differ.",
+        "next": "Compare registered names with the future manifest."
+      },
+      {
+        "item": "Live appearance",
+        "group": "Waiting on you",
+        "detail": "Settings select tokyo-night; source defaults cannot prove live in-memory state.",
+        "next": "Verify actual themes, width, icons and disclosure states."
+      }
+    ],
+    "families": [
+      {
+        "owner": "tool-presentation",
+        "tools": "read, write, edit, bash, grep, find, ls",
+        "call": "Custom",
+        "result": "Custom",
+        "cases": "Compact modes, diffs, timing, replay"
+      },
+      {
+        "owner": "pi-subagents",
+        "tools": "Agent, SubagentWorkflow",
+        "call": "Custom",
+        "result": "Custom",
+        "cases": "Launch, progress, completion, failure, background stages"
+      },
+      {
+        "owner": "pi-subagents",
+        "tools": "get_subagent_result, steer_subagent",
+        "call": "Fallback",
+        "result": "Fallback",
+        "cases": "Waiting, running, complete, missing, queued or finished steering"
+      },
+      {
+        "owner": "pi-ask-user",
+        "tools": "ask_user",
+        "call": "Custom",
+        "result": "Custom",
+        "cases": "Waiting, answered, cancelled, error, interaction"
+      },
+      {
+        "owner": "pi-web-access",
+        "tools": "web_search, fetch_content, get_search_content",
+        "call": "Custom",
+        "result": "Custom",
+        "cases": "Search, retrieval, images, links, partial results, errors"
+      },
+      {
+        "owner": "pi-web-access",
+        "tools": "source_check",
+        "call": "Fallback",
+        "result": "Fallback",
+        "cases": "Evidence, citations, provider failures"
+      },
+      {
+        "owner": "pi-add-dir",
+        "tools": "add_directory, search_external_files",
+        "call": "Custom",
+        "result": "Custom",
+        "cases": "Reload, matches, empty search, failure"
+      },
+      {
+        "owner": "pi-wtf",
+        "tools": "wtf",
+        "call": "Fallback",
+        "result": "Fallback",
+        "cases": "Recorded note or failure"
+      },
+      {
+        "owner": "session-query",
+        "tools": "session_query",
+        "call": "Fallback",
+        "result": "Custom",
+        "cases": "Loading, response, failure"
+      },
+      {
+        "owner": "session-store",
+        "tools": "search_sessions",
+        "call": "Fallback",
+        "result": "Custom",
+        "cases": "Markdown results, no matches, failure"
+      },
+      {
+        "owner": "handoff",
+        "tools": "handoff",
+        "call": "Fallback",
+        "result": "Fallback",
+        "cases": "Started or failed"
+      },
+      {
+        "owner": "pi-optmem",
+        "tools": "memo_note, memo_nap, memo_zoom, memo_recall",
+        "call": "Fallback",
+        "result": "Fallback",
+        "cases": "Saved memory, compression, expansion, search, errors"
+      },
+      {
+        "owner": "visual-artifact",
+        "tools": "choose_visual_artifact_direction, create_visual_artifact",
+        "call": "Fallback",
+        "result": "Fallback",
+        "cases": "Direction, cancellation, unavailable UI, validation failure, URL"
+      },
+      {
+        "owner": "Pi codemode",
+        "tools": "codemode",
+        "call": "Custom",
+        "result": "Custom",
+        "cases": "Preview, nested calls, cost, partial progress, cancel, truncation"
+      },
+      {
+        "owner": "Pi MCP host",
+        "tools": "All 88 mcp__* names",
+        "call": "Custom",
+        "result": "Custom",
+        "cases": "Server labels, JSON, text, images, remote failure, saved output"
+      },
+      {
+        "owner": "Pi MCP resources",
+        "tools": "list_mcp_resources, list_mcp_resource_templates, read_mcp_resource",
+        "call": "Fallback",
+        "result": "Fallback",
+        "cases": "Listings, pagination, partial or empty results, text, image"
+      }
+    ],
+    "groups": [
+      {
+        "group": "Built-ins and local extensions",
+        "count": 28
+      },
+      {
+        "group": "Notion MCP",
+        "count": 46
+      },
+      {
+        "group": "Cloudflare bindings MCP",
+        "count": 23
+      },
+      {
+        "group": "Cloudflare observability MCP",
+        "count": 8
+      },
+      {
+        "group": "Cloudflare builds MCP",
+        "count": 6
+      },
+      {
+        "group": "Cloudflare docs MCP",
+        "count": 2
+      },
+      {
+        "group": "Cloudflare MCP",
+        "count": 3
+      },
+      {
+        "group": "MCP resource helpers",
+        "count": 3
+      },
+      {
+        "group": "Captured list total",
+        "count": 119
+      },
+      {
+        "group": "Direct codemode",
+        "count": 1
+      },
+      {
+        "group": "Observed names",
+        "count": 120
+      }
+    ],
+    "reviewMatrix": [
+      {
+        "dimension": "Execution",
+        "cases": "Arguments arriving, ready, running, partial, success, error, cancellation, blocked"
+      },
+      {
+        "dimension": "Disclosure",
+        "cases": "Collapsed, expanded, hidden or empty output"
+      },
+      {
+        "dimension": "Content",
+        "cases": "Empty, short/long text, JSON, Markdown, diff, image, mixed, links, structured data"
+      },
+      {
+        "dimension": "Boundaries",
+        "cases": "Missing or malformed details, legacy result, exception, saved-output truncation"
+      },
+      {
+        "dimension": "Layout",
+        "cases": "Narrow/wide terminals, wrapping, long paths, Unicode, Nerd Font present/absent"
+      },
+      {
+        "dimension": "Appearance",
+        "cases": "Current theme, light theme, theme switch, icons off"
+      },
+      {
+        "dimension": "Composition",
+        "cases": "Direct, nested codemode, concurrency, background completion, resumed session"
+      },
+      {
+        "dimension": "Interaction",
+        "cases": "Answered, dismissed, timed out, UI unavailable, notification, overlay, widget"
+      }
+    ],
+    "behavior": [
+      {
+        "renderer": "Shared compact card",
+        "collapsed": "Intent, target, result summary, duration; minute dividers",
+        "expanded": "Text or rich diff; running pending mark; errors retain target"
+      },
+      {
+        "renderer": "Pi generic fallback",
+        "collapsed": "Up to 10 text lines; pending/success/error backgrounds",
+        "expanded": "All text; inline images follow a separate path"
+      },
+      {
+        "renderer": "Codemode",
+        "collapsed": "10 source lines, last 8 nested calls, 5 output lines",
+        "expanded": "All recorded calls and full arguments"
+      },
+      {
+        "renderer": "MCP host",
+        "collapsed": "server/tool, arguments, 5 output lines, saved-output path",
+        "expanded": "Full recorded output"
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "type": "prose",
+      "props": {
+        "content": "Review shared renderer families, not every tool separately."
+      }
+    },
+    {
+      "type": "callout",
+      "props": {
+        "tone": "risk",
+        "title": "Not verified",
+        "body": "This inventory inspected source. It did not apply the patch, run renderer tests or certify styling. Fallback rendering does not automatically mean wrong styling."
+      }
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Most tools have hooks; none has been checked by eye",
+        "deck": "Of 120 observed names, 104 have call and result hooks, 2 have result-only hooks and 14 have neither.",
+        "takeaway": "A custom renderer is not automatically right, and a fallback is not automatically wrong."
+      },
+      "children": [
+        {
+          "type": "figures",
+          "props": {
+            "items": [
+              {
+                "value": 120,
+                "label": "Observed callable names",
+                "note": "119 in the captured list plus direct codemode"
+              },
+              {
+                "value": 104,
+                "label": "Call and result hooks",
+                "note": "Two more have result-only hooks"
+              },
+              {
+                "value": 14,
+                "label": "Neither hook",
+                "signal": "risk",
+                "note": "Fallback does not automatically mean wrong styling"
+              }
+            ]
+          }
+        },
+        {
+          "type": "details",
+          "props": {
+            "summary": "Captured group counts"
+          },
+          "children": [
+            {
+              "type": "table",
+              "props": {
+                "dataKey": "groups",
+                "columns": [
+                  "group",
+                  "count"
+                ],
+                "dense": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "What is unfinished",
+        "deck": "Five open loops: two can break something, three wait on a decision or a check.",
+        "takeaway": "Fix the missing patch first; it breaks silently on every Pi upgrade.",
+        "signal": "risk"
+      },
+      "children": [
+        {
+          "type": "ledger",
+          "props": {
+            "dataKey": "openLoops",
+            "titleKey": "item",
+            "bodyKey": "detail",
+            "groupKey": "group",
+            "nextKey": "next",
+            "groupOrder": [
+              "Can break something",
+              "Waiting on you"
+            ],
+            "signals": {
+              "Can break something": "risk",
+              "Waiting on you": "wait"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Seven tools share one renderer; 88 MCP tools share another",
+        "deck": "Custom hooks describe implementation, not consistent styling; missing tool definitions also need replay examples."
+      },
+      "children": [
+        {
+          "type": "table",
+          "props": {
+            "dataKey": "families",
+            "columns": [
+              "owner",
+              "tools",
+              "call",
+              "result",
+              "cases"
+            ],
+            "dense": true,
+            "caption": "Renderer family coverage. Each row lists the cases a review should replay.",
+            "onlyDiffs": false
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Fixture catalogue before visual sign-off",
+        "deck": "Keep model-facing results unchanged and preserve specialised views for diffs, questions, progress and images."
+      },
+      "children": [
+        {
+          "type": "steps",
+          "props": {
+            "caption": "Extend shared helpers instead of adding an extension per tool.",
+            "items": [
+              {
+                "title": "Catalogue representative states",
+                "body": "Add fixtures beside tool-presentation tests."
+              },
+              {
+                "title": "Render synthetic results",
+                "body": "Use real renderer functions; avoid destructive or external tool calls for screenshots.",
+                "key": true
+              },
+              {
+                "title": "Track review status",
+                "body": "Map registered names to owners and required fixtures; mark new names unreviewed."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "details",
+      "props": {
+        "summary": "Finite review matrix"
+      },
+      "children": [
+        {
+          "type": "table",
+          "props": {
+            "dataKey": "reviewMatrix",
+            "columns": [
+              "dimension",
+              "cases"
+            ],
+            "caption": "These are review cases, not evidence that every tool implements each state; denial and cancellation may arrive as ordinary errors."
+          }
+        }
+      ]
+    },
+    {
+      "type": "details",
+      "props": {
+        "summary": "Known collapsed and expanded behaviour"
+      },
+      "children": [
+        {
+          "type": "table",
+          "props": {
+            "dataKey": "behavior",
+            "columns": [
+              "renderer",
+              "collapsed",
+              "expanded"
+            ]
+          }
+        },
+        {
+          "type": "prose",
+          "props": {
+            "content": "Cursor replay uses result mode rather than measuring playback as execution time. Nested codemode tools can appear only as nested rows, not top-level cards."
+          }
+        }
+      ]
+    },
+    {
+      "type": "details",
+      "props": {
+        "summary": "Source, versions and limits"
+      },
+      "children": [
+        {
+          "type": "prose",
+          "props": {
+            "content": "`ai-artifacts/node-redesign/sources/5-status-open-loops.md`, summarising tool-ui-inventory `README.md`, `providers.md` and `tool-list.md`. Inspected 6 October 2026; Pi 1.0.0; agents2 `dceaa3f`; pi-extensions `6f66e2a`. No tidy-tools override was present during inspection. Package replacement removes the version-pinned patch, but the snapshot does not prove that caused its absence. `pi.getAllTools()` exposes names, schemas and source, not renderer hooks."
+          }
+        }
+      ]
+    }
+  ]
+}

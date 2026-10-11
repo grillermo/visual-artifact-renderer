@@ -1,0 +1,27 @@
+[
+  {
+    "url": "http://127.0.0.1:9991/data/artifacts/node-redesign/agents2-week-2026-10-04/artifact.json",
+    "status": 200,
+    "matchesStore": true
+  },
+  {
+    "url": "http://127.0.0.1:9991/data/artifacts/node-redesign/before-compaction-design/artifact.json",
+    "status": 200,
+    "matchesStore": true
+  },
+  {
+    "url": "http://127.0.0.1:9991/data/artifacts/node-redesign/before-agents2-implementation-plan/artifact.json",
+    "status": 200,
+    "matchesStore": true
+  },
+  {
+    "url": "http://127.0.0.1:9991/data/artifacts/node-redesign/before-skill-distribution-decision/artifact.json",
+    "status": 200,
+    "matchesStore": true
+  },
+  {
+    "url": "http://127.0.0.1:9991/data/artifacts/node-redesign/before-tool-ui-status/artifact.json",
+    "status": 200,
+    "matchesStore": true
+  }
+]

@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "command": "create",
+  "ok": true,
+  "slug": "dev-store-smoke",
+  "projectName": "node-redesign",
+  "projectPath": "/Users/iurysouza/dev/worktrees/var/node-redesign",
+  "path": "/Users/iurysouza/dev/worktrees/var/node-redesign/ai-artifacts/node-redesign/store/node-redesign/dev-store-smoke/artifact.json",
+  "bundleDir": "/Users/iurysouza/dev/worktrees/var/node-redesign/ai-artifacts/node-redesign/store/node-redesign/dev-store-smoke",
+  "url": "http://127.0.0.1:9990/node-redesign/dev-store-smoke/",
+  "localUrl": "http://127.0.0.1:9990/node-redesign/dev-store-smoke/",
+  "totalNodes": 1,
+  "datasetCount": 0,
+  "safety": {
+    "diskSources": {
+      "included": false,
+      "count": 0,
+      "totalBytes": 0,
+      "files": []
+    }
+  }
+}

@@ -44,19 +44,45 @@ Headings use the editorial stack for report-like weight. Code and data use mono.
 
 ## Node philosophy
 
-- Open with a thesis, then a summary band.
-- Use `stat-card` for hero facts, not generic cards.
-- Use `status-grid` for health/readiness/risk boards.
-- Use `comparison-table` and `data-table` for structured evidence.
-- Use `flow` or `mermaid` for architecture/data/request paths.
-- Use `accordion` only for secondary detail.
-- Avoid nested card soup.
+The page reads like a short publication: one idea per chapter, calm type, whitespace and thin rules. It is clearly not a dashboard.
+
+- Open with a `prose` thesis. Then one `chapter` per question: kicker, serif title, one-line deck, body, one takeaway.
+- A chapter has one main exhibit (`steps`, `map`, `story`, `sequence`, `compare`, `ledger`, `checklist`, `table`, `columns`, `figures` or `code`), plus at most one supporting `prose`, `details` or `callout`.
+- `ledger` holds facts grouped by what the reader must do. `checklist` holds work in progress.
+- `figures` holds at most four numbers the reader acts on.
+- `details` holds secondary detail. `callout` is used sparingly.
+- Legacy nodes (`card`, `grid`, `stat-card`, `status-grid`, `box-diagram`, `flow`, `accordion`, `tabs` and others) still parse but are not recommended. The contract's `legacy` map names the replacement for each.
+
+### Anti-box rules
+
+1. No card, tile or bordered container around ordinary content.
+2. Status is a dot plus a mono word. Never a coloured pill or an emoji.
+3. At most three signal colours per page: `--signal-new`, `--signal-risk`, `--signal-wait`. Everything else is `--ink` or `--ink-muted`.
+4. At most 4 figures, 6 map nodes, 7 steps.
+5. A chapter has one main exhibit, plus at most one supporting prose, details or callout, and one takeaway.
+6. No uniform grids. Three equal things become `columns` with headings or a `ledger`.
+7. Secondary detail lives in `details`.
+8. Diagrams get a caption. A diagram of two nodes is a sentence.
+
+## Editorial tokens
+
+Defined in `app/src/app/globals.css`. Use these; do not hard-code colours or sizes.
+
+| Token | Use |
+|---|---|
+| `--ink`, `--ink-muted` | text and secondary text |
+| `--rule`, `--rule-strong` | hairline and heavy dividers, the chapter top rule |
+| `--signal-new`, `--signal-risk`, `--signal-wait`, `--signal-done` | the only semantic colours; tuned to 4.5:1 on paper in both themes |
+| `--brand` | the one accent (shadcn's `--accent` stays a neutral hover fill) |
+| `text-display`, `text-chapter`, `text-deck`, `text-pull`, `text-row-title`, `text-body`, `text-small`, `text-meta`, `text-label` | the type scale, with mobile overrides under 720px |
+
+Chapters register with the page rail (`useChapterRegistry`). The rail appears with three or more chapters.
 
 ## Diagram design
 
-- Mermaid is the default for topology, sequence, state, ERD, class, and C4-style diagrams.
-- `svg-diagram` is the escape hatch for precise layout or interactivity; it renders inside a sandboxed iframe.
-- SVG diagrams must carry their own theme variables and before-paint theme script.
+- `map` is the default for parts and links (6 nodes, 8 edges). `story` is a map plus beats shown on scroll. `sequence` is for messages over time.
+- Proposed parts use `signal: "new"` or a `+` edge. Retired or optional paths use `-->`.
+- `mermaid` is for diagram types the others cannot draw (ERD, class). `svg-diagram` is the escape hatch, rendered in a sandboxed iframe, and carries its own theme variables.
 
 ## Change semantics
 
@@ -78,18 +104,18 @@ Colour is never the only signal. Every mark also has a glyph (`+ ~ - ?`) or a da
 
 ### Diagram canvas
 
-Plan diagrams (`state-machine`, `box-diagram`) draw on a dot grid: the `.va-dot-grid` utility, a `--canvas-dot` radial-gradient on `--card` with a 16 px pitch. Diagrams that can overflow scroll horizontally in their own container and show a fade on the right edge.
+Plan diagrams (`state-machine`, `call-stack`, `map`) draw on a dot grid: the `.va-dot-grid` utility, a `--canvas-dot` radial-gradient on `--card` with a 16 px pitch. Diagrams that can overflow scroll horizontally in their own container and show a fade on the right edge.
 
 ### Two kinds of dashed line
 
 - **Green long dash means proposed.** A `+` prefix or `mark: "proposed" | "added"` draws in `--change-added` with the `5 4` dash.
-- **Muted short dash is the node's own `dashed` meaning.** A `style: "dashed"` edge draws in muted ink with the `2 4` dash. In `box-diagram` the `dashed` prop names it in the legend. The `sequence-diagram` reply style uses the same pattern.
+- **Muted short dash is the node's own `dashed` meaning.** A `style: "dashed"` edge draws in muted ink with the `2 4` dash. In `map` the `dashed` prop names it in the legend. The `sequence` reply style uses the same pattern.
 
 Both can apply at once: a proposed dashed edge is green with the `2 4` pattern. `state-machine` and `call-stack` have no `style` prop, so there dashed always means proposed.
 
 ### Callout tones are separate from `ToneSchema`
 
-`alert.tone` and `code-block.annotations[].tone` use a callout vocabulary: `info · warn · risk · ok · idea`. This is deliberately separate from `ToneSchema` (`default · accent · success · warning · danger`). Callout tones describe the author's intent for a note. `ToneSchema` describes status. Do not merge them.
+`callout.tone` and `code.annotations[].tone` use a callout vocabulary: `info · warn · risk · ok · idea`. This is deliberately separate from `ToneSchema` (`default · accent · success · warning · danger`). Callout tones describe the author's intent for a note. `ToneSchema` describes status. Do not merge them.
 
 ## Sources of truth
 

@@ -1,0 +1,19 @@
+{
+  "baseUrl": "http://127.0.0.1:9991",
+  "pageErrorCommands": "agent-browser errors returned no errors for all five pages",
+  "verificationViewportWidth": 1280,
+  "pages": [
+    { "slug": "agents2-week-2026-10-04", "loadingMermaid": false, "errorText": false, "height": 4835 },
+    { "slug": "before-compaction-design", "mermaidSvgCount": 1, "loadingMermaid": false, "errorText": false, "height": 3546 },
+    { "slug": "before-agents2-implementation-plan", "loadingMermaid": false, "errorText": false, "height": 5458 },
+    { "slug": "before-skill-distribution-decision", "mermaidSvgCount": 1, "loadingMermaid": false, "errorText": false, "height": 3524 },
+    { "slug": "before-tool-ui-status", "loadingMermaid": false, "errorText": false, "height": 3231 }
+  ],
+  "planMobileDocument": { "width": 390, "height": 10000 },
+  "notes": [
+    "Screenshot viewport dimensions are verified separately in before-screenshots.json.",
+    "The baseline Mermaid adapter renders small diagrams on white canvases in both themes; no renderer fix or zoom adjustment was applied.",
+    "Initial client refresh warnings occurred because HEAD rewrites data requests to port 9998. Generated local public/data/artifacts mirrors now serve identical JSON on port 9991 without changing tracked baseline renderer files.",
+    "The first comparison captures included a Mermaid loading placeholder. They were replaced after adding a Mermaid readiness wait to shot.sh."
+  ]
+}

@@ -1,0 +1,2 @@
+$ tsx scripts/contract/export-contract.ts
+Wrote contract to /Users/iurysouza/dev/worktrees/var/node-redesign/cli/assets/contract.json

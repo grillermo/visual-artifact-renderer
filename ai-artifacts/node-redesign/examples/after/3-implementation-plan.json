@@ -1,0 +1,604 @@
+{
+  "slug": "after-agents2-implementation-plan",
+  "title": "Build agents2 one verified slice at a time",
+  "description": "Plan for agents2, M0 to M6.",
+  "artifactType": "plan",
+  "topics": [
+    "agents2",
+    "implementation",
+    "installation"
+  ],
+  "layout": {
+    "type": "default"
+  },
+  "data": {
+    "gate": [
+      {
+        "step": "0.1 Local-path gate",
+        "work": "Load a fixture package through a temporary PI_CODING_AGENT_DIR",
+        "acceptance": "Included extension loads; excluded extension does not; skill and prompt filters work"
+      },
+      {
+        "step": "0.1 Isolation",
+        "work": "Hash settings.json, check copies, swap the package symlink",
+        "acceptance": "Settings hash unchanged; no copies; Pi loads the new version"
+      },
+      {
+        "step": "0.2 Plan and ADR",
+        "work": "docs/plan.md and docs/decisions/0001-architecture.md",
+        "acceptance": "Lead review"
+      },
+      {
+        "step": "0.3 Scaffold",
+        "work": "ESM, Node >=22, strict TypeScript, oxlint, Vitest, check script, progress",
+        "acceptance": "Check passes; anti-slop rules reject a known-bad fixture; stop after M0"
+      }
+    ],
+    "lifecycle": [
+      {
+        "command": "update <tool>",
+        "policy": "Resolve by dependency kind; major bumps require --major",
+        "acceptance": "Local npm registry fixture or file: tarballs"
+      },
+      {
+        "command": "update --all",
+        "policy": "One tool at a time; stop on first failure; retain earlier successes",
+        "acceptance": "Inject a failure"
+      },
+      {
+        "command": "rollback",
+        "policy": "Repoint retained version and restore the lock record",
+        "acceptance": "Round trip"
+      },
+      {
+        "command": "tool add / remove",
+        "policy": "Edit only lock and profile",
+        "acceptance": "Add then remove leaves both byte-identical"
+      }
+    ],
+    "operations": [
+      {
+        "slice": "5.1 Doctor",
+        "work": "Read-only PATH, shadowing, version, checksum and config-drift checks",
+        "acceptance": "Undeclared shadowing fails; doctor writes nothing"
+      },
+      {
+        "slice": "5.2 Service",
+        "work": "Render launchd and systemd units; never start services",
+        "acceptance": "Platform golden tests; plutil -lint"
+      },
+      {
+        "slice": "5.3 Herdr toolbox",
+        "work": "Render config, Mosaic, helpers and pinned plugins into a sandbox",
+        "acceptance": "Match v1 intent"
+      }
+    ],
+    "parity": [
+      {
+        "slice": "6.1 Parity",
+        "work": "Read-only comparison of both profiles against active runtime configuration",
+        "acceptance": "Explain every difference in docs/parity.md"
+      },
+      {
+        "slice": "6.2 Sandbox",
+        "work": "Exercise add, remove, update, update-all and rollback",
+        "acceptance": "Recorded transcript"
+      },
+      {
+        "slice": "6.3 Docs",
+        "work": "Fresh-machine, adopt, upgrade and profile guides",
+        "acceptance": "Documentation review"
+      },
+      {
+        "slice": "6.4 Cutover",
+        "work": "Write the cutover plan without executing it",
+        "acceptance": "Supervisor sign-off required"
+      }
+    ],
+    "risks": [
+      {
+        "item": "Pi local-path loading",
+        "status": "risk",
+        "detail": "The gate can force an install-layout change."
+      },
+      {
+        "item": "Private git packages",
+        "status": "warn",
+        "detail": "pi-extensions and pi-claude-code need GitHub auth on every machine."
+      },
+      {
+        "item": "OpenCode packaging",
+        "status": "pending",
+        "detail": "The current curl installer needs a release or npm record."
+      },
+      {
+        "item": "Visual Artifact release",
+        "status": "warn",
+        "detail": "Renderer files sit beside the CLI; retain the full extracted release tree."
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "type": "prose",
+      "props": {
+        "content": "Prove Pi can load local packages first. Everything else waits on that gate."
+      }
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Milestones and acceptance",
+        "deck": "Each claim shows how its parts connect, then what must pass.",
+        "takeaway": "M0 gates everything: if Pi cannot load local packages, stop."
+      },
+      "children": [
+        {
+          "type": "claim-tree",
+          "props": {
+            "title": "Milestones and acceptance",
+            "open": "all"
+          },
+          "children": [
+            {
+              "type": "claim",
+              "props": {
+                "text": "M0 proves local-path loading and scaffolds checks before implementation proceeds."
+              },
+              "children": [
+                {
+                  "type": "table",
+                  "props": {
+                    "dataKey": "gate",
+                    "columns": [
+                      "step",
+                      "work",
+                      "acceptance"
+                    ],
+                    "caption": "Record the fixture evidence in docs/gate/pi-local-path.md and report to the supervisor after M0."
+                  }
+                },
+                {
+                  "type": "decision",
+                  "props": {
+                    "id": "local-path-gate",
+                    "question": "If the Pi local-path gate fails, what happens next?",
+                    "options": [
+                      {
+                        "id": "stop",
+                        "label": "Stop and report the gate result",
+                        "consequence": "Keep the M0 supervisor checkpoint before changing the layout.",
+                        "suggested": true
+                      },
+                      {
+                        "id": "revise",
+                        "label": "Request an install-layout revision",
+                        "consequence": "The gate evidence must justify a new approved layout."
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "type": "claim",
+              "props": {
+                "text": "M1 separates the pure planner from the executor and makes unsafe filesystem targets fail."
+              },
+              "children": [
+                {
+                  "type": "map",
+                  "props": {
+                    "layout": "row",
+                    "caption": "Schemas and canonical-path safety constrain effects before the executor can write.",
+                    "nodes": [
+                      {
+                        "id": "schemas",
+                        "label": "Lock and profile schemas",
+                        "sub": "npm, git, release, cargo, repo",
+                        "kind": "file",
+                        "signal": "new"
+                      },
+                      {
+                        "id": "planner",
+                        "label": "Pure planner",
+                        "sub": "Catalog, profiles, platform keys",
+                        "kind": "service",
+                        "signal": "new"
+                      },
+                      {
+                        "id": "guard",
+                        "label": "Canonical-path guard",
+                        "sub": "Protected directories and root checks",
+                        "kind": "service",
+                        "signal": "new"
+                      },
+                      {
+                        "id": "executor",
+                        "label": "Effect executor",
+                        "sub": "mkdir, write, symlink, exec",
+                        "kind": "service",
+                        "signal": "new"
+                      }
+                    ],
+                    "edges": [
+                      "+ schemas -> planner",
+                      "+ planner -> guard : planned effects",
+                      "+ guard -> executor : safe targets"
+                    ]
+                  }
+                },
+                {
+                  "type": "claim",
+                  "props": {
+                    "text": "M1 acceptance rejects home, ancestors, protected paths and symlink escapes."
+                  },
+                  "children": [
+                    {
+                      "type": "prose",
+                      "props": {
+                        "content": "**Acceptance:** home, ancestors, protected paths and symlink escapes are rejected."
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "claim",
+              "props": {
+                "text": "M2 stages and verifies each tool before activating an immutable version directory."
+              },
+              "children": [
+                {
+                  "type": "state-machine",
+                  "props": {
+                    "initial": "staging",
+                    "caption": "A crash must leave no partial version directory; rerunning a completed install is a no-op.",
+                    "states": [
+                      {
+                        "id": "staging",
+                        "label": "Stage",
+                        "description": "tools/.staging/<id>-<rand>",
+                        "mark": "added"
+                      },
+                      {
+                        "id": "verified",
+                        "label": "Verify",
+                        "description": "Exact version, checksum or content hash",
+                        "mark": "added"
+                      },
+                      {
+                        "id": "active",
+                        "label": "Activate",
+                        "description": "Rename to tools/<id>/<version>; create bin links; retain N versions",
+                        "final": true,
+                        "mark": "added"
+                      }
+                    ],
+                    "events": [
+                      "+ staging -verify-> verified : verify staged package",
+                      "+ verified -activate-> active : atomic rename and bin links"
+                    ],
+                    "grid": [
+                      "| staging | verified | active |"
+                    ]
+                  }
+                },
+                {
+                  "type": "decision",
+                  "props": {
+                    "id": "opencode-kind",
+                    "question": "Which managed dependency kind should replace OpenCode's curl installer?",
+                    "options": [
+                      {
+                        "id": "npm",
+                        "label": "npm record",
+                        "consequence": "Use the plan's exact-version npm staging path.",
+                        "suggested": true
+                      },
+                      {
+                        "id": "release",
+                        "label": "release record",
+                        "consequence": "Use the plan's SHA-256 verification and extraction path."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "claim",
+                  "props": {
+                    "text": "M2 installation tests preserve package identity and release layout."
+                  },
+                  "children": [
+                    {
+                      "type": "prose",
+                      "props": {
+                        "content": "**Acceptance:** a crash leaves no partial directory; a checksum mismatch leaves nothing."
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "claim",
+              "props": {
+                "text": "M3 renders profile bundles, preserves unowned configuration and switches current atomically."
+              },
+              "children": [
+                {
+                  "type": "sequence",
+                  "props": {
+                    "caption": "Dry run remains the default, and only --yes executes the planned switch.",
+                    "participants": [
+                      {
+                        "id": "user",
+                        "label": "User",
+                        "kind": "actor"
+                      },
+                      {
+                        "id": "apply",
+                        "label": "Apply",
+                        "kind": "service"
+                      },
+                      {
+                        "id": "adapters",
+                        "label": "Runtime adapters",
+                        "kind": "service"
+                      },
+                      {
+                        "id": "store",
+                        "label": "Bundle store",
+                        "kind": "store"
+                      }
+                    ],
+                    "steps": [
+                      "+ user -> apply : request profile dry run",
+                      "+ apply -> adapters : render and merge unowned fields",
+                      "+ adapters --> apply : planned diff",
+                      "+ apply --> user : show diff",
+                      "--- only with --yes ---",
+                      "+ user -> apply : approve execution",
+                      "+ apply -> store : write bundles/profile-hash",
+                      "+ apply -> store : switch current atomically"
+                    ]
+                  }
+                },
+                {
+                  "type": "claim",
+                  "props": {
+                    "text": "M3 adapter checks exercise both profiles without changing tool directories."
+                  },
+                  "children": [
+                    {
+                      "type": "prose",
+                      "props": {
+                        "content": "**Acceptance:** both profiles apply into a temp root and restore replaced links."
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "claim",
+              "props": {
+                "text": "M4 makes updates, rollback and tool membership changes testable end to end."
+              },
+              "children": [
+                {
+                  "type": "table",
+                  "props": {
+                    "dataKey": "lifecycle",
+                    "columns": [
+                      "command",
+                      "policy",
+                      "acceptance"
+                    ],
+                    "caption": "Test failure and rollback behavior, not only successful installs."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "claim",
+              "props": {
+                "text": "M5 diagnoses drift read-only and renders services without starting them."
+              },
+              "children": [
+                {
+                  "type": "table",
+                  "props": {
+                    "dataKey": "operations",
+                    "columns": [
+                      "slice",
+                      "work",
+                      "acceptance"
+                    ],
+                    "caption": "Service units cover the gateway, OpenCode web, cloud worker, Clockwork and needed Herdr pieces."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "claim",
+              "props": {
+                "text": "M6 proves parity and documents cutover without executing it."
+              },
+              "children": [
+                {
+                  "type": "table",
+                  "props": {
+                    "dataKey": "parity",
+                    "columns": [
+                      "slice",
+                      "work",
+                      "acceptance"
+                    ],
+                    "caption": "Cutover requires supervisor sign-off after the parity and sandbox evidence."
+                  }
+                }
+              ]
+            },
+            {
+              "type": "claim",
+              "props": {
+                "text": "Every slice closes accepted review findings before the next slice starts.",
+                "aux": "shared"
+              },
+              "children": [
+                {
+                  "type": "steps",
+                  "props": {
+                    "caption": "Measure non-test and test TypeScript lines with scripts/size.sh at each milestone.",
+                    "items": [
+                      {
+                        "title": "Implement",
+                        "body": "Lead drives; impl gathers evidence; check passes before focused commits."
+                      },
+                      {
+                        "title": "Fresh-context review",
+                        "body": "A separate reviewer inspects the diff range and writes docs/reviews/<slice>.md.",
+                        "key": true
+                      },
+                      {
+                        "title": "Close findings",
+                        "body": "Lead decides; accepted findings are fixed before continuing."
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Rules that govern every slice",
+        "deck": "Two rules apply to every milestone below."
+      },
+      "children": [
+        {
+          "type": "prose",
+          "props": {
+            "content": "- Test every write path against a temporary root; use no module mocks.\n- Run `npm run check` green before each commit."
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "What to do and what to skip",
+        "deck": "Work is ordered by when it earns its place."
+      },
+      "children": [
+        {
+          "type": "ledger",
+          "props": {
+            "groups": [
+              {
+                "label": "Do now",
+                "signal": "new",
+                "hint": "Inside M0.",
+                "rows": [
+                  {
+                    "title": "Prove the Pi local-path gate",
+                    "body": "Load a fixture package by absolute path with filters; settings.json stays unchanged.",
+                    "next": "Evidence in docs/gate/pi-local-path.md."
+                  },
+                  {
+                    "title": "Scaffold the checks",
+                    "body": "Strict TypeScript, oxlint anti-slop rules, Vitest, one check script.",
+                    "next": "Stop and report after M0."
+                  }
+                ]
+              },
+              {
+                "label": "Do later",
+                "signal": "wait",
+                "hint": "Only after the supervisor signs M0.",
+                "rows": [
+                  {
+                    "title": "Install, render and lifecycle (M1 to M5)",
+                    "body": "Each slice follows the rules above."
+                  },
+                  {
+                    "title": "Parity and cutover plan (M6)",
+                    "body": "The plan is written, not executed."
+                  }
+                ]
+              },
+              {
+                "label": "Do not",
+                "signal": "none",
+                "hint": "Out of scope.",
+                "rows": [
+                  {
+                    "title": "Manage Herdr",
+                    "body": "Herdr stays unmanaged."
+                  },
+                  {
+                    "title": "Pin to latest",
+                    "body": "Every v1 dependency gets an exact version."
+                  },
+                  {
+                    "title": "Start services or execute the cutover",
+                    "body": "M5 renders units only; M6 writes the plan only."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Known risks",
+        "deck": "Four things could change the plan.",
+        "signal": "risk"
+      },
+      "children": [
+        {
+          "type": "ledger",
+          "props": {
+            "dataKey": "risks",
+            "titleKey": "item",
+            "bodyKey": "detail",
+            "groupKey": "status",
+            "groupOrder": [
+              "risk",
+              "warn",
+              "pending"
+            ],
+            "signals": {
+              "risk": "risk",
+              "warn": "wait",
+              "pending": "wait"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "details",
+      "props": {
+        "summary": "Source and proposal limits"
+      },
+      "children": [
+        {
+          "type": "prose",
+          "props": {
+            "content": "Source: `ai-artifacts/node-redesign/sources/3-implementation-plan.md`, summarising agents2 `docs/plan.md`. No implementation file counts or verified code locations are supplied, so this plan invents neither change statistics nor path:line anchors. Decision nodes represent unresolved forks; suggestions are author recommendations, not accepted decisions."
+          }
+        }
+      ]
+    }
+  ]
+}
