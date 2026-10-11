@@ -1,0 +1,1502 @@
+[
+  {
+    "project": "ui-v2-samples",
+    "slug": "project-atlas-spawn-lead-workflow",
+    "width": 1440,
+    "theme": "light",
+    "scrollWidth": 1440,
+    "dark": false,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 0,
+    "codeRects": [],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__project-atlas-spawn-lead-workflow__1440__light.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "project-atlas-spawn-lead-workflow",
+    "width": 1440,
+    "theme": "dark",
+    "scrollWidth": 1440,
+    "dark": true,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 0,
+    "codeRects": [],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__project-atlas-spawn-lead-workflow__1440__dark.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "project-atlas-spawn-lead-workflow",
+    "width": 390,
+    "theme": "light",
+    "scrollWidth": 390,
+    "dark": false,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 0,
+    "codeRects": [],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__project-atlas-spawn-lead-workflow__390__light.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "project-atlas-spawn-lead-workflow",
+    "width": 390,
+    "theme": "dark",
+    "scrollWidth": 390,
+    "dark": true,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 0,
+    "codeRects": [],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__project-atlas-spawn-lead-workflow__390__dark.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "project-atlas-diagram-gallery",
+    "width": 1440,
+    "theme": "light",
+    "scrollWidth": 1440,
+    "dark": false,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 1,
+    "codeRects": [
+      {
+        "top": 5011.328125,
+        "height": 196,
+        "width": 824
+      }
+    ],
+    "walkthroughCount": 1,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__project-atlas-diagram-gallery__1440__light.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "project-atlas-diagram-gallery",
+    "width": 1440,
+    "theme": "dark",
+    "scrollWidth": 1440,
+    "dark": true,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 1,
+    "codeRects": [
+      {
+        "top": 5011.328125,
+        "height": 196,
+        "width": 824
+      }
+    ],
+    "walkthroughCount": 1,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__project-atlas-diagram-gallery__1440__dark.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "project-atlas-diagram-gallery",
+    "width": 390,
+    "theme": "light",
+    "scrollWidth": 390,
+    "dark": false,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 6,
+    "codeRects": [
+      {
+        "top": 6738.328125,
+        "height": 242,
+        "width": 350
+      },
+      {
+        "top": 7099.328125,
+        "height": 266,
+        "width": 350
+      },
+      {
+        "top": 7484.328125,
+        "height": 266,
+        "width": 350
+      },
+      {
+        "top": 7869.328125,
+        "height": 266,
+        "width": 350
+      },
+      {
+        "top": 8254.328125,
+        "height": 242,
+        "width": 350
+      },
+      {
+        "top": 8567.328125,
+        "height": 228,
+        "width": 350
+      }
+    ],
+    "walkthroughCount": 1,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__project-atlas-diagram-gallery__390__light.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "project-atlas-diagram-gallery",
+    "width": 390,
+    "theme": "dark",
+    "scrollWidth": 390,
+    "dark": true,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 6,
+    "codeRects": [
+      {
+        "top": 6738.328125,
+        "height": 242,
+        "width": 350
+      },
+      {
+        "top": 7099.328125,
+        "height": 266,
+        "width": 350
+      },
+      {
+        "top": 7484.328125,
+        "height": 266,
+        "width": 350
+      },
+      {
+        "top": 7869.328125,
+        "height": 266,
+        "width": 350
+      },
+      {
+        "top": 8254.328125,
+        "height": 242,
+        "width": 350
+      },
+      {
+        "top": 8567.328125,
+        "height": 228,
+        "width": 350
+      }
+    ],
+    "walkthroughCount": 1,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__project-atlas-diagram-gallery__390__dark.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "project-atlas-pi-compaction-flow",
+    "width": 1440,
+    "theme": "light",
+    "scrollWidth": 1440,
+    "dark": false,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 0,
+    "codeRects": [],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__project-atlas-pi-compaction-flow__1440__light.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "project-atlas-pi-compaction-flow",
+    "width": 1440,
+    "theme": "dark",
+    "scrollWidth": 1440,
+    "dark": true,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 0,
+    "codeRects": [],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__project-atlas-pi-compaction-flow__1440__dark.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "project-atlas-pi-compaction-flow",
+    "width": 390,
+    "theme": "light",
+    "scrollWidth": 390,
+    "dark": false,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 0,
+    "codeRects": [],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__project-atlas-pi-compaction-flow__390__light.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "project-atlas-pi-compaction-flow",
+    "width": 390,
+    "theme": "dark",
+    "scrollWidth": 390,
+    "dark": true,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 0,
+    "codeRects": [],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__project-atlas-pi-compaction-flow__390__dark.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "project-atlas-pi-extensions-how-it-works",
+    "width": 1440,
+    "theme": "light",
+    "scrollWidth": 1440,
+    "dark": false,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 1,
+    "codeRects": [
+      {
+        "top": 3720,
+        "height": 244,
+        "width": 1184
+      }
+    ],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__project-atlas-pi-extensions-how-it-works__1440__light.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "project-atlas-pi-extensions-how-it-works",
+    "width": 1440,
+    "theme": "dark",
+    "scrollWidth": 1440,
+    "dark": true,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 1,
+    "codeRects": [
+      {
+        "top": 3720,
+        "height": 244,
+        "width": 1184
+      }
+    ],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__project-atlas-pi-extensions-how-it-works__1440__dark.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "project-atlas-pi-extensions-how-it-works",
+    "width": 390,
+    "theme": "light",
+    "scrollWidth": 390,
+    "dark": false,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 1,
+    "codeRects": [
+      {
+        "top": 5860,
+        "height": 278,
+        "width": 350
+      }
+    ],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__project-atlas-pi-extensions-how-it-works__390__light.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "project-atlas-pi-extensions-how-it-works",
+    "width": 390,
+    "theme": "dark",
+    "scrollWidth": 390,
+    "dark": true,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 1,
+    "codeRects": [
+      {
+        "top": 5860,
+        "height": 278,
+        "width": 350
+      }
+    ],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__project-atlas-pi-extensions-how-it-works__390__dark.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "node-redesign-proj-after-agents2-implementation-plan",
+    "width": 1440,
+    "theme": "light",
+    "scrollWidth": 1440,
+    "dark": false,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 0,
+    "codeRects": [],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__node-redesign-proj-after-agents2-implementation-plan__1440__light.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "node-redesign-proj-after-agents2-implementation-plan",
+    "width": 1440,
+    "theme": "dark",
+    "scrollWidth": 1440,
+    "dark": true,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 0,
+    "codeRects": [],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__node-redesign-proj-after-agents2-implementation-plan__1440__dark.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "node-redesign-proj-after-agents2-implementation-plan",
+    "width": 390,
+    "theme": "light",
+    "scrollWidth": 390,
+    "dark": false,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 0,
+    "codeRects": [],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__node-redesign-proj-after-agents2-implementation-plan__390__light.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "node-redesign-proj-after-agents2-implementation-plan",
+    "width": 390,
+    "theme": "dark",
+    "scrollWidth": 390,
+    "dark": true,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 0,
+    "codeRects": [],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__node-redesign-proj-after-agents2-implementation-plan__390__dark.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "obsidian-vault-latticehq-multi-tenant-support-copilot",
+    "width": 1440,
+    "theme": "light",
+    "scrollWidth": 1440,
+    "dark": false,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 0,
+    "codeRects": [],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__obsidian-vault-latticehq-multi-tenant-support-copilot__1440__light.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "obsidian-vault-latticehq-multi-tenant-support-copilot",
+    "width": 1440,
+    "theme": "dark",
+    "scrollWidth": 1440,
+    "dark": true,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 0,
+    "codeRects": [],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__obsidian-vault-latticehq-multi-tenant-support-copilot__1440__dark.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "obsidian-vault-latticehq-multi-tenant-support-copilot",
+    "width": 390,
+    "theme": "light",
+    "scrollWidth": 390,
+    "dark": false,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 0,
+    "codeRects": [],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__obsidian-vault-latticehq-multi-tenant-support-copilot__390__light.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "obsidian-vault-latticehq-multi-tenant-support-copilot",
+    "width": 390,
+    "theme": "dark",
+    "scrollWidth": 390,
+    "dark": true,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 0,
+    "codeRects": [],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__obsidian-vault-latticehq-multi-tenant-support-copilot__390__dark.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "agents-themed-agent-correspondence-now-next",
+    "width": 1440,
+    "theme": "light",
+    "scrollWidth": 1440,
+    "dark": false,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 0,
+    "codeRects": [],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__agents-themed-agent-correspondence-now-next__1440__light.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "agents-themed-agent-correspondence-now-next",
+    "width": 1440,
+    "theme": "dark",
+    "scrollWidth": 1440,
+    "dark": true,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 0,
+    "codeRects": [],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__agents-themed-agent-correspondence-now-next__1440__dark.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "agents-themed-agent-correspondence-now-next",
+    "width": 390,
+    "theme": "light",
+    "scrollWidth": 390,
+    "dark": false,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 0,
+    "codeRects": [],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__agents-themed-agent-correspondence-now-next__390__light.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "agents-themed-agent-correspondence-now-next",
+    "width": 390,
+    "theme": "dark",
+    "scrollWidth": 390,
+    "dark": true,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 0,
+    "codeRects": [],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__agents-themed-agent-correspondence-now-next__390__dark.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "logview-verification-plan-logview-project-recap-2026-09-19",
+    "width": 1440,
+    "theme": "light",
+    "scrollWidth": 1440,
+    "dark": false,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 0,
+    "codeRects": [],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__logview-verification-plan-logview-project-recap-2026-09-19__1440__light.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "logview-verification-plan-logview-project-recap-2026-09-19",
+    "width": 1440,
+    "theme": "dark",
+    "scrollWidth": 1440,
+    "dark": true,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 0,
+    "codeRects": [],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__logview-verification-plan-logview-project-recap-2026-09-19__1440__dark.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "logview-verification-plan-logview-project-recap-2026-09-19",
+    "width": 390,
+    "theme": "light",
+    "scrollWidth": 390,
+    "dark": false,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 0,
+    "codeRects": [],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__logview-verification-plan-logview-project-recap-2026-09-19__390__light.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "logview-verification-plan-logview-project-recap-2026-09-19",
+    "width": 390,
+    "theme": "dark",
+    "scrollWidth": 390,
+    "dark": true,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 0,
+    "codeRects": [],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__logview-verification-plan-logview-project-recap-2026-09-19__390__dark.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "project-atlas-var-how-it-works",
+    "width": 1440,
+    "theme": "light",
+    "scrollWidth": 1440,
+    "dark": false,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 2,
+    "codeRects": [
+      {
+        "top": 3155,
+        "height": 124,
+        "width": 1184
+      },
+      {
+        "top": 3490,
+        "height": 196,
+        "width": 1184
+      }
+    ],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__project-atlas-var-how-it-works__1440__light.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "project-atlas-var-how-it-works",
+    "width": 1440,
+    "theme": "dark",
+    "scrollWidth": 1440,
+    "dark": true,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 2,
+    "codeRects": [
+      {
+        "top": 3155,
+        "height": 124,
+        "width": 1184
+      },
+      {
+        "top": 3490,
+        "height": 196,
+        "width": 1184
+      }
+    ],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__project-atlas-var-how-it-works__1440__dark.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "project-atlas-var-how-it-works",
+    "width": 390,
+    "theme": "light",
+    "scrollWidth": 390,
+    "dark": false,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 2,
+    "codeRects": [
+      {
+        "top": 4208.5,
+        "height": 158,
+        "width": 350
+      },
+      {
+        "top": 4567.5,
+        "height": 230,
+        "width": 350
+      }
+    ],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__project-atlas-var-how-it-works__390__light.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "project-atlas-var-how-it-works",
+    "width": 390,
+    "theme": "dark",
+    "scrollWidth": 390,
+    "dark": true,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 2,
+    "codeRects": [
+      {
+        "top": 4208.5,
+        "height": 158,
+        "width": 350
+      },
+      {
+        "top": 4567.5,
+        "height": 230,
+        "width": 350
+      }
+    ],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__project-atlas-var-how-it-works__390__dark.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "agents2-agents2-week-2026-10-04",
+    "width": 1440,
+    "theme": "light",
+    "scrollWidth": 1440,
+    "dark": false,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 0,
+    "codeRects": [],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__agents2-agents2-week-2026-10-04__1440__light.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "agents2-agents2-week-2026-10-04",
+    "width": 1440,
+    "theme": "dark",
+    "scrollWidth": 1440,
+    "dark": true,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 0,
+    "codeRects": [],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__agents2-agents2-week-2026-10-04__1440__dark.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "agents2-agents2-week-2026-10-04",
+    "width": 390,
+    "theme": "light",
+    "scrollWidth": 390,
+    "dark": false,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 0,
+    "codeRects": [],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__agents2-agents2-week-2026-10-04__390__light.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "agents2-agents2-week-2026-10-04",
+    "width": 390,
+    "theme": "dark",
+    "scrollWidth": 390,
+    "dark": true,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 0,
+    "codeRects": [],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__agents2-agents2-week-2026-10-04__390__dark.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "nice-mermaid-nvim-nice-mermaid-inline-render-pipeline",
+    "width": 1440,
+    "theme": "light",
+    "scrollWidth": 1440,
+    "dark": false,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 2,
+    "codeRects": [
+      {
+        "top": 2481.5,
+        "height": 268,
+        "width": 1184
+      },
+      {
+        "top": 3192,
+        "height": 388,
+        "width": 1184
+      }
+    ],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__nice-mermaid-nvim-nice-mermaid-inline-render-pipeline__1440__light.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "nice-mermaid-nvim-nice-mermaid-inline-render-pipeline",
+    "width": 1440,
+    "theme": "dark",
+    "scrollWidth": 1440,
+    "dark": true,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 2,
+    "codeRects": [
+      {
+        "top": 2481.5,
+        "height": 268,
+        "width": 1184
+      },
+      {
+        "top": 3192,
+        "height": 388,
+        "width": 1184
+      }
+    ],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__nice-mermaid-nvim-nice-mermaid-inline-render-pipeline__1440__dark.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "nice-mermaid-nvim-nice-mermaid-inline-render-pipeline",
+    "width": 390,
+    "theme": "light",
+    "scrollWidth": 390,
+    "dark": false,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 2,
+    "codeRects": [
+      {
+        "top": 3504.75,
+        "height": 302,
+        "width": 350
+      },
+      {
+        "top": 4430.5,
+        "height": 422,
+        "width": 350
+      }
+    ],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__nice-mermaid-nvim-nice-mermaid-inline-render-pipeline__390__light.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "nice-mermaid-nvim-nice-mermaid-inline-render-pipeline",
+    "width": 390,
+    "theme": "dark",
+    "scrollWidth": 390,
+    "dark": true,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 2,
+    "codeRects": [
+      {
+        "top": 3504.75,
+        "height": 302,
+        "width": 350
+      },
+      {
+        "top": 4430.5,
+        "height": 422,
+        "width": 350
+      }
+    ],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__nice-mermaid-nvim-nice-mermaid-inline-render-pipeline__390__dark.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "dotfiles-cloud-agent-box-guided-tour",
+    "width": 1440,
+    "theme": "light",
+    "scrollWidth": 1440,
+    "dark": false,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 2,
+    "codeRects": [
+      {
+        "top": 1805.484375,
+        "height": 244,
+        "width": 1184
+      },
+      {
+        "top": 7613.484375,
+        "height": 378,
+        "width": 1184
+      }
+    ],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__dotfiles-cloud-agent-box-guided-tour__1440__light.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "dotfiles-cloud-agent-box-guided-tour",
+    "width": 1440,
+    "theme": "dark",
+    "scrollWidth": 1440,
+    "dark": true,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 2,
+    "codeRects": [
+      {
+        "top": 1805.484375,
+        "height": 244,
+        "width": 1184
+      },
+      {
+        "top": 7613.484375,
+        "height": 378,
+        "width": 1184
+      }
+    ],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__dotfiles-cloud-agent-box-guided-tour__1440__dark.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "dotfiles-cloud-agent-box-guided-tour",
+    "width": 390,
+    "theme": "light",
+    "scrollWidth": 390,
+    "dark": false,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 2,
+    "codeRects": [
+      {
+        "top": 2764.234375,
+        "height": 278,
+        "width": 350
+      },
+      {
+        "top": 13626.734375,
+        "height": 464,
+        "width": 350
+      }
+    ],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__dotfiles-cloud-agent-box-guided-tour__390__light.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2-samples",
+    "slug": "dotfiles-cloud-agent-box-guided-tour",
+    "width": 390,
+    "theme": "dark",
+    "scrollWidth": 390,
+    "dark": true,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 2,
+    "codeRects": [
+      {
+        "top": 2764.234375,
+        "height": 278,
+        "width": 350
+      },
+      {
+        "top": 13626.734375,
+        "height": 464,
+        "width": 350
+      }
+    ],
+    "walkthroughCount": 0,
+    "traceCount": 0,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2-samples__dotfiles-cloud-agent-box-guided-tour__390__dark.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2",
+    "slug": "code-walkthrough-fixture",
+    "width": 1440,
+    "theme": "light",
+    "scrollWidth": 1440,
+    "dark": false,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 8,
+    "codeRects": [
+      {
+        "top": 442,
+        "height": 124,
+        "width": 1184
+      },
+      {
+        "top": 731,
+        "height": 316,
+        "width": 1184
+      },
+      {
+        "top": 1212,
+        "height": 150,
+        "width": 1184
+      },
+      {
+        "top": 1527,
+        "height": 196,
+        "width": 1184
+      },
+      {
+        "top": 1982,
+        "height": 316,
+        "width": 824
+      },
+      {
+        "top": 2535,
+        "height": 198,
+        "width": 662.734375
+      },
+      {
+        "top": 3608.171875,
+        "height": 180,
+        "width": 1184
+      },
+      {
+        "top": 3953.171875,
+        "height": 904,
+        "width": 1184
+      }
+    ],
+    "walkthroughCount": 1,
+    "traceCount": 1,
+    "rails": [
+      {
+        "width": 240,
+        "connectors": 0
+      },
+      {
+        "width": 240,
+        "connectors": 0
+      },
+      {
+        "width": 240,
+        "connectors": 0
+      }
+    ],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2__code-walkthrough-fixture__1440__light.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2",
+    "slug": "code-walkthrough-fixture",
+    "width": 1440,
+    "theme": "dark",
+    "scrollWidth": 1440,
+    "dark": true,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 8,
+    "codeRects": [
+      {
+        "top": 442,
+        "height": 124,
+        "width": 1184
+      },
+      {
+        "top": 731,
+        "height": 316,
+        "width": 1184
+      },
+      {
+        "top": 1212,
+        "height": 150,
+        "width": 1184
+      },
+      {
+        "top": 1527,
+        "height": 196,
+        "width": 1184
+      },
+      {
+        "top": 1982,
+        "height": 316,
+        "width": 824
+      },
+      {
+        "top": 2535,
+        "height": 198,
+        "width": 662.734375
+      },
+      {
+        "top": 3608.171875,
+        "height": 180,
+        "width": 1184
+      },
+      {
+        "top": 3953.171875,
+        "height": 904,
+        "width": 1184
+      }
+    ],
+    "walkthroughCount": 1,
+    "traceCount": 1,
+    "rails": [
+      {
+        "width": 240,
+        "connectors": 0
+      },
+      {
+        "width": 240,
+        "connectors": 0
+      },
+      {
+        "width": 240,
+        "connectors": 0
+      }
+    ],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2__code-walkthrough-fixture__1440__dark.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2",
+    "slug": "code-walkthrough-fixture",
+    "width": 390,
+    "theme": "light",
+    "scrollWidth": 390,
+    "dark": false,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 12,
+    "codeRects": [
+      {
+        "top": 756,
+        "height": 156,
+        "width": 350
+      },
+      {
+        "top": 1105,
+        "height": 466.5,
+        "width": 350
+      },
+      {
+        "top": 1728.5,
+        "height": 250,
+        "width": 350
+      },
+      {
+        "top": 2135.5,
+        "height": 274.5,
+        "width": 350
+      },
+      {
+        "top": 2802,
+        "height": 314,
+        "width": 350
+      },
+      {
+        "top": 3235,
+        "height": 290,
+        "width": 350
+      },
+      {
+        "top": 3674,
+        "height": 242,
+        "width": 350
+      },
+      {
+        "top": 3987,
+        "height": 348,
+        "width": 350
+      },
+      {
+        "top": 4054,
+        "height": 204,
+        "width": 350
+      },
+      {
+        "top": 4525.796875,
+        "height": 250,
+        "width": 350
+      },
+      {
+        "top": 5252.796875,
+        "height": 254,
+        "width": 350
+      },
+      {
+        "top": 5699.796875,
+        "height": 1092,
+        "width": 350
+      }
+    ],
+    "walkthroughCount": 1,
+    "traceCount": 1,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2__code-walkthrough-fixture__390__light.png",
+    "pass": true
+  },
+  {
+    "project": "ui-v2",
+    "slug": "code-walkthrough-fixture",
+    "width": 390,
+    "theme": "dark",
+    "scrollWidth": 390,
+    "dark": true,
+    "comments": false,
+    "invalid": false,
+    "codeCount": 12,
+    "codeRects": [
+      {
+        "top": 756,
+        "height": 156,
+        "width": 350
+      },
+      {
+        "top": 1105,
+        "height": 466.5,
+        "width": 350
+      },
+      {
+        "top": 1728.5,
+        "height": 250,
+        "width": 350
+      },
+      {
+        "top": 2135.5,
+        "height": 274.5,
+        "width": 350
+      },
+      {
+        "top": 2802,
+        "height": 314,
+        "width": 350
+      },
+      {
+        "top": 3235,
+        "height": 290,
+        "width": 350
+      },
+      {
+        "top": 3674,
+        "height": 242,
+        "width": 350
+      },
+      {
+        "top": 3987,
+        "height": 348,
+        "width": 350
+      },
+      {
+        "top": 4054,
+        "height": 204,
+        "width": 350
+      },
+      {
+        "top": 4525.796875,
+        "height": 250,
+        "width": 350
+      },
+      {
+        "top": 5252.796875,
+        "height": 254,
+        "width": 350
+      },
+      {
+        "top": 5699.796875,
+        "height": 1092,
+        "width": 350
+      }
+    ],
+    "walkthroughCount": 1,
+    "traceCount": 1,
+    "rails": [],
+    "traceCollapsed": true,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "file": "ui-v2__code-walkthrough-fixture__390__dark.png",
+    "pass": true
+  }
+]

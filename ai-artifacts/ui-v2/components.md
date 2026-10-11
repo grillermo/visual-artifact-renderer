@@ -50,17 +50,26 @@ Their schema branches, manifest entries and renderer adapters are gone. Historic
 
 ## Page and feedback decisions
 
-- Content max width: **80rem (1280px)** instead of 72rem. Text keeps its own measure; exhibits get the available width.
+- Content max width: **96rem (1536px)**, with a 160px desktop contents rail and 32px gap. Text keeps its own measure; exhibits get the available width.
 - Feedback at 1280px and above: **22.5rem (360px)** column. Below 1280px: a **50dvh** bottom sheet; no subtraction from reading width.
-- Execution trace: split stack/detail only when its own container reaches **60rem**; stack vertically below that threshold.
+- Execution trace: split stack/detail at **60rem** container width; the stack takes 42%, bounded to 24–32rem. Below that, use a collapsed frame disclosure above the source.
 - Map: show a labelled connection list below **44rem** rather than shrink a diagram until labels cannot be read.
 - New node type: `walkthrough`. The total remains 31 because `call-stack` is removed. Source steps are bounded to 4 files and 8 steps.
-- Code rails appear at 900px container width. Split diffs require 720px and p90 line length at most 70 columns. Dense notes use measured collision layout with connectors.
+- Code rails appear at 900px container width. Split diffs require 720px and p90 line length at most 70 columns. Four or more notes averaging fewer than three source rows per note stay inline. Other notes use measured collision layout with connectors.
+- Walkthroughs split at 900px container width. Steps are compact; desktop clicks update source locally. Focus is blue, separate from clay idea notes. Source keeps full-opacity muted context.
 - Trace frame labels wrap. The mobile stack is a closed disclosure; source and non-empty inspector columns get full width.
 - Feedback persistence: the worktree's development handler writes annotation files atomically instead of relying on a fixed-port proxy.
 - Copy Markdown: export every comment body and its node path, including comments nested in surviving containers.
 
-## Cycle 1 verification
+## Cycle 1 design verification
+
+The design gate passes shared build, lint, TypeScript, **238 app tests**, contract export, production build and **319 CLI tests**. Artifact verification passes **4 specs**, including **2 bundles**, and **31 manifest entries and examples**. No schema or CLI change.
+
+Headless agent-browser re-captured all 12 real samples and the acceptance fixture at 1440px and 390px in both themes, with comments open and closed. All **104 captures** pass with zero horizontal page overflow and zero console or page errors. The fixture also passes **16 captures** at 768px, 1024px, 1280px and 1920px in both themes and sidebar states. These checks exercise local walkthrough click and keyboard selection, breakpoint-driven excerpts, selected trace boundaries and collapsed narrow stacks. A browser probe confirms the table row-hover transition remains 100ms.
+
+Evidence lives in `qa/cycle-1/` and `qa/cycle-1-closed/`. Re-run `capture-cycle-1.mjs`, `capture-cycle-1.mjs --comments-closed` and `check-design-states.mjs` with `VISUAL_ARTIFACT_OPEN=0`. Screenshots stay local; result JSON and scripts are committed. Before images remain in ignored `qa/design-before/`.
+
+## Initial cycle 1 verification
 
 The final gate passes shared build, app lint, TypeScript, **234 app tests**, contract export, production build and **319 CLI tests**. `verify:artifacts` passes **4 repository specs**, including **2 bundles**, and all **31 manifest examples**.
 

@@ -1,7 +1,8 @@
 import { execFileSync } from "node:child_process"
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs"
 import { resolve } from "node:path"
-const root=resolve(import.meta.dirname,"../../.."),out=resolve(import.meta.dirname,"cycle-1")
+const commentsOpen=!process.argv.includes("--comments-closed")
+const root=resolve(import.meta.dirname,"../../.."),out=resolve(import.meta.dirname,commentsOpen?"cycle-1":"cycle-1-closed")
 mkdirSync(out,{recursive:true})
 const samples=JSON.parse(readFileSync(resolve(import.meta.dirname,"samples-v3.json"),"utf8"))
 const cases=samples.map(s=>({project:s.after.project,slug:s.after.slug,title:s.title}))
@@ -25,8 +26,8 @@ for(const item of cases)for(const width of [1440,390])for(const theme of ["light
     ab("open",`http://localhost:9991/${item.project}/${item.slug}/`)
     ab("wait","--fn",`document.readyState==='complete' && !!document.querySelector('button[aria-label="Comments"]') && !document.querySelector('button[aria-label="Toggle dark mode"]')?.textContent.includes('Theme') && document.documentElement.classList.contains('dark')===${theme==="dark"}`)
     ab("wait","--fn","!document.querySelector('.va-code') || !!document.querySelector('.va-code-row code span[style]')")
-    ab("eval",`(() => {const button=document.querySelector('button[aria-label="Comments"]');if(button.getAttribute('aria-pressed')!=='true')button.click()})()`)
-    ab("wait","--fn","!!document.querySelector('button[aria-label=\"Comments\"][aria-pressed=\"true\"]')")
+    ab("eval",`(() => {const button=document.querySelector('button[aria-label="Comments"]');if((button.getAttribute('aria-pressed')==='true')!==${commentsOpen})button.click()})()`)
+    ab("wait","--fn",`!!document.querySelector('button[aria-label="Comments"][aria-pressed="${commentsOpen}"]')`)
     ab("wait","--fn",diagramsReady)
     ab("eval","(async()=>{for(const d of document.querySelectorAll('details:not(.va-trace-stack details):not(.va-walkthrough details)'))d.open=true;const h=document.documentElement.scrollHeight;for(let y=0;y<h;y+=700){window.scrollTo(0,y);await new Promise(r=>requestAnimationFrame(r))}window.scrollTo(0,0)})()")
     ab("wait","--fn",diagramsReady)
@@ -37,7 +38,7 @@ for(const item of cases)for(const width of [1440,390])for(const theme of ["light
     const messages=(consoleLog.data?.messages??[]).filter(message=>message.type==="error"),pageErrors=errors.data?.errors??[]
     const file=`${key}.png`
     ab("screenshot","--full",resolve(out,file))
-    results.push({project:item.project,slug:item.slug,width,theme,...metrics,consoleErrors:messages.map(m=>m.text),pageErrors,file,pass:metrics.scrollWidth<=width && !metrics.invalid && metrics.comments && messages.length===0 && pageErrors.length===0})
+    results.push({project:item.project,slug:item.slug,width,theme,...metrics,consoleErrors:messages.map(m=>m.text),pageErrors,file,pass:metrics.scrollWidth<=width && !metrics.invalid && metrics.comments===commentsOpen && messages.length===0 && pageErrors.length===0})
     console.log(`${key}: ${results.at(-1).pass?"PASS":"FAIL"} code=${metrics.codeCount} overflow=${metrics.scrollWidth-width} errors=${messages.length+pageErrors.length}`)
   }catch(error){results.push({project:item.project,slug:item.slug,width,theme,pass:false,error:String(error.stderr??error.message).slice(0,500)});console.error(key,error.message)}
   writeFileSync(resolve(out,"results.json"),JSON.stringify(results,null,2)+"\n")

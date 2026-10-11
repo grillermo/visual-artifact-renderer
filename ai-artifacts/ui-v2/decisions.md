@@ -27,6 +27,10 @@ Source focus gets `--source-focus`, an alias of the existing blue palette throug
 
 The comments panel stays 360px. At 1440px with comments open, exhibits retain 1016px. Mobile gutters and the bottom sheet stay unchanged. No contract or CLI change.
 
+### Design verification
+
+`gate-cycle-1.sh` passes: shared build, app lint, TypeScript, 238 app tests, contract export, production build and 319 CLI tests. `pnpm verify:artifacts` passes 4 specs, 2 bundles and 31 manifest entries and examples. The final 104 real-sample captures have no page overflow or console errors. Another 16 fixture captures cover 768px, 1024px, 1280px and 1920px, both themes and sidebar states. Local step navigation, keyboard selection and selected trace boundaries pass. The table row-hover transition remains 100ms. All inspection uses headless agent-browser on port 9991; the standard visual QA script launches its own Chrome, so these repeatable agent-browser checks replace it for this task.
+
 ## Earlier cycle 1 implementation decisions
 
 - Follow the coordinator's removal rule. Major 3 accepts `code`, `walkthrough` and `execution-trace`, without aliases for removed code nodes. `call-stack` leaves both the schema union and renderer registry.
