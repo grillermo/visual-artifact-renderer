@@ -88,8 +88,31 @@ export function cropToContent(svg: SVGSVGElement | null) {
   const group = svg.querySelector<SVGGElement>(":scope > g")
   if (!group) return
   const box = group.getBBox()
-  const pad = 8
-  const [x, y, w, h] = [box.x - pad, box.y - pad, box.width + pad * 2, box.height + pad * 2]
+  let left = box.x
+  let top = box.y
+  let right = box.x + box.width
+  let bottom = box.y + box.height
+  // getBBox excludes HTML overflowing foreignObject. Include the visible labels
+  // in SVG coordinates before cropping, otherwise their last lines disappear.
+  const matrix = svg.getScreenCTM?.()?.inverse()
+  if (matrix && svg.createSVGPoint) {
+    const point = svg.createSVGPoint()
+    for (const label of svg.querySelectorAll(".mm-n, .edgeLabel foreignObject")) {
+      const rect = label.getBoundingClientRect()
+      point.x = rect.left
+      point.y = rect.top
+      const start = point.matrixTransform(matrix)
+      point.x = rect.right
+      point.y = rect.bottom
+      const end = point.matrixTransform(matrix)
+      left = Math.min(left, start.x)
+      top = Math.min(top, start.y)
+      right = Math.max(right, end.x)
+      bottom = Math.max(bottom, end.y)
+    }
+  }
+  const pad = 12
+  const [x, y, w, h] = [left - pad, top - pad, right - left + pad * 2, bottom - top + pad * 2]
   svg.setAttribute("viewBox", `${x} ${y} ${w} ${h}`)
   svg.setAttribute("width", String(Math.ceil(w)))
   svg.setAttribute("height", String(Math.ceil(h)))
@@ -195,6 +218,32 @@ export function MapLegend({ compiled, nodes, legend }: { compiled: CompiledMap; 
   )
 }
 
+export function MapConnectionList({ input }: { input: MapInput }) {
+  const labels = new Map(input.nodes.map((node) => [node.id, node.label]))
+  return (
+    <ol className="va-map-list m-0 divide-y divide-rule border-y border-rule" aria-label="Map connections">
+      {input.nodes.map((node) => (
+        <li key={node.id} className="py-4">
+          <p className="text-row-title font-semibold" style={{ color: node.signal ? SIGNAL_VAR[node.signal] : "var(--ink)" }}>
+            {node.href ? <a href={node.href} className="underline underline-offset-4">{node.label}</a> : node.label}
+            {node.signal && <span className="ml-2 text-meta font-normal">{SIGNAL_WORD[node.signal]}</span>}
+          </p>
+          {node.sub && <p className="mt-1 text-small text-ink-muted">{node.sub}</p>}
+          <ul className="mt-2 space-y-1 text-small text-ink">
+            {input.edges.filter((edge) => edge.from === node.id).map((edge, index) => (
+              <li key={index}>
+                <span aria-hidden="true">{edge.both ? "↔" : "→"} </span>
+                {labels.get(edge.to) ?? edge.to}{edge.label ? `: ${edge.label}` : ""}
+                {edge.mark && edge.mark !== "context" ? ` (${edge.mark})` : edge.style === "dashed" ? " (optional)" : ""}
+              </li>
+            ))}
+          </ul>
+        </li>
+      ))}
+    </ol>
+  )
+}
+
 function LineKey({ label, dash, color = "var(--ink)" }: { label: string; dash?: string; color?: string }) {
   return (
     <li className="flex items-center gap-2">
@@ -234,13 +283,28 @@ export function MapMermaid({
   caption?: string
   legend?: { solid?: string; dashed?: string }
 }) {
-  const { svg, compiled, error } = useMapSvg(input)
+  const figureRef = useRef<HTMLElement>(null)
+  const [fitWidth, setFitWidth] = useState(input.fitWidth)
+  useLayoutEffect(() => {
+    const figure = figureRef.current
+    if (!figure) return
+    const fit = () => setFitWidth(Math.max(1, Math.floor(figure.clientWidth)))
+    fit()
+    const observer = new ResizeObserver(fit)
+    observer.observe(figure)
+    return () => observer.disconnect()
+  }, [])
+  const fittedInput = useMemo(() => ({ ...input, fitWidth }), [input, fitWidth])
+  const { svg, compiled, error } = useMapSvg(fittedInput)
   const ref = useRef<HTMLDivElement>(null)
   return (
-    <figure className="m-0 flex min-w-0 flex-col" data-map="">
+    <figure ref={figureRef} className="va-map m-0 flex min-w-0 flex-col" data-map="">
       {title && <div className="mb-3 font-mono text-label uppercase tracking-[0.14em] text-ink-muted">{title}</div>}
-      <MapCanvas svg={svg} label={label} error={error} svgRef={ref} compiled={compiled} />
-      <EdgeSummary input={input} />
+      <div className="va-map-drawing">
+        <MapCanvas svg={svg} label={label} error={error} svgRef={ref} compiled={compiled} />
+        <EdgeSummary input={input} />
+      </div>
+      <MapConnectionList input={input} />
       <MapLegend compiled={compiled} nodes={input.nodes} legend={legend} />
       {caption && <figcaption className="mt-3 max-w-[66ch] text-meta text-ink-muted">{caption}</figcaption>}
     </figure>

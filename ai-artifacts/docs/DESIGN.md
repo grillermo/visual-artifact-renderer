@@ -32,6 +32,15 @@ Border radius base is `0.75rem`, scaled across semantic radius tokens.
 
 Headings use the editorial stack for report-like weight. Code and data use mono. Body uses sans.
 
+## Reading layout
+
+- `--va-content-max-width` is 80rem, or 1280px at the default font size. Prose keeps its own 75ch maximum.
+- Feedback panels reserve 360px outside the content column at viewport widths of at least 1280px. The chapter rail becomes a Contents disclosure while a panel is open.
+- Below 1280px, feedback opens as a bottom sheet. It does not change the content width.
+- Execution traces switch to side-by-side panes only when their own container reaches 60rem. Narrow traces stack the source above the call stack.
+- Figures wrap into fewer columns before values collide. Map diagrams become connection lists below a container width of 44rem.
+- Claims retain plain collapsible rendering. Feedback uses the same node boundary as every other component, without claim-specific comment controls.
+
 ## Component foundation
 
 - Next.js + React renderer in `app/`.

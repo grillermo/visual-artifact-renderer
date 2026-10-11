@@ -90,7 +90,7 @@ function ExecutionTraceReview({
   if (!selectedEvent) return null
 
   return (
-    <Figure className="gap-0 overflow-hidden rounded-xl bg-background p-0 shadow-none">
+    <Figure className="va-execution-trace gap-0 overflow-hidden rounded-xl bg-background p-0 shadow-none">
       <div
         className="min-w-0 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
         tabIndex={0}
@@ -106,7 +106,7 @@ function ExecutionTraceReview({
           }
         }}
       >
-        <div className="grid min-w-0 lg:grid-cols-[19rem_minmax(0,1fr)] lg:grid-rows-[auto_auto_minmax(0,1fr)]">
+        <div className="va-trace-layout grid min-w-0">
           <TraceTitleSection
             title={title ?? "Execution trace"}
             caption={caption}
@@ -131,10 +131,10 @@ function ExecutionTraceReview({
             onNext={() => moveSelection(1)}
           />
 
-          <main className="order-3 min-w-0 lg:col-start-2 lg:row-span-3 lg:row-start-1">
+          <section aria-label="Source and event details" className="va-trace-source order-3 min-w-0">
             <SourcePane event={selectedEvent} />
             <EventInspector event={selectedEvent} typeDefinitions={typeDefinitions} />
-          </main>
+          </section>
         </div>
       </div>
     </Figure>
@@ -158,7 +158,7 @@ function TraceTitleSection({
   }[provenance.mode]
 
   return (
-    <header className="order-1 flex min-w-0 items-center gap-3 border-b bg-muted/25 px-4 py-3 lg:col-start-1 lg:row-start-1 lg:border-r">
+    <header className="va-trace-title order-1 flex min-w-0 items-center gap-3 border-b bg-muted/25 px-4 py-3">
       <Layers3 className="size-4 shrink-0 text-clay-dark" />
       <div className="min-w-0 flex-1">
         <div className="flex min-w-0 items-center gap-1.5">
@@ -205,8 +205,8 @@ function TraceControls({
   onNext: () => void
 }) {
   return (
-    <section className="order-2 min-w-0 border-b bg-muted/25 px-3 py-3 lg:col-start-1 lg:row-start-2 lg:border-r">
-      <div className="flex justify-center lg:hidden">
+    <section className="va-trace-controls order-2 min-w-0 border-b bg-muted/25 px-3 py-3">
+      <div className="va-trace-pager-compact flex justify-center">
         <TracePager
           current={current}
           total={total}
@@ -215,7 +215,7 @@ function TraceControls({
         />
       </div>
 
-      <p className="mx-auto max-w-[17rem] break-words text-center text-sm font-medium leading-5 text-foreground max-lg:mt-2">
+      <p className="va-trace-current mx-auto mt-2 max-w-[17rem] break-words text-center text-sm font-medium leading-5 text-foreground">
         {event.label}
       </p>
     </section>
@@ -297,10 +297,10 @@ function CallStackPanel({
   }, [selectedId])
 
   return (
-    <aside className="order-4 flex min-w-0 flex-col border-t bg-muted/15 lg:col-start-1 lg:row-start-3 lg:border-r lg:border-t-0">
+    <aside className="va-trace-stack order-4 flex min-w-0 flex-col border-t bg-muted/15">
       <div className="flex min-h-16 items-center justify-between gap-3 border-b px-4 py-2.5">
         <p className="text-sm font-semibold text-foreground">Call stack</p>
-        <div className="hidden lg:block">
+        <div className="va-trace-pager-wide hidden">
           <TracePager
             current={current}
             total={events.length}

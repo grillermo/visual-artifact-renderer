@@ -3,10 +3,9 @@
 // claim-tree + claim: numbered, collapsible plan spine with a contents rail.
 // Open state is local to the tree; collapsed bodies use `hidden` so node paths stay stable.
 import { createContext, useCallback, useContext, useMemo, useState, type KeyboardEvent, type ReactNode } from "react"
-import { ChevronRight, MessageSquarePlus } from "lucide-react"
+import { ChevronRight } from "lucide-react"
 
 import type { AdapterArgs } from "@/components/artifact-types"
-import { useOptionalAnnotationContext } from "@/components/annotations"
 import { CopyDecisionsButton } from "@/components/plan/copy-decisions-button"
 import { usePlanContext } from "@/components/plan/decision-answers"
 import type { ClaimInfo } from "@/lib/plan/plan-spec"
@@ -157,7 +156,6 @@ export function renderClaim(args: AdapterArgs<"claim">) {
 function Claim({ node, children, nodePath }: AdapterArgs<"claim">) {
   const tree = useContext(ClaimTreeContext)
   const plan = usePlanContext()
-  const annotations = useOptionalAnnotationContext()
   const info = plan?.claims.get(nodePath)
   const label = info?.label ?? "•"
   const anchor = info?.anchor ?? `claim-${nodePath.replace(/\W+/g, "-")}`
@@ -165,17 +163,6 @@ function Claim({ node, children, nodePath }: AdapterArgs<"claim">) {
   const open = tree ? tree.isOpen(nodePath) : true
   const aux = node.props.aux
   const decisions = info?.decisionCount ?? 0
-
-  const comment = () => {
-    if (!annotations) return
-    annotations.openComments()
-    annotations.selectNodeForComment({
-      nodeId: node.metadata?.id,
-      nodePath,
-      nodeType: "claim",
-      textSnippet: `${label} ${node.props.text}`.slice(0, 80),
-    })
-  }
 
   return (
     <section id={anchor} aria-labelledby={`${anchor}-title`} data-claim={label} data-depth={depth} className={cn(depth > 0 && "ml-2 border-l border-rule sm:ml-4")}>
@@ -215,16 +202,6 @@ function Claim({ node, children, nodePath }: AdapterArgs<"claim">) {
           >
             ↗ call stack
           </a>
-        )}
-        {annotations && (
-          <button
-            type="button"
-            onClick={comment}
-            aria-label={`Comment on claim ${label}`}
-            className="shrink-0 rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <MessageSquarePlus className="size-4" aria-hidden="true" />
-          </button>
         )}
       </div>
       <div id={`${anchor}-body`} hidden={!open} className="space-y-3 pb-3 pl-3 pr-2 sm:pl-9 sm:pr-3">

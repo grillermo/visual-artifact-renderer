@@ -52,7 +52,7 @@ function VisualArtifactRendererContent({
 
   return (
     <div className="va-artifact-frame" data-panel-open={ctx.isCommentMode || aiColabCtx.isAIColabMode ? "true" : undefined}>
-      <main className="mx-auto w-full max-w-[1120px] px-5 py-10 sm:px-8 lg:py-14">
+      <main className="mx-auto w-full max-w-[var(--va-content-max-width)] px-5 py-10 sm:px-8 lg:py-14">
       <RailLayout>
         <header className="mb-10 sm:mb-14">
           <div className="flex flex-wrap items-center gap-3 font-mono text-label uppercase tracking-[0.14em] text-ink-muted">
