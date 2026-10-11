@@ -1,24 +1,40 @@
 "use client"
 
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { ChartShell } from "@/components/chart-shell"
-import { Figure, PanelCard } from "@/components/artifact-primitives"
-import { LedgerView, type LedgerGroup } from "@/components/adapters/editorial/ledger-adapter"
-import { TableView } from "@/components/adapters/editorial/table-adapter"
-import { formatCell, getRows, MissingData } from "@/lib/artifacts/data"
-import { StatusChip, statusIsVisible, statusTone, toneSignal } from "@/lib/artifacts/status"
+import { Figure, PanelCard, columnsClass } from "@/components/artifact-primitives"
+import { cn } from "@/lib/utils"
+import { formatCell, getRows, MissingData, normalizeColumns } from "@/lib/artifacts/data"
+import { StatusChip, statusIsVisible } from "@/lib/artifacts/status"
 
 import type { AdapterArgs } from "@/components/artifact-types"
+import type { ArtifactColumn } from "@/lib/contract/artifact-schema"
 
 export function renderTable({ node, context }: AdapterArgs<"table">) {
-  return <TableView {...node.props} data={getRows(context.data, node.props.dataKey)} />
+  return <TableBlock data={getRows(context.data, node.props.dataKey)} {...node.props} />
 }
 
 export function renderDataTable({ node, context }: AdapterArgs<"data-table">) {
-  return <TableView dense {...node.props} data={getRows(context.data, node.props.dataKey)} />
+  return <TableBlock dense data={getRows(context.data, node.props.dataKey)} {...node.props} />
 }
 
 export function renderComparisonTable({ node, context }: AdapterArgs<"comparison-table">) {
-  return <TableView dense {...node.props} data={getRows(context.data, node.props.dataKey)} />
+  return (
+    <TableBlock
+      comparison
+      dense
+      data={getRows(context.data, node.props.dataKey)}
+      {...node.props}
+    />
+  )
 }
 
 export function renderChart({ node, context }: AdapterArgs<"chart">) {
@@ -29,7 +45,7 @@ export function renderChart({ node, context }: AdapterArgs<"chart">) {
     kind = "line",
     label = yKey,
     color = "var(--chart-2)",
-  } = node.props
+  } = node.props as Extract<typeof node.props, { dataKey: string }>
   const data = getRows(context.data, dataKey)
 
   if (!data.length) {
@@ -44,7 +60,6 @@ export function renderChart({ node, context }: AdapterArgs<"chart">) {
 }
 
 export function renderTimeline({ node, context }: AdapterArgs<"timeline">) {
-  // v1 data-backed form only; the editorial `timeline` adapter routes here for it.
   const {
     dataKey,
     titleKey = "title",
@@ -80,7 +95,7 @@ export function renderTimeline({ node, context }: AdapterArgs<"timeline">) {
                     <StatusChip value={statusVal} className="shrink-0 justify-start" />
                   )}
                 </div>
-                <p className="mt-2 min-w-0 break-words text-sm leading-6 text-muted-foreground">
+                <p className="mt-2 min-w-0 break-all text-sm leading-6 text-muted-foreground">
                   {formatCell(description)}
                 </p>
               </PanelCard>
@@ -92,55 +107,191 @@ export function renderTimeline({ node, context }: AdapterArgs<"timeline">) {
   )
 }
 
-const STATUS_RANK = { risk: 0, wait: 1, new: 2, done: 3 } as const
-
-const STATUS_HINT = {
-  risk: "Fix these first.",
-  wait: "Needs a decision or a reply.",
-  new: "",
-  done: "",
-} as const
-
-const STATUS_LABEL = {
-  risk: "Can break something",
-  wait: "Waiting on you",
-  done: "Done",
-  new: "Notes",
-} as const
-
-/** Legacy status-grid: rendered as a ledger grouped by status, risk first. */
 export function renderStatusGrid({ node, context }: AdapterArgs<"status-grid">) {
-  const { dataKey, titleKey = "title", statusKey, descriptionKey, metaKey, caption } = node.props
+  const {
+    dataKey,
+    titleKey = "title",
+    statusKey,
+    descriptionKey,
+    metaKey,
+    columns = 3,
+    caption,
+  } = node.props as Extract<typeof node.props, { dataKey: string }>
   const data = getRows(context.data, dataKey)
 
   if (!data.length) {
     return <MissingData dataKey={dataKey} />
   }
 
-  // Group by signal, not raw status: the raw word stays on the row as meta.
-  const groups = new Map<string, LedgerGroup & { rank: number; first: number }>()
-  data.forEach((row, index) => {
-    const raw = row[statusKey] === undefined ? "" : formatCell(row[statusKey])
-    const signal = toneSignal(statusTone(raw))
-    const group = groups.get(signal) ?? {
-      label: STATUS_LABEL[signal],
-      signal: signal === "new" ? "none" : signal,
-      hint: STATUS_HINT[signal] || undefined,
-      rows: [],
-      rank: STATUS_RANK[signal],
-      first: index,
-    }
-    const title = row[titleKey] ?? row.component ?? row.name ?? `Item ${index + 1}`
-    const description = descriptionKey ? row[descriptionKey] : row.notes ?? row.description
-    const extra = metaKey && row[metaKey] !== undefined ? formatCell(row[metaKey]) : undefined
-    group.rows.push({
-      title: formatCell(title),
-      body: description === undefined ? "—" : formatCell(description),
-      meta: [raw, extra].filter(Boolean).join(" · ").slice(0, 40) || undefined,
-    })
-    groups.set(signal, group)
-  })
+  return (
+    <Figure caption={caption}>
+      <div className={cn("grid gap-5", columnsClass(columns))}>
+        {data.map((row, index) => {
+          const title = row[titleKey] ?? row.component ?? row.name ?? `Item ${index + 1}`
+          const description = descriptionKey ? row[descriptionKey] : row.notes ?? row.description
+          const meta = metaKey ? row[metaKey] : undefined
+          const statusVal = row[statusKey]
 
-  const ordered = [...groups.values()].sort((a, b) => a.rank - b.rank || a.first - b.first)
-  return <LedgerView groups={ordered} caption={caption} />
+          return (
+            <PanelCard
+              key={index}
+              tone={statusVal}
+              className="min-h-full rounded-2xl border-[1.5px] bg-card/95 p-4 text-card-foreground shadow-[var(--shadow-card)]"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="break-words font-serif text-lg font-medium leading-snug tracking-[-0.015em] text-foreground">
+                    {formatCell(title)}
+                  </p>
+                  {meta !== undefined && (
+                    <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+                      {formatCell(meta)}
+                    </p>
+                  )}
+                </div>
+                {statusIsVisible(statusVal, description) && (
+                  <StatusChip value={statusVal} className="max-w-[50%] justify-start" />
+                )}
+              </div>
+              {description !== undefined && (
+                <p className="mt-3 break-all text-sm leading-6 text-muted-foreground">
+                  {formatCell(description)}
+                </p>
+              )}
+            </PanelCard>
+          )
+        })}
+      </div>
+    </Figure>
+  )
+}
+
+function TableBlock({
+  data,
+  columns,
+  caption,
+  dense = false,
+  comparison = false,
+  statusKey,
+  dataKey,
+}: {
+  data: Record<string, unknown>[]
+  columns?: ArtifactColumn[]
+  caption?: string
+  dense?: boolean
+  comparison?: boolean
+  statusKey?: string
+  dataKey: string
+}) {
+  if (!data.length) {
+    return <MissingData dataKey={dataKey} />
+  }
+
+  const normalizedColumns = normalizeColumns(columns, data)
+
+  const table = (
+    <Table>
+      {caption && <TableCaption>{caption}</TableCaption>}
+      <TableHeader>
+        <TableRow>
+          {normalizedColumns.map((column) => (
+            <TableHead
+              key={column.key}
+              className={cn(
+                dense ? "h-9" : undefined,
+                comparison && "font-mono text-[11px] uppercase tracking-[0.12em]"
+              )}
+            >
+              {column.label}
+            </TableHead>
+          ))}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {data.map((row, index) => (
+          <TableRow key={index}>
+            {normalizedColumns.map((column, columnIndex) => (
+              <TableCell
+                key={column.key}
+                className={cn(
+                  dense ? "py-2.5" : undefined,
+                  columnIndex === 0 && "font-medium text-foreground",
+                  comparison && "break-all align-top whitespace-normal"
+                )}
+              >
+                {statusKey === column.key ? (
+                  <StatusChip value={row[column.key]} />
+                ) : (
+                  formatCell(row[column.key])
+                )}
+              </TableCell>
+            ))}
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  )
+
+  if (!comparison) return table
+
+  return (
+    <>
+      {caption && <p className="text-sm text-muted-foreground md:hidden">{caption}</p>}
+      <div className="grid gap-3 md:hidden">
+        {data.map((row, index) => (
+          <MobileRecord key={index} row={row} columns={normalizedColumns} statusKey={statusKey} />
+        ))}
+      </div>
+      <div className="hidden md:block">{table}</div>
+    </>
+  )
+}
+
+function MobileRecord({
+  row,
+  columns,
+  statusKey,
+}: {
+  row: Record<string, unknown>
+  columns: { key: string; label: string }[]
+  statusKey?: string
+}) {
+  const [primary, ...rest] = columns
+  const primaryValue = primary ? row[primary.key] : undefined
+
+  return (
+    <article className="rounded-2xl border bg-card p-4 text-card-foreground shadow-sm">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          {primary && (
+            <>
+              <p className="break-all font-serif text-lg font-medium leading-snug tracking-[-0.015em] text-foreground">
+                {formatCell(primaryValue)}
+              </p>
+              <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                {primary.label}
+              </p>
+            </>
+          )}
+        </div>
+        {statusKey && row[statusKey] !== undefined && (
+          <StatusChip value={row[statusKey]} className="max-w-[50%] justify-start" />
+        )}
+      </div>
+      <dl className="mt-4 flex flex-col gap-3">
+        {rest
+          .filter((column) => column.key !== statusKey)
+          .map((column) => (
+            <div key={column.key} className="grid gap-1 border-t pt-3">
+              <dt className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                {column.label}
+              </dt>
+              <dd className="break-all text-sm leading-6 text-foreground">
+                {formatCell(row[column.key])}
+              </dd>
+            </div>
+          ))}
+      </dl>
+    </article>
+  )
 }

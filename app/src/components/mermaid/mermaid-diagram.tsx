@@ -196,7 +196,7 @@ export function MermaidDiagram({
       ) : (
         <div
           ref={frameRef}
-          className="relative p-2"
+          className="relative rounded-2xl bg-card p-2 shadow-[var(--shadow-card-sm)]"
           style={{ height: frameHeight }}
         >
           <MermaidViewport
@@ -232,7 +232,7 @@ export function MermaidDiagram({
                 {error}
               </pre>
             ) : (
-              <div className="relative flex-1 p-2">
+              <div className="relative flex-1 rounded-2xl bg-card p-2">
                 <MermaidViewport
                   svg={svg}
                   height="100%"

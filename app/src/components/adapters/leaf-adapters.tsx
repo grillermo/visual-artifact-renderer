@@ -381,5 +381,5 @@ export function renderSeparator() {
 export function renderCodeBlock({ node }: AdapterArgs<"code-block">) {
   if (codeBlockIsStructured(node.props)) return <StructuredCodeBlock {...node.props} />
   const { title, language, code, caption } = node.props
-  return <CodeBlock variant="bare" title={title} language={language} code={code} caption={caption} />
+  return <CodeBlock title={title} language={language} code={code} caption={caption} />
 }

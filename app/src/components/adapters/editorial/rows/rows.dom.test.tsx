@@ -10,7 +10,7 @@ import type { ArtifactNode } from "@/lib/contract/artifact-schema"
 let container: HTMLDivElement
 let root: Root
 
-async function render(nodes: ArtifactNode[], data?: Record<string, unknown>) {
+async function render(nodes: ArtifactNode[], data?: Record<string, unknown>, legacyShell?: boolean) {
   const { componentRegistry } = await import("@/components/component-registry")
   const renderNodes: RenderNodes = (list, context, prefix = "nodes") =>
     list?.map((node, index) => {
@@ -19,7 +19,7 @@ async function render(nodes: ArtifactNode[], data?: Record<string, unknown>) {
       const children = "children" in node && node.children ? renderNodes(node.children, context, `${path}.children`) : undefined
       return <div key={path}>{Component({ node, context, children, renderNodes, nodePath: path })}</div>
     })
-  const context = { project: "p", slug: "t", data } as ArtifactRenderContext
+  const context = { project: "p", slug: "t", data, legacyShell } as ArtifactRenderContext
   await act(async () => {
     root.render(<>{renderNodes(nodes, context)}</>)
   })
@@ -80,14 +80,23 @@ describe("row adapters (DOM)", () => {
     assert.deepEqual(groups.map((g) => g.getAttribute("data-signal")), ["risk", "wait"])
   })
 
-  it("legacy status-grid renders as a ledger, risk first, no break-all", async () => {
+  it("table: legacyShell gives the framed TableBlock, editorial gives bare [data-table]", async () => {
+    const data = { t: [{ name: "a", v: "1" }, { name: "b", v: "2" }] }
+    await render([node("table", { dataKey: "t" })], data, true)
+    assert.equal(container.querySelector("[data-table]"), null)
+    assert.match(container.innerHTML, /rounded/)
+    await render([node("table", { dataKey: "t" })], data)
+    assert.ok(container.querySelector("[data-table]"))
+  })
+
+  it("legacy status-grid keeps its pre-redesign coloured card grid (no ledger)", async () => {
     await render(
       [node("status-grid", { dataKey: "g", statusKey: "state", descriptionKey: "notes" })],
       { g: [{ title: "Fine", state: "ok", notes: "n" }, { title: "Broken", state: "failed", notes: "n" }] },
     )
-    const groups = [...container.querySelectorAll("[data-ledger-group]")]
-    assert.deepEqual(groups.map((g) => g.getAttribute("data-signal")), ["risk", "none"])
-    assert.ok(!/break-all/.test(container.innerHTML))
+    assert.equal(container.querySelectorAll("[data-ledger-group]").length, 0)
+    assert.match(container.textContent!, /Broken/)
+    assert.match(container.innerHTML, /rounded-2xl/)
   })
 
   it("checklist labels every state for screen readers", async () => {
@@ -106,16 +115,6 @@ describe("row adapters (DOM)", () => {
     assert.deepEqual(heads, ["Name", "Diff"])
     assert.ok(!/break-all/.test(container.innerHTML))
     assert.ok(!/\brounded|\bborder\b(?!-)/.test(container.querySelector("[data-table]")!.innerHTML))
-  })
-
-  it("legacy status-grid groups use human labels and keep the raw status as meta", async () => {
-    await render(
-      [node("status-grid", { dataKey: "g", statusKey: "state", descriptionKey: "notes" })],
-      { g: [{ title: "A", state: "warn", notes: "n" }, { title: "B", state: "pending", notes: "n" }, { title: "C", state: "fixed", notes: "n" }] },
-    )
-    const labels = [...container.querySelectorAll("[data-ledger-group] h3")].map((h) => h.textContent)
-    assert.deepEqual(labels, ["Can break something", "Waiting on you", "Done"])
-    assert.equal(container.querySelector("[data-ledger-row] span.font-mono")?.textContent, "warn")
   })
 
   it("data-backed ledger clamps to 12 rows and 4 groups with an 'and N more' line", async () => {

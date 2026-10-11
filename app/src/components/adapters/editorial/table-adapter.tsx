@@ -1,8 +1,9 @@
 "use client"
 
+import { renderTable } from "@/components/adapters/data-adapters"
 import { cn } from "@/lib/utils"
 import { formatCell, getRows, MissingData, toTitle } from "@/lib/artifacts/data"
-import { StatusChip } from "@/lib/artifacts/status"
+import { SignalChip } from "@/lib/artifacts/status"
 import { LABEL_CLASS } from "./rows/signal"
 import type { AdapterArgs } from "@/components/artifact-types"
 import type { TableProps } from "@agents/visual-artifact-annotations/contract"
@@ -38,7 +39,7 @@ export function TableView({ data, dataKey, columns, caption, dense, statusKey, h
   let cols = resolveColumns(columns, data).filter((column) => column.key !== highlightKey)
   if (onlyDiffs) cols = dropUniform(cols, data)
   const cell = (row: Row, column: Column) =>
-    statusKey === column.key ? <StatusChip value={row[column.key]} /> : formatCell(row[column.key])
+    statusKey === column.key ? <SignalChip value={row[column.key]} /> : formatCell(row[column.key])
   const rowPad = dense ? "py-2" : "py-3.5"
 
   return (
@@ -109,6 +110,8 @@ export function TableView({ data, dataKey, columns, caption, dense, statusKey, h
   )
 }
 
-export function renderEditorialTable({ node, context }: AdapterArgs<"table">) {
+export function renderEditorialTable(args: AdapterArgs<"table">) {
+  const { node, context } = args
+  if (context.legacyShell) return renderTable(args)
   return <TableView {...node.props} data={getRows(context.data, node.props.dataKey)} />
 }

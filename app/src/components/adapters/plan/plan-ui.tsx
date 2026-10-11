@@ -85,22 +85,22 @@ export function InlineBold({ text, boldClassName }: { text: string; boldClassNam
 /** Dark mono header strip used by call stacks and diagrams ("calls · The list"). */
 export function PlanHeader({ chip, title, right }: { chip: string; title?: ReactNode; right?: ReactNode }) {
   return (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-rule-strong pb-2 font-mono text-label uppercase tracking-[0.14em] text-ink-muted">
-      <span className="font-semibold text-ink">{chip}</span>
-      {title && <span className="min-w-[12rem] flex-1 break-words normal-case tracking-normal text-small font-semibold text-ink">{title}</span>}
-      {right && <span className="ml-auto flex flex-wrap items-center gap-2 text-ink-muted">{right}</span>}
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b bg-muted/60 px-4 py-2 font-mono text-xs">
+      <span className="rounded bg-foreground px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-background">{chip}</span>
+      {title && <span className="min-w-[12rem] flex-1 break-words font-semibold text-foreground">{title}</span>}
+      {right && <span className="ml-auto flex flex-wrap items-center gap-2 text-muted-foreground">{right}</span>}
     </div>
   )
 }
 
 export function PlanFrame({ children, className, ...rest }: { children: ReactNode; className?: string } & Record<`data-${string}`, string | undefined>) {
   return (
-    <figure className={cn("flex flex-col gap-3", className)} {...rest}>
+    <figure className={cn("overflow-hidden rounded-xl border bg-card", className)} {...rest}>
       {children}
     </figure>
   )
 }
 
 export function PlanCaption({ children }: { children: ReactNode }) {
-  return <figcaption className="max-w-[66ch] pt-2 text-meta text-ink-muted">{children}</figcaption>
+  return <figcaption className="border-t px-4 py-2 text-sm leading-6 text-muted-foreground">{children}</figcaption>
 }

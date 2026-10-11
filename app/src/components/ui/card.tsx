@@ -12,7 +12,7 @@ function Card({
       data-slot="card"
       data-size={size}
       className={cn(
-        "group/card flex min-h-full flex-col gap-(--card-spacing) overflow-hidden rounded-lg border border-rule bg-transparent py-(--card-spacing) text-small text-card-foreground [--card-spacing:--spacing(4)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-2xl *:[img:last-child]:rounded-b-2xl",
+        "group/card flex min-h-full flex-col gap-(--card-spacing) overflow-hidden rounded-2xl border-[1.5px] bg-card/95 py-(--card-spacing) text-sm text-card-foreground shadow-[var(--shadow-card)] [--card-spacing:--spacing(4)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-2xl *:[img:last-child]:rounded-b-2xl",
         className
       )}
       {...props}
@@ -42,7 +42,7 @@ function CardTitle({ className, as: Component = "h3", ...props }: CardTitleProps
     <Component
       data-slot="card-title"
       className={cn(
-        "min-w-0 break-words font-serif text-xl leading-[1.15] font-medium tracking-[-0.02em] text-foreground group-data-[size=sm]/card:text-lg",
+        "min-w-0 break-words font-serif text-xl leading-[1.15] font-medium tracking-[-0.02em] text-foreground group-data-[size=sm]/card:text-base",
         className
       )}
       {...props}
@@ -54,7 +54,7 @@ function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-description"
-      className={cn("min-w-0 break-words text-small text-ink-muted", className)}
+      className={cn("min-w-0 break-words text-sm leading-6 text-muted-foreground", className)}
       {...props}
     />
   )

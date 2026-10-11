@@ -6,6 +6,7 @@ import { useMemo } from "react"
 
 import type { AdapterArgs } from "@/components/artifact-types"
 import { normalizeBoxEdges } from "@/lib/contract/artifact-manifest"
+import { PlanCaption, PlanFrame, PlanHeader } from "./plan-ui"
 import { MapMermaid } from "@/components/mermaid/map-mermaid"
 import type { MapInput, MapKind, MapSignal } from "@/lib/diagram/map-to-mermaid"
 
@@ -32,5 +33,13 @@ function BoxDiagram({ node }: Pick<AdapterArgs<"box-diagram">, "node">) {
     }),
     [node.props.nodes, node.props.edges],
   )
-  return <MapMermaid input={input} label={title ?? caption ?? "Diagram"} title={title} caption={caption} legend={dashed ? { dashed } : undefined} />
+  return (
+    <PlanFrame data-box-diagram="">
+      <PlanHeader chip="diagram" title={title} />
+      <div className="va-dot-grid min-w-0 p-3">
+        <MapMermaid input={input} label={title ?? caption ?? "Diagram"} legend={dashed ? { dashed } : undefined} />
+      </div>
+      {caption && <PlanCaption>{caption}</PlanCaption>}
+    </PlanFrame>
+  )
 }

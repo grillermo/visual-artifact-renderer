@@ -8,6 +8,7 @@ import type { AdapterArgs } from "@/components/artifact-types"
 import { MachineCanvas, useMachineSvg } from "@/components/mermaid/state-machine-mermaid"
 import { normalizeMachineEvents } from "@/lib/contract/artifact-manifest"
 import { cn } from "@/lib/utils"
+import { PlanCaption, PlanFrame, PlanHeader } from "./plan-ui"
 
 /** Replays a trace from `initial`; returns the visited states (initial first). */
 export function replayTrace(initial: string, events: readonly { from: string; event: string; to: string }[], trace: readonly string[]): string[] {
@@ -54,8 +55,9 @@ function StateMachine({ node, children: renderedChildren }: AdapterArgs<"state-m
   const traceIndex = trace ? replayTrace(initial, events, traces?.find((t) => t.name === trace.name)?.events ?? []) : null
 
   return (
-    <figure className="m-0 min-w-0" data-state-machine="">
-      {title && <div className="mb-3 font-mono text-label uppercase tracking-[0.14em] text-ink-muted">{title}</div>}
+    <PlanFrame data-state-machine="">
+      <PlanHeader chip="diagram" title={title} />
+      <div className="va-dot-grid min-w-0 p-3">
       <MachineCanvas svg={svg} label={title ?? "State machine"} error={error} input={input} compiled={compiled} selected={selected} onSelect={select} />
       <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1" aria-label="States">
         {states.map((state) => (
@@ -112,7 +114,8 @@ function StateMachine({ node, children: renderedChildren }: AdapterArgs<"state-m
           {screenIndex < 0 && <p className="text-sm text-muted-foreground">No screen for this state.</p>}
         </div>
       )}
-      {caption && <figcaption className="mt-3 max-w-[66ch] text-meta text-ink-muted">{caption}</figcaption>}
-    </figure>
+      </div>
+      {caption && <PlanCaption>{caption}</PlanCaption>}
+    </PlanFrame>
   )
 }

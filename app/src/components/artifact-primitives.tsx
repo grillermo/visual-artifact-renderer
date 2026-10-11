@@ -4,7 +4,7 @@ import type { ReactNode } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import { toneSurfaceClass } from "@/lib/artifacts/status"
+import { statusPanelClass, toneSurfaceClass } from "@/lib/artifacts/status"
 import type { ArtifactTone } from "@/lib/contract/artifact-schema"
 
 export function Figure({
@@ -16,7 +16,6 @@ export function Figure({
   height,
   children,
   className,
-  framed = false,
 }: {
   title?: string
   caption?: string
@@ -26,26 +25,23 @@ export function Figure({
   height?: number | string
   children?: ReactNode
   className?: string
-  /** Legacy opt-in: draw the old bordered surface. Bare by default. */
-  framed?: boolean
 }) {
   return (
     <figure
       className={cn(
-        "flex flex-col gap-3",
-        framed && "rounded-2xl border bg-card/80 p-4",
+        "flex flex-col gap-3 rounded-2xl border bg-card/80 p-4 shadow-[var(--shadow-card-sm)]",
         className
       )}
     >
       {(title || caption) && (
         <figcaption className="flex flex-col gap-1">
           {title && (
-            <h3 className="break-words font-serif text-row-title font-medium tracking-[-0.01em] text-ink">
+            <h3 className="break-words font-serif text-2xl font-medium tracking-[-0.02em] text-foreground">
               {title}
             </h3>
           )}
           {caption && (
-            <p className="break-words text-meta text-ink-muted">{caption}</p>
+            <p className="break-words text-sm leading-6 text-muted-foreground">{caption}</p>
           )}
         </figcaption>
       )}
@@ -70,6 +66,7 @@ export function Figure({
 }
 
 export function PanelCard({
+  tone,
   className,
   children,
 }: {
@@ -80,7 +77,8 @@ export function PanelCard({
   return (
     <div
       className={cn(
-        "min-h-full border-t border-rule pt-4",
+        "min-h-full rounded-xl border bg-background/70 p-4",
+        statusPanelClass(tone),
         className
       )}
     >

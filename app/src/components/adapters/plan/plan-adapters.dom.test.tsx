@@ -123,4 +123,20 @@ describe("plan adapters (DOM)", () => {
     await act(async () => trace.click())
     assert.equal(container.querySelector('[data-state="busy"]')?.getAttribute("aria-pressed"), "true", "trace step 2 is busy")
   })
+
+  it("sequence-diagram keeps the DIAGRAM frame; editorial sequence renders bare", async () => {
+    const props = {
+      title: "Flow",
+      participants: [{ id: "a", label: "A" }, { id: "b", label: "B" }],
+      steps: [{ kind: "message", from: "a", to: "b", text: "hi" }],
+    }
+    await render({ title: "t", nodes: [{ type: "sequence-diagram", props } as unknown as ArtifactNode] })
+    const framed = container.querySelector("[data-sequence-diagram]")!
+    assert.ok(framed.className.includes("border"), "legacy node is framed")
+    assert.match(framed.textContent ?? "", /diagram/i)
+    await render({ title: "t", nodes: [{ type: "sequence", props } as unknown as ArtifactNode] })
+    const bare = container.querySelector("[data-sequence-diagram]")!
+    assert.ok(!bare.className.includes("border") && !bare.className.includes("rounded"), "editorial node has no frame")
+    assert.ok(!/diagram/i.test(bare.firstElementChild?.textContent ?? ""), "no DIAGRAM header chip")
+  })
 })

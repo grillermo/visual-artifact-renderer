@@ -3,6 +3,14 @@
 import type { CSSProperties } from "react"
 
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import {
   Accordion,
   AccordionContent,
   AccordionItem,
@@ -17,28 +25,25 @@ import type { AdapterArgs } from "@/components/artifact-types"
 import type { ArtifactFlowItem } from "@/lib/contract/artifact-schema"
 
 export function renderCard({ node, children }: AdapterArgs<"card">) {
-  // Legacy: a card is a bare group with a hairline above it. No surface, no nested border.
   const props = node.props ?? {}
 
   return (
-    <div className={cn("flex min-w-0 flex-col gap-4 border-t border-rule pt-5", tonePanelClass(props.tone))}>
+    <Card size={props.size} className={tonePanelClass(props.tone)}>
       {(props.title || props.description) && (
-        <div className="flex flex-col gap-1">
-          {props.title && (
-            <h3 className="break-words font-serif text-row-title font-medium text-ink">{props.title}</h3>
-          )}
-          {props.description && <p className="break-words text-small text-ink-muted">{props.description}</p>}
-        </div>
+        <CardHeader>
+          {props.title && <CardTitle>{props.title}</CardTitle>}
+          {props.description && <CardDescription>{props.description}</CardDescription>}
+        </CardHeader>
       )}
-      {children && <div className="flex flex-col gap-4 text-small">{children}</div>}
-    </div>
+      {children && <CardContent className="flex flex-col gap-4">{children}</CardContent>}
+    </Card>
   )
 }
 
 export function renderGrid({ node, children }: AdapterArgs<"grid">) {
   const columns = node.props?.columns ?? 2
 
-  return <div className={cn("grid gap-x-8 gap-y-8", columnsClass(columns))}>{children}</div>
+  return <div className={cn("grid gap-5", columnsClass(columns))}>{children}</div>
 }
 
 export function renderSection({ node, context, renderNodes, nodePath }: AdapterArgs<"section">) {
@@ -57,20 +62,21 @@ export function renderSection({ node, context, renderNodes, nodePath }: AdapterA
       : childNodes
 
   return (
-    <section className="flex scroll-mt-8 flex-col gap-6 border-t border-rule-strong pt-10 first:border-t-0 first:pt-0">
+    <section className="flex scroll-mt-8 flex-col gap-5">
+      <Separator />
       {(props.title || props.description) && (
-        <div className="flex flex-col gap-3">
+        <div className="pb-1">
           {props.title && (
-            <h2 className="max-w-[24ch] break-words font-serif text-chapter font-medium tracking-[-0.02em] text-ink [text-wrap:balance]">
+            <h2 className="break-words font-serif text-3xl font-medium tracking-[-0.025em] text-foreground">
               {props.title}
             </h2>
           )}
           {props.description && (
-            <p className="max-w-[52ch] break-words text-deck text-ink-muted [text-wrap:pretty]">{props.description}</p>
+            <p className="mt-2 max-w-3xl break-words text-muted-foreground">{props.description}</p>
           )}
         </div>
       )}
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-5">
         {renderNodes(filteredChildren, context, `${nodePath}.children`)}
       </div>
     </section>
