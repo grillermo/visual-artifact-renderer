@@ -120,3 +120,34 @@ export function queryText(raw: string): string {
 export function normaliseQuery(raw: string): string {
   return tokens(raw).join(" ")
 }
+
+export const LIBRARY_GROUP_PARAM = "group"
+
+export interface LibraryParams {
+  q: string
+  group?: string
+}
+
+/**
+ * Read the library state from a URL search string. Older links used
+ * `?project=` and `?type=`; they become operators so they keep working.
+ */
+export function libraryParamsFromSearch(search: string): LibraryParams {
+  const params = new URLSearchParams(search)
+  const parts = [params.get("q") ?? ""]
+  const project = params.get("project")
+  const type = params.get("type")
+  if (project && parseOperator(`project:${project}`)) parts.unshift(`project:${project}`)
+  if (type && parseOperator(`type:${type}`)) parts.unshift(`type:${type}`)
+  const group = params.get(LIBRARY_GROUP_PARAM) ?? undefined
+  return { q: normaliseQuery(parts.join(" ")), group: group && /^(project|type)$/.test(group) ? group : undefined }
+}
+
+export function librarySearch({ q, group }: LibraryParams): string {
+  const params = new URLSearchParams()
+  const query = normaliseQuery(q)
+  if (query) params.set("q", query)
+  if (group) params.set(LIBRARY_GROUP_PARAM, group)
+  const search = params.toString()
+  return search ? `?${search}` : ""
+}

@@ -1,3 +1,4 @@
+import { libraryParamsFromSearch, librarySearch } from "./library-query"
 import { format, isToday, isYesterday } from "date-fns"
 
 import { ARTIFACT_TYPES, type ArtifactType } from "@/lib/contract/artifact-schema"
@@ -78,8 +79,9 @@ export function pathWithArtifactFilters(path: string, filters: ArtifactFilters):
   return `${path}${artifactFilterSearch(filters)}`
 }
 
+/** The library query and grouping to carry from home into artifact and project pages. */
 export function homeFilterSearchFromSearch(search: string): string {
-  return artifactFilterSearch(artifactFiltersFromSearch(search))
+  return librarySearch(libraryParamsFromSearch(search))
 }
 
 export interface ArtifactDayGroup {

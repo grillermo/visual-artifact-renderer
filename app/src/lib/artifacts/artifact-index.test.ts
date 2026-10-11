@@ -102,8 +102,8 @@ describe("artifact index", () => {
 
   test("keeps only valid home filters from navigation query parameters", () => {
     assert.equal(
-      homeFilterSearchFromSearch("?q=runtime&project=agents&type=review&panel=comments&thread=1"),
-      "?q=runtime&project=agents&type=review",
+      homeFilterSearchFromSearch("?q=runtime&project=agents&type=review&panel=comments&thread=1&group=type"),
+      "?q=type%3Areview+project%3Aagents+runtime&group=type",
     )
     assert.deepEqual(artifactFiltersFromSearch("?type=unknown"), {
       query: "",

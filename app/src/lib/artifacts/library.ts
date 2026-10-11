@@ -138,13 +138,15 @@ export interface MatchOptions {
   now: number
   /** Skip one facet so its own counts stay stable while it is selected. */
   ignore?: "type" | "project" | "state"
+  /** Project pages list fixtures alongside real work. */
+  includeFixtures?: boolean
 }
 
 /**
  * Operators of one key are OR, different keys are AND, terms are AND.
  * Fixtures stay out unless `is:fixture` is set or the reader typed a search term.
  */
-export function rowMatches(row: LibraryRow, query: LibraryQuery, { now, ignore }: MatchOptions): boolean {
+export function rowMatches(row: LibraryRow, query: LibraryQuery, { now, ignore, includeFixtures }: MatchOptions): boolean {
   const a = row.artifact
   if (ignore !== "type" && query.types.length > 0 && !(a.artifactType && query.types.includes(a.artifactType))) return false
   if (ignore !== "project" && query.projects.length > 0
@@ -153,7 +155,7 @@ export function rowMatches(row: LibraryRow, query: LibraryQuery, { now, ignore }
   if (query.updatedWithinDays !== undefined && now - Date.parse(a.modifiedAt) > query.updatedWithinDays * DAY_MS) return false
   if (ignore !== "state") {
     if (!query.states.every((state) => hasState(row, state, now))) return false
-    if (row.fixture && !query.states.includes("fixture") && query.terms.length === 0) return false
+    if (!includeFixtures && row.fixture && !query.states.includes("fixture") && query.terms.length === 0) return false
   }
   if (query.terms.length > 0) {
     const text = haystack(row)
@@ -162,9 +164,9 @@ export function rowMatches(row: LibraryRow, query: LibraryQuery, { now, ignore }
   return true
 }
 
-export function filterRows(rows: LibraryRow[], raw: string, now: number): LibraryRow[] {
+export function filterRows(rows: LibraryRow[], raw: string, now: number, options: { includeFixtures?: boolean } = {}): LibraryRow[] {
   const query = parseLibraryQuery(raw)
-  return rows.filter((row) => rowMatches(row, query, { now }))
+  return rows.filter((row) => rowMatches(row, query, { now, ...options }))
 }
 
 export interface Facet<T extends string> { value: T; count: number }
