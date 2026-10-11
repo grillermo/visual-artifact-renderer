@@ -25,7 +25,7 @@ export function MermaidScrollFrame({ frameRef, html, className, ...rest }: Props
     }
   }, [frameRef, html])
   return (
-    <div className="relative">
+    <div className="relative min-w-0">
       <div
         ref={frameRef}
         className={cn("mm-canvas overflow-x-auto overflow-y-hidden overscroll-x-contain", className)}

@@ -22,6 +22,7 @@ const subscribeNever = () => () => {}
 /** Viewport line (fraction from the top) a beat's top must pass to become the current one. */
 const ACTIVATE_AT = 0.45
 const DIM_OPACITY = 0.25
+const GHOST_OPACITY = 0.18
 
 /** The current beat: the last one whose top is above the line. Before the first reaches it, beat 0. */
 export function activeBeat(tops: readonly number[], viewportHeight: number): number {
@@ -46,7 +47,7 @@ function Story({ node }: Pick<AdapterArgs<"story">, "node">) {
   const canvasRef = useRef<HTMLDivElement>(null)
 
   const input = useMemo<MapInput>(
-    () => ({ nodes: diagram.nodes, edges: normalizeBoxEdges(diagram.edges).edges, layout: diagram.layout, fitWidth: 460 }),
+    () => ({ nodes: diagram.nodes, edges: normalizeBoxEdges(diagram.edges).edges, layout: diagram.layout, fitWidth: 760 }),
     [diagram],
   )
   const { svg, compiled, error } = useMapSvg(input)
@@ -83,18 +84,21 @@ function Story({ node }: Pick<AdapterArgs<"story">, "node">) {
   const focus = useMemo(() => (interactive ? new Set(beats[active].focus ?? []) : undefined), [interactive, active, beats])
 
   // Beats act on the rendered Mermaid SVG: nodes by data-mm-node, edges by data-mm-edge.
-  // Not yet shown = hidden; shown but outside a non-empty focus set = dimmed.
+  // Not yet shown = ghosted; shown but outside a non-empty focus set = dimmed.
   useEffect(() => {
     const root = canvasRef.current
     if (!root || !svg) return
     const mm = (id: string) => compiled.nodeIds.get(id)
     const shown = visible && new Set([...visible].map(mm))
     const lit = focus && focus.size > 0 ? new Set([...focus].map(mm)) : undefined
-    const transition = interactive ? "opacity 300ms ease-out" : ""
+    const transition = interactive ? "opacity 300ms ease-out, filter 300ms ease-out" : ""
+    // Nothing is hidden. Not yet revealed = ghosted (faint, no colour); revealed but outside a
+    // non-empty focus set = dimmed; everything else = full strength.
     const apply = (el: Element, show: boolean, dim: boolean) => {
       const style = (el as SVGElement).style
       style.transition = transition
-      style.opacity = !show ? "0" : dim ? String(DIM_OPACITY) : ""
+      style.opacity = !show ? String(GHOST_OPACITY) : dim ? String(DIM_OPACITY) : ""
+      style.filter = !show ? "grayscale(1)" : ""
     }
     root.querySelectorAll<SVGGElement>("[data-mm-node]").forEach((el) => {
       const id = el.dataset.mmNode!
@@ -109,7 +113,7 @@ function Story({ node }: Pick<AdapterArgs<"story">, "node">) {
 
   return (
     <figure
-      className="m-0 grid grid-cols-[minmax(0,1fr)] gap-x-12 min-[1100px]:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]"
+      className="m-0 grid grid-cols-[minmax(0,1fr)] gap-x-8 min-[1100px]:grid-cols-[minmax(0,2.4fr)_minmax(0,1fr)]"
       data-story=""
       data-active={interactive ? active : undefined}
       aria-label={caption}
@@ -121,7 +125,7 @@ function Story({ node }: Pick<AdapterArgs<"story">, "node">) {
         )}
       >
         <div className="flex min-h-0 flex-col justify-center">
-          <MapCanvas svg={svg} label={caption} error={error} svgRef={canvasRef} compiled={compiled} />
+          <MapCanvas svg={svg} label={caption} error={error} svgRef={canvasRef} compiled={compiled} maxScale={1.6} />
         </div>
         <MapLegend compiled={compiled} nodes={input.nodes} legend={diagram.legend} />
         <EdgeSummary input={input} />
@@ -135,13 +139,13 @@ function Story({ node }: Pick<AdapterArgs<"story">, "node">) {
             }}
             data-beat={index}
             className={cn(
-              "flex flex-col justify-center py-6",
-              interactive ? "min-h-[30svh]" : "py-3",
+              "flex flex-col justify-center",
+              interactive ? "py-4 min-[1100px]:min-h-[14svh]" : "py-2",
               interactive && "transition-opacity duration-300 ease-out",
               interactive && index !== active && "opacity-65",
             )}
           >
-            <div className="mb-2 font-mono text-label uppercase tracking-[0.14em] text-ink-muted">
+            <div className="mb-1 font-mono text-label uppercase tracking-[0.14em] text-ink-muted">
               {index + 1} / {beats.length}
             </div>
             <div className="max-w-[44ch] text-body">

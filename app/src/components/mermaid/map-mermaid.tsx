@@ -109,6 +109,7 @@ export function MapCanvas({
   svgRef,
   compiled,
   minHeight = 160,
+  maxScale = 1,
 }: {
   svg: string
   label: string
@@ -117,6 +118,8 @@ export function MapCanvas({
   svgRef?: React.RefObject<HTMLDivElement | null>
   compiled?: CompiledMap
   minHeight?: number
+  /** Largest enlargement when the frame is wider than the drawing. 1 = never above natural size. */
+  maxScale?: number
 }) {
   const innerRef = useRef<HTMLDivElement>(null)
   const ref = svgRef ?? innerRef
@@ -131,8 +134,8 @@ export function MapCanvas({
     const natural = Number(svg.dataset.naturalWidth)
     const naturalH = Number(svg.getAttribute("viewBox")?.split(" ")[3] ?? 0)
     const fit = () => {
-      const scale = Math.min(1, el.clientWidth / natural)
-      const use = scale >= MIN_FIT_SCALE ? scale : 1
+      const scale = Math.min(maxScale, el.clientWidth / natural)
+      const use = scale >= MIN_FIT_SCALE || scale > 1 ? scale : 1
       svg.setAttribute("width", String(Math.ceil(natural * use)))
       svg.setAttribute("height", String(Math.ceil(naturalH * use)))
     }
@@ -140,7 +143,7 @@ export function MapCanvas({
     const observer = new ResizeObserver(fit)
     observer.observe(el)
     return () => observer.disconnect()
-  }, [svg, ref])
+  }, [svg, ref, maxScale])
   if (error) {
     return (
       <pre className="whitespace-pre-wrap border-l-2 border-signal-risk pl-3 text-meta text-ink-muted" role="alert">
