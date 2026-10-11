@@ -17,21 +17,15 @@ import type { MapInput } from "@/lib/diagram/map-to-mermaid"
 import { cn } from "@/lib/utils"
 
 import { usePrefersReducedMotion } from "../plan/diagram-svg"
+import { activeReadingStep } from "../use-active-step"
 
 const subscribeNever = () => () => {}
-/** Viewport line (fraction from the top) a beat's top must pass to become the current one. */
-const ACTIVATE_AT = 0.45
 const DIM_OPACITY = 0.25
 const GHOST_OPACITY = 0.18
 
 /** The current beat: the last one whose top is above the line. Before the first reaches it, beat 0. */
 export function activeBeat(tops: readonly number[], viewportHeight: number): number {
-  const line = viewportHeight * ACTIVATE_AT
-  let active = 0
-  tops.forEach((top, i) => {
-    if (top <= line) active = i
-  })
-  return active
+  return activeReadingStep(tops, viewportHeight)
 }
 
 export function renderStory({ node }: AdapterArgs<"story">) {

@@ -561,6 +561,24 @@ html.dark {
 .mm-k-external { --mm-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke='black' stroke-width='1.4' stroke-dasharray='2.4 2.2'%3E%3Ccircle cx='7' cy='7' r='5.5'/%3E%3C/svg%3E"); }
 .mm-canvas foreignObject { overflow: visible; }
 .mm-canvas .edgeLabel, .mm-canvas .edgeLabel * { letter-spacing: normal; font-family: var(--font-sans); font-size: var(--fs-meta); }
+/* Walkthroughs follow the reader only when their own container has room. */
+.va-walkthrough { min-width: 0; }
+.va-walkthrough-layout { display: grid; gap: 2rem; min-width: 0; }
+.va-walkthrough[data-wide] .va-walkthrough-layout { grid-template-columns: minmax(18rem,22rem) minmax(0,1fr); }
+.va-walkthrough-steps { list-style: none; padding: 0; margin: 0; min-width: 0; }
+.va-walkthrough-steps > li { padding: 1rem 0; border-top: 1px solid var(--rule); scroll-margin-top: calc(var(--header-height) + 4rem); }
+.va-walkthrough[data-wide] .va-walkthrough-steps > li { min-height: 40svh; }
+.va-walkthrough-step-title { display: flex; align-items: baseline; gap: .75rem; text-align: left; min-height: 44px; }
+.va-walkthrough-step-title:focus-visible { outline: 2px solid var(--brand); }
+.va-walkthrough-pane { position: sticky; top: calc(var(--header-height) + 1rem); max-height: calc(100svh - var(--header-height) - 2rem); min-width: 0; align-self: start; }
+.va-walkthrough-pane .va-code-scroll { max-height: calc(100svh - var(--header-height) - 10rem); }
+.va-walkthrough-pager { display: flex; align-items: center; justify-content: flex-end; gap: .5rem; margin-bottom: .5rem; }
+.va-walkthrough-pager button { width: 44px; height: 44px; border: 1px solid var(--rule); border-radius: var(--radius-md); font-size: 1.5rem; }
+.va-walkthrough-pager button:disabled { opacity: .4; }
+.va-walkthrough-nav { position: sticky; top: var(--header-height); z-index: 10; display: flex; overflow-x: auto; gap: .5rem; background: var(--background); padding: .5rem 0; }
+.va-walkthrough-nav button { display: flex; flex-shrink: 0; gap: .5rem; align-items: center; min-height: 44px; max-width: 18rem; padding: .5rem; text-align: left; font-size: var(--fs-small); }
+.va-walkthrough-nav button[aria-current] { background: color-mix(in oklch,var(--brand) 10%,transparent); border-radius: var(--radius-md); }
+
 /* Shared source surface: colour means change, focus or note intent. */
 .va-code { container: va-code / inline-size; min-width: 0; max-width: 100%; }
 .va-code-header { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; margin-bottom: .5rem; }
