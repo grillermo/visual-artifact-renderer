@@ -1,9 +1,7 @@
 "use client"
 
 import { Prose } from "@/components/ui/prose"
-import { CodeBlock } from "@/components/ui/code-block"
-import { StructuredCodeBlock } from "@/components/ui/code-block-structured"
-import { codeBlockIsStructured } from "@/lib/contract/artifact-manifest"
+import { CodeView } from "@/components/ui/code/code-view"
 import { FileTree } from "@/components/ui/file-tree"
 import { ArtifactImage } from "@/components/ui/artifact-image"
 import { cn } from "@/lib/utils"
@@ -87,7 +85,5 @@ export function renderProse({ node }: AdapterArgs<"prose">) {
 }
 
 export function renderCode({ node }: AdapterArgs<"code">) {
-  if (codeBlockIsStructured(node.props)) return <StructuredCodeBlock {...node.props} code={node.props.code ?? node.props.after ?? ""} annotations={node.props.annotations?.map(note => ({ ...note, tone: note.tone === "idea" ? "info" : note.tone }))} />
-  const { title, language, code, caption } = node.props
-  return <CodeBlock variant="bare" title={title} language={language} code={code ?? node.props.after ?? ""} caption={caption} />
+  return <CodeView {...node.props} />
 }

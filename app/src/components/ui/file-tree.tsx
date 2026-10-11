@@ -14,7 +14,7 @@ import {
 
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
-import { CodeBlock } from "@/components/ui/code-block"
+import { CodeView } from "@/components/ui/code/code-view"
 import {
   Collapsible,
   CollapsibleContent,
@@ -529,11 +529,10 @@ export function FileTree({
         )}
       </div>
       {selectedItem && typeof selectedItem.content === "string" && (
-        <CodeBlock
+        <CodeView
           code={selectedItem.content}
           language={selectedItem.language ?? inferLanguage(selectedItem.name)}
           title={selectedItem.flattenedName ?? selectedItem.name}
-          className="mt-2"
         />
       )}
     </div>

@@ -3,7 +3,7 @@ import { describe, it } from "node:test"
 import { renderToStaticMarkup } from "react-dom/server"
 
 import { ArtifactNodeSchema } from "@/lib/contract/artifact-schema"
-import { CodeBlock } from "@/components/ui/code-block"
+import { CodeView } from "@/components/ui/code/code-view"
 import { PullLine } from "./pull-line"
 import { renderChapter } from "./chapter-adapter"
 import { renderCompare } from "./compare-adapter"
@@ -48,8 +48,8 @@ describe("wp4 round 2", () => {
   })
 
   it("bare code block puts the title outside the surface", () => {
-    const out = html(<CodeBlock variant="bare" title="Boot" code="ls" language="bash" />)
-    assert.match(out, /data-code-variant="bare"/)
+    const out = html(<CodeView title="Boot" code="ls" language="bash" />)
+    assert.match(out, /data-code-mode="code"/)
     assert.doesNotMatch(out, /border-b bg-muted/)
   })
 })
