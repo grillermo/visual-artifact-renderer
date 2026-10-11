@@ -117,7 +117,6 @@ function Library({ index }: { index: ArtifactIndex }) {
   const filtering = q.trim().length > 0
   const text = queryText(q)
   const openTotal = artifacts.reduce((n, a) => n + (a.openThreads ?? 0), 0)
-  const recentTotal = artifacts.filter((a) => isNew(a, now)).length
   const linkTo = artifactHref(librarySearch(params))
 
   const rail = (
@@ -142,7 +141,7 @@ function Library({ index }: { index: ArtifactIndex }) {
         <p className="lib-num text-sm text-ink-muted sm:ml-auto">
           <b className="font-medium text-ink">{artifacts.length}</b> artifacts ·{" "}
           <b className="font-medium text-ink">{rows.length}</b> after folding copies ·{" "}
-          <b className="font-medium text-ink">{recentTotal}</b> this week
+          <b className="font-medium text-ink">{strip.recentCount}</b> this week
           {openTotal > 0 && (
             <>
               {" · "}
