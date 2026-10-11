@@ -1,8 +1,8 @@
 # Cycle 1 components
 
-Contract **3.0.0** keeps 31 node types and rejects the 33 removed types. No migration command. Current typography and theme tokens remain.
+Contract **3.0.0** keeps 31 node types and rejects the 34 removed types. No migration command. Current typography and theme tokens remain.
 
-Examples below are paths relative to `~/.agents/skills/visual-artifact/artifacts/`. They identify real component usage, not proof that the entire old bundle parses under major 3. The artifact store was not changed.
+Examples below are paths relative to `~/.agents/skills/visual-artifact/artifacts/`. They identify real component usage, not proof that the entire old bundle parses under major 3. Original historical bundles were not changed. The task's `ui-v2-samples` copies use the new contract.
 
 ## Surviving nodes
 
@@ -60,12 +60,18 @@ Their schema branches, manifest entries and renderer adapters are gone. Historic
 - Feedback persistence: the worktree's development handler writes annotation files atomically instead of relying on a fixed-port proxy.
 - Copy Markdown: export every comment body and its node path, including comments nested in surviving containers.
 
-## Verification
+## Cycle 1 verification
+
+The earlier full gate passed shared build, app lint, TypeScript, **231 app tests**, contract export, production build and **319 CLI tests**. The checkpoint passes lint, TypeScript and **35 focused regressions**; the final gate follows after this checkpoint. `verify:artifacts` passes **4 repository specs**, including **2 bundles**, and all **31 manifest examples**.
+
+The earlier headless agent-browser matrix checked all 12 staged real samples and the acceptance fixture at **1440 and 390**, **light and dark**, with comments open. The **52-capture matrix** has no horizontal page overflow or console errors. Source-bearing samples cover VAR, cloud-agent box, nice-mermaid, Pi extensions and the diagram gallery. Dense desktop notes use five collision connectors; mobile traces start collapsed. Evidence and scripts live in `qa/cycle-1/`, `qa/capture-cycle-1.mjs` and `qa/prepare-cycle-1.ts`.
+
+## Cycle 0 verification
 
 The required gate passed: shared build, app lint, TypeScript, **202 app tests**, contract export, production build and **318 CLI tests**. Generated manifest examples and tracked canonical fixtures also passed `verify:artifacts` with an explicitly empty runtime-store override.
 
 Default `pnpm verify:artifacts` fails on old local bundles such as `artifacts/visualizer/call-stack-excerpts/artifact.json`, because major 3 intentionally rejects their removed nodes. Those bundles were not modified or migrated.
 
-### Limits
+### Cycle 0 limits
 
 DOM tests, static CSS assertions and type checks are not visual acceptance. No browser was opened. Port 9991 was occupied by a process belonging to another worktree; its responses were not used as evidence for this branch. The real examples above still need visual checks at 390px, 1280px and wider desktop sizes, including feedback open and reduced motion.
