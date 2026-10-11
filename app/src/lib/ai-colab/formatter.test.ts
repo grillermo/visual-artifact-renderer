@@ -97,6 +97,26 @@ const baseSpec = VisualArtifactSpecSchema.parse({
 }) satisfies VisualArtifactSpec
 
 describe("formatArtifactForAI", () => {
+  it("exports every body and path inside chapter, columns and details", () => {
+    const spec = VisualArtifactSpecSchema.parse({
+      slug: "editorial-feedback", title: "Review", nodes: [{
+        type: "chapter", props: { title: "Reading" }, children: [
+          { type: "columns", children: [{ type: "prose", props: { content: "Left" }, metadata: { id: "left" } }, { type: "prose", props: { content: "Right" } }] },
+          { type: "details", props: { summary: "More" }, children: [{ type: "prose", props: { content: "Detail" } }] },
+        ],
+      }],
+    })
+    const paths = ["nodes.0.children.0.children.0", "nodes.0.children.0.children.1", "nodes.0.children.1.children.0"]
+    const comments: AIColabComment[] = paths.map((nodePath, index) => ({
+      id: `c${index}`, target: { kind: "node", nodePath, ...(index === 0 ? { nodeId: "left" } : {}) }, body: `Real feedback ${index}\nSecond line ${index}`,
+    }))
+    const output = formatArtifactForAI(spec, { comments })
+    assert.match(output, /have 3 pieces of feedback/)
+    for (const [index, path] of paths.entries()) {
+      assert.ok(output.includes(`Node path: ${path}`))
+      assert.ok(output.includes(`| Real feedback ${index}\n| Second line ${index}`))
+    }
+  })
   it("returns an empty string when there are no comments", () => {
     const output = formatArtifactForAI(baseSpec)
     assert.equal(output, "")

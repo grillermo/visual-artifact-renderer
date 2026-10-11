@@ -18,7 +18,7 @@ import {
   isInsideArtifactsDir,
   parseBundleRoute,
   type BundleRoute,
-} from "./paths.ts"
+} from "./paths"
 
 export type { AnnotationAuthor, AnnotationDocument, AnnotationMutation, AnnotationMutations, AnnotationThread }
 

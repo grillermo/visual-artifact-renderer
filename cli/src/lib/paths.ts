@@ -1,5 +1,8 @@
 import { resolve } from "node:path"
-import { isKebabCase } from "../util.ts"
+// Keep route validation independent of Bun-only CLI input utilities.
+function isKebabCase(value: string): boolean {
+  return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value)
+}
 
 /** Root path segments reserved by the runtime. Project/slug names must not collide. */
 export const ROOT_RESERVED_SEGMENTS = [

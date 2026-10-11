@@ -66,6 +66,7 @@ export function formatArtifactForAI(
       const start = range?.start ?? 1
       const end = range?.end ?? 1
       lines.push(`${n++}. (lines ${start}-${end}) Feedback on: "${escapeQuote(label)}"`)
+      lines.push(`Node path: ${path}`)
       lines.push("")
       lines.push(...prefixLines(comment.body))
       lines.push("")
@@ -78,6 +79,7 @@ export function formatArtifactForAI(
         ? comment.target.label ?? comment.target.nodeType ?? comment.target.nodePath ?? "unknown"
         : "unknown"
     lines.push(`${n++}. (lines 1-1) Feedback on: "${escapeQuote(label)}"`)
+    if (comment.target.kind === "node") lines.push(`Node path: ${comment.target.nodePath ?? "unresolved"}`)
     lines.push("")
     lines.push(...prefixLines(comment.body))
     lines.push("")
@@ -120,7 +122,7 @@ function collectNodePathsInOrder(spec: VisualArtifactSpec): string[] {
       const nodePath = buildNodePath(prefix, i)
       paths.push(nodePath)
 
-      if (node.type === "card" || node.type === "grid" || node.type === "section") {
+      if ("children" in node) {
         if (node.children) {
           walk(node.children, childrenNodePath(nodePath))
         }
@@ -342,7 +344,7 @@ function buildNodeIdIndex(spec: VisualArtifactSpec): Map<string, string> {
         index.set(node.metadata.id, nodePath)
       }
 
-      if (node.type === "card" || node.type === "grid" || node.type === "section") {
+      if ("children" in node) {
         if (node.children) {
           walk(node.children, childrenNodePath(nodePath))
         }
