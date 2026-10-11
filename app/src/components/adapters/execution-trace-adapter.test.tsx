@@ -2,6 +2,7 @@ import assert from "node:assert/strict"
 import { describe, it } from "node:test"
 import { renderToStaticMarkup } from "react-dom/server"
 
+import { traceDepths } from "@/lib/trace-depth"
 import { renderExecutionTrace } from "./execution-trace-adapter"
 
 const sourceContent = [
@@ -62,6 +63,9 @@ const node = {
 }
 
 describe("execution trace adapter", () => {
+  it("derives call/return/throw depth without schema fields", () => {
+    assert.deepEqual(traceDepths([{kind:"return"},{kind:"call"},{kind:"boundary"},{kind:"call"},{kind:"return"},{kind:"throw"}]), [0,0,1,1,1,0])
+  })
   it("renders verified code identity separately from narrative", () => {
     const html = renderToStaticMarkup(renderExecutionTrace({ node } as never))
 
@@ -75,5 +79,10 @@ describe("execution trace adapter", () => {
     assert.doesNotMatch(html, /Source-derived review path/)
     assert.match(html, /Normalized ProviderQuota/)
     assert.match(html, /Pi status footer/)
+    assert.doesNotMatch(html, /truncate|h-20/)
+    assert.match(html, /aria-current="step"/)
+    assert.match(html, /<details><summary>/)
+    assert.doesNotMatch(html, /<details open/)
+    assert.doesNotMatch(html, /No inputs recorded|No outputs recorded|aria-label="Inputs"/)
   })
 })

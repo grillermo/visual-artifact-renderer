@@ -9,7 +9,7 @@ before(()=>{
   const dom=new JSDOM("<!doctype html><html><body></body></html>",{url:"http://localhost"})
   Object.assign(globalThis,{window:dom.window,document:dom.window.document,MutationObserver:dom.window.MutationObserver,IS_REACT_ACT_ENVIRONMENT:true})
   Object.defineProperty(globalThis,"navigator",{configurable:true,value:{clipboard:{writeText:async(text:string)=>{copied=text}}}})
-  Object.assign(globalThis,{ResizeObserver:class { constructor(private cb:ResizeObserverCallback){} observe(element:Element){this.cb([{contentRect:{width}} as ResizeObserverEntry],this as unknown as ResizeObserver)} disconnect(){} }})
+  Object.assign(globalThis,{ResizeObserver:class { constructor(private cb:ResizeObserverCallback){} observe(){this.cb([{contentRect:{width}} as ResizeObserverEntry],this as unknown as ResizeObserver)} disconnect(){} }})
   container=document.createElement("div"); root=createRoot(container)
 })
 after(()=>act(()=>root.unmount()))

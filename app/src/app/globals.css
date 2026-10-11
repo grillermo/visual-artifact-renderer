@@ -181,7 +181,7 @@
   /* Exhibit width stays independent of the prose measure and feedback panel. */
   --va-content-max-width: 80rem;
   --va-figure-min-width: 14rem;
-  --va-trace-stack-width: 19rem;
+  --va-trace-stack-width: 24rem;
 
   /* Annotation motion tokens */
   --va-annotation-ease: cubic-bezier(0.16, 1, 0.3, 1);
@@ -414,19 +414,39 @@ html.dark {
 }
 
 /* Trace panes respond to their own width, including an open feedback panel. */
-.va-execution-trace { container: va-trace / inline-size; }
+.va-execution-trace { container: va-trace / inline-size; min-width: 0; max-width: 100%; }
+.va-trace-heading { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-bottom: .75rem; }
+.va-trace-pager { display: flex; align-items: center; gap: .5rem; }
+.va-trace-pager button, .va-trace-about { display: grid; place-items: center; min-width: 44px; min-height: 44px; border-radius: var(--radius-md); }
+.va-trace-pager button { border: 1px solid var(--rule); }
+.va-trace-pager button:disabled { opacity: .4; }
+.va-trace-pager button:hover:not(:disabled) { background: var(--accent); }
+.va-trace-boundary { display: flex; flex-wrap: wrap; gap: .5rem 1rem; align-items: baseline; border-block: 1px solid var(--rule); padding: .75rem 0; font-size: var(--fs-small); }
+.va-trace-boundary [data-outcome="passed"] { color: var(--signal-new); }
+.va-trace-boundary [data-outcome="failed"], .va-trace-boundary [data-outcome="blocked"] { color: var(--signal-risk); }
+.va-trace-main { display: grid; grid-template-columns: minmax(0,1fr); gap: 1.5rem; padding-block: 1rem; }
+.va-trace-frames { padding: 0; margin: 0; list-style: none; }
+.va-trace-frames[data-long] { max-height: clamp(20rem,60svh,36rem); overflow-y: auto; }
+.va-trace-frame { display: flex; align-items: baseline; gap: .5rem; width: 100%; min-height: 44px; padding: .75rem .5rem; text-align: left; border-bottom: 1px solid var(--rule); }
+.va-trace-frame[aria-current] { background: color-mix(in oklch,var(--brand) 10%,transparent); }
+.va-trace-order { display: grid; place-items: center; width: 22px; height: 22px; flex-shrink: 0; font: 500 11px/1 var(--font-mono); font-variant-numeric: tabular-nums; color: var(--ink-muted); border-radius: 50%; }
+.va-trace-frame[aria-current] .va-trace-order { background: var(--brand); color: var(--background); }
+.va-trace-frame-content { min-width: 0; flex: 1; }
+.va-trace-identity { display: flex; flex-wrap: wrap; gap: .5rem; font: 400 13px/1.6 var(--font-mono); overflow-wrap: anywhere; }
+.va-trace-identity [data-kind="throw"] { color: var(--signal-risk); }
+.va-trace-location { margin-left: auto; font-size: var(--fs-meta); color: var(--ink-muted); }
+.va-trace-label { display: block; margin-top: .25rem; font-size: var(--fs-small); color: var(--ink-muted); overflow-wrap: anywhere; }
+.va-depth-guides { display: flex; align-self: stretch; flex-shrink: 0; }
+.va-depth-guides i { width: 1rem; border-left: 1px solid var(--rule); }
+.va-trace-current { display: flex; align-items: baseline; gap: .5rem; margin-top: .5rem; }
+.va-trace-source { min-width: 0; }
+.va-trace-source .va-code-scroll { min-height: 20rem; max-height: clamp(20rem,60svh,36rem); }
+.va-trace-inspector { display: grid; grid-template-columns: minmax(0,1fr); gap: 1.5rem; border-top: 1px solid var(--rule); padding-block: 1rem; }
+.va-trace-inspector > section { min-width: 0; }
+.va-trace-stack summary { cursor: pointer; padding-block: .5rem; }
 @container va-trace (min-width: 60rem) {
-  .va-trace-layout {
-    grid-template-columns: var(--va-trace-stack-width) minmax(0, 1fr);
-    grid-template-rows: auto auto minmax(0, 1fr);
-  }
-  .va-trace-title { grid-column: 1; grid-row: 1; border-right: 1px solid var(--border); }
-  .va-trace-controls { grid-column: 1; grid-row: 2; border-right: 1px solid var(--border); }
-  .va-trace-stack { grid-column: 1; grid-row: 3; border-right: 1px solid var(--border); border-top: 0; }
-  .va-trace-source { grid-column: 2; grid-row: 1 / span 3; }
-  .va-trace-pager-compact { display: none; }
-  .va-trace-pager-wide { display: block; }
-  .va-trace-current { margin-top: 0; }
+  .va-trace-main { grid-template-columns: var(--va-trace-stack-width) minmax(0,1fr); }
+  .va-trace-inspector { grid-template-columns: repeat(auto-fit,minmax(15rem,1fr)); }
 }
 
 /* The narrow map is a connection list, not a miniaturised or clipped drawing. */
