@@ -9,6 +9,9 @@ Keep Geist Sans, Geist Mono and the editorial serif. Colour identifies source fo
 | 988px exhibit at 1440px with comments closed | 1184px exhibit, 96rem page cap and a 160px contents rail | Use the viewport for source and diagrams; prose keeps its 75ch measure |
 | Small source, brown focus and faded context | 14px source, blue focus and full-opacity muted context | Make the selected range distinct without sacrificing contrast |
 | Dense notes stretch the whole source background | Dense notes inline; ordinary notes in a plain rail | The note explains the range without creating an empty slab |
+| 40svh empty step slots | Compact ordered steps with file and line labels | The whole route is visible beside its source |
+
+Walkthroughs split at 900px container width, not 720px. Smaller containers use excerpts. The desktop pane still follows scroll, but clicking or paging changes the source locally without jumping the page. Keyboard selection stays instant. The active step gets a blue pin, full outline and soft fill. Inactive pins keep their note intent. Mobile navigation scrolls the selected excerpt beneath the sticky navigation.
 
 Source focus gets `--source-focus`, an alias of the existing blue palette through `--signal-wait`, and an 18% focus fill. Brand and idea notes stay clay. Added and removed rows use 18% tint; changed words use 32%; note ranges use 12%. Every mark retains its number, glyph or bracket. Conservative syntax contrast bounds cover the stronger fills. Context uses `--ink-muted` rather than 55% opacity. The 24px row pitch stays fixed, including mobile, so note anchors remain aligned. Four or more notes averaging fewer than three source rows per note use inline explanations at every width. Less dense notes keep their measured collision rail and connectors.
 

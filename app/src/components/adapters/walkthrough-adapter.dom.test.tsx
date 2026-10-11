@@ -24,14 +24,20 @@ test("step order and click switch active file and source range",async()=>{
   await act(async()=>{(container.querySelectorAll('.va-walkthrough-step-title')[1] as HTMLButtonElement).click()})
   assert.ok(container.querySelector('.va-walkthrough-pane [data-active="true"][data-line="2"]'))
   assert.match(container.querySelector('.va-walkthrough-pane .va-code-header')!.textContent!,/b.ts/)
+  assert.equal(behavior,"")
+  assert.match(container.querySelector('.va-walkthrough-steps [data-active] .va-walkthrough-location')!.textContent!,/b.tsLines 2/)
 })
 test("keyboard moves steps without motion",async()=>{
   await render();await act(async()=>{container.querySelector('.va-walkthrough-pane')!.dispatchEvent(new window.KeyboardEvent("keydown",{key:"ArrowUp",bubbles:true}))})
-  assert.match(container.querySelector('.va-walkthrough-pane .va-code-header')!.textContent!,/a.ts/);assert.equal(behavior,"instant")
+  assert.match(container.querySelector('.va-walkthrough-pane .va-code-header')!.textContent!,/a.ts/);assert.equal(behavior,"")
 })
 test("narrow width shows every excerpt and full-file disclosures, no sticky pane",async()=>{
   width=390;await render();assert.equal(container.querySelector('.va-walkthrough-pane'),null)
   assert.equal(container.querySelectorAll('li .va-code').length,2);assert.equal(container.querySelectorAll('details').length,2);assert.ok(container.querySelector('.va-walkthrough-nav'))
+})
+test("medium containers use excerpts rather than cramping two source columns",async()=>{
+  width=800;await render();assert.equal(container.querySelector('.va-walkthrough-pane'),null)
+  assert.equal(container.querySelectorAll('li .va-code').length,2)
 })
 test("old-side focus follows the old number on shifted unchanged rows",async()=>{
   width=1000
@@ -55,5 +61,5 @@ test("live step removal clamps selection to a remaining excerpt",async()=>{
   assert.equal(container.querySelector('.va-walkthrough-steps [data-active]')!.textContent?.includes("Finish"),true)
 })
 test("reduced motion activates instantly",async()=>{
-  width=1000;reduced=true;await render();await act(async()=>{(container.querySelectorAll('.va-walkthrough-step-title')[1] as HTMLButtonElement).click()});assert.equal(behavior,"instant")
+  width=390;reduced=true;await render();await act(async()=>{(container.querySelectorAll('.va-walkthrough-step-title')[1] as HTMLButtonElement).click()});assert.equal(behavior,"instant")
 })
