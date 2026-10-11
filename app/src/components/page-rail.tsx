@@ -39,7 +39,7 @@ export function RailLayout({ children }: { children: ReactNode }) {
 
   return (
     <div
-      className={cn(hasRail && "min-[1200px]:grid min-[1200px]:grid-cols-[180px_minmax(0,1fr)] min-[1200px]:gap-12")}
+      className={cn("va-rail-layout", hasRail && "min-[1200px]:grid min-[1200px]:grid-cols-[180px_minmax(0,1fr)] min-[1200px]:gap-12")}
     >
       {hasRail && (
         <aside className="min-w-0 min-[1200px]:row-span-1">

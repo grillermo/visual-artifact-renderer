@@ -184,8 +184,8 @@
   --va-annotation-fast: 100ms;
   --va-annotation-base: 160ms;
   --va-annotation-panel: 190ms;
-  --va-annotation-panel-width: clamp(22rem, 28vw, 30rem);
-  --va-annotation-panel-gap: 1.25rem;
+  --va-annotation-panel-width: 22.5rem;
+  --va-annotation-sheet-height: 50dvh;
 }
 
 html.dark {
@@ -412,10 +412,51 @@ html.dark {
    animation, then hide it so screen readers and test tools do not see the
    closed sidebar as a blocking dialog. */
 .va-panel {
-  transition: transform 190ms var(--va-annotation-ease), opacity 190ms var(--va-annotation-ease), visibility 0ms 190ms;
+  inset: auto 0 0;
+  height: var(--va-annotation-sheet-height);
+  padding-bottom: env(safe-area-inset-bottom);
+  border-top: 1px solid var(--border);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  transform: translateY(1.25rem);
+  transition: transform var(--va-annotation-panel) var(--va-annotation-ease), opacity var(--va-annotation-panel) var(--va-annotation-ease), visibility 0ms var(--va-annotation-panel);
 }
 .va-panel-open {
+  transform: translateY(0);
   transition-delay: 0ms;
+}
+.va-artifact-frame {
+  min-width: 0;
+}
+.va-artifact-frame[data-panel-open="true"] {
+  padding-bottom: var(--va-annotation-sheet-height);
+}
+@media (min-width: 1280px) {
+  .va-panel {
+    inset: var(--header-height) 0 0 auto;
+    width: var(--va-annotation-panel-width);
+    height: auto;
+    border-top: 0;
+    border-left: 1px solid var(--border);
+    border-radius: 0;
+    transform: translateX(1.25rem);
+  }
+  .va-panel-open { transform: translateX(0); }
+  .va-artifact-frame[data-panel-open="true"] {
+    padding-right: var(--va-annotation-panel-width);
+    padding-bottom: 0;
+  }
+  .va-artifact-frame[data-panel-open="true"] .va-rail-layout {
+    display: block;
+  }
+  .va-artifact-frame[data-panel-open="true"] [data-slot="page-rail"] {
+    display: none;
+  }
+  .va-artifact-frame[data-panel-open="true"] [data-slot="page-rail-mobile"] {
+    display: block;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .va-panel { transition: none; transform: none; }
 }
 
 @keyframes va-view-exit {

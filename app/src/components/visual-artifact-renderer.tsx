@@ -51,16 +51,8 @@ function VisualArtifactRendererContent({
   if (isLegacyOnlySpec(spec)) return <LegacyShell spec={spec} context={{ ...context, legacyShell: true }} ctx={ctx} aiColabCtx={aiColabCtx} />
 
   return (
-    <main
-      data-comments-open={ctx.isCommentMode ? "true" : undefined}
-      data-ai-colab-open={aiColabCtx.isAIColabMode ? "true" : undefined}
-      className={cn(
-        "mx-auto w-full max-w-[1120px] px-5 py-10 sm:px-8 lg:py-14",
-        "transition-[padding] duration-[var(--va-annotation-panel)] ease-[var(--va-annotation-ease)]",
-        "data-[comments-open=true]:md:pr-[calc(var(--va-annotation-panel-width)+var(--va-annotation-panel-gap))]",
-        "data-[ai-colab-open=true]:md:pr-[calc(var(--va-annotation-panel-width)+var(--va-annotation-panel-gap))]",
-      )}
-    >
+    <div className="va-artifact-frame" data-panel-open={ctx.isCommentMode || aiColabCtx.isAIColabMode ? "true" : undefined}>
+      <main className="mx-auto w-full max-w-[1120px] px-5 py-10 sm:px-8 lg:py-14">
       <RailLayout>
         <header className="mb-10 sm:mb-14">
           <div className="flex flex-wrap items-center gap-3 font-mono text-label uppercase tracking-[0.14em] text-ink-muted">
@@ -90,12 +82,13 @@ function VisualArtifactRendererContent({
           {renderNodes(spec.nodes, context)}
         </div>
       </RailLayout>
+      </main>
 
       <AnnotationPanel />
       <NodePickHUD />
       <AIColabPanel />
       <AIColabHUD />
-    </main>
+    </div>
   )
 }
 
@@ -112,16 +105,8 @@ function LegacyShell({
   aiColabCtx: ReturnType<typeof useAIColabContext>
 }) {
   return (
-    <main
-      data-comments-open={ctx.isCommentMode ? "true" : undefined}
-      data-ai-colab-open={aiColabCtx.isAIColabMode ? "true" : undefined}
-      className={cn(
-        "mx-auto w-full max-w-7xl space-y-10 px-5 py-10 sm:px-8 lg:py-14",
-        "transition-[padding] duration-[var(--va-annotation-panel)] ease-[var(--va-annotation-ease)]",
-        "data-[comments-open=true]:md:pr-[calc(var(--va-annotation-panel-width)+var(--va-annotation-panel-gap))]",
-        "data-[ai-colab-open=true]:md:pr-[calc(var(--va-annotation-panel-width)+var(--va-annotation-panel-gap))]",
-      )}
-    >
+    <div className="va-artifact-frame" data-panel-open={ctx.isCommentMode || aiColabCtx.isAIColabMode ? "true" : undefined}>
+      <main className="mx-auto w-full max-w-7xl space-y-10 px-5 py-10 sm:px-8 lg:py-14">
       <header className="overflow-hidden rounded-[var(--radius-2xl)] border-[1.5px] bg-card/95 shadow-[var(--shadow-card)] p-5 sm:p-7 lg:p-9">
         <div className="space-y-4">
           <div className="flex flex-wrap items-center gap-3 font-mono text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
@@ -145,12 +130,13 @@ function LegacyShell({
       <div className={cn("space-y-9", spec.layout?.type === "grid" && gridClass(spec.layout.columns ?? 2))}>
         {renderNodes(spec.nodes, context)}
       </div>
+      </main>
 
       <AnnotationPanel />
       <NodePickHUD />
       <AIColabPanel />
       <AIColabHUD />
-    </main>
+    </div>
   )
 }
 
