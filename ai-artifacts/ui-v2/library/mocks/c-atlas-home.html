@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>C · Atlas · Home</title><script src="theme.js"></script><link rel="stylesheet" href="library.css">
+<style>
+.layout{display:grid;grid-template-columns:1fr 24rem;min-height:calc(100vh - 57px)}
+.map{position:relative;border-right:1px solid var(--rule);overflow:hidden}
+.map svg{width:100%;height:100%;display:block}
+.map text{font-family:var(--serif);fill:var(--ink)} .map .sm{font:500 10px var(--mono);letter-spacing:.12em;fill:var(--muted)}
+.map .edge{stroke:var(--rule);stroke-width:1}.map .edge.hot{stroke:var(--brand);stroke-width:1.5}
+.map .reg{fill:var(--fill);stroke:var(--rule)}.map .reg.on{stroke:var(--brand);stroke-width:1.5}
+.map .art{fill:var(--muted)}.map .art.new{fill:var(--new)}.map .art.open{fill:var(--wait)}
+.top{position:absolute;top:16px;left:16px;right:16px;display:flex;gap:8px}
+.panel{padding:22px}
+.panel h2{font:400 28px/1.15 var(--serif);margin:6px 0 4px}
+.panel .m{color:var(--muted);font-size:14px;margin-bottom:16px}
+.it{border-top:1px solid var(--rule);padding:10px 0}.it .t{font:400 16px/1.35 var(--serif);margin-top:4px}
+@media (max-width:860px){.layout{grid-template-columns:1fr}.map{height:420px;border-right:0;border-bottom:1px solid var(--rule)}}
+</style></head><body>
+<header class="site"><span class="crumb"><b>Atlas</b></span><span class="sp"></span><span class="kbd">⌘K</span><span class="btn">Dark</span></header>
+<div class="layout">
+ <section class="map">
+  <div class="top"><div class="search" style="flex:1"><span>⌕</span><span class="chip">topic:pi</span><span class="sp"></span></div><span class="btn">Lines: topics</span></div>
+  <svg viewBox="0 0 900 640" preserveAspectRatio="xMidYMid slice">
+   <path class="edge hot" d="M300 300 C400 260 520 250 620 210"/><path class="edge hot" d="M300 300 C380 380 480 430 600 460"/><path class="edge hot" d="M620 210 C640 300 630 380 600 460"/>
+   <path class="edge" d="M300 300 C240 420 200 480 170 520"/><path class="edge" d="M620 210 C700 180 760 160 790 140"/><path class="edge" d="M300 300 C220 220 170 170 150 140"/>
+   <circle class="reg on" cx="300" cy="300" r="96"/><text x="300" y="234" text-anchor="middle" font-size="20">visual-artifact-renderer</text><text class="sm" x="300" y="380" text-anchor="middle">8 PROJECTS · 70</text>
+   <circle class="reg" cx="620" cy="210" r="70"/><text x="620" y="160" text-anchor="middle" font-size="18">agents</text><text class="sm" x="620" y="270" text-anchor="middle">22</text>
+   <circle class="reg" cx="600" cy="460" r="58"/><text x="600" y="420" text-anchor="middle" font-size="18">pi-extensions</text><text class="sm" x="600" y="510" text-anchor="middle">19</text>
+   <circle class="reg" cx="170" cy="520" r="62"/><text x="170" y="478" text-anchor="middle" font-size="18">flue-pi-agent</text><text class="sm" x="170" y="572" text-anchor="middle">24</text>
+   <circle class="reg" cx="150" cy="140" r="44"/><text x="150" y="112" text-anchor="middle" font-size="16">project-atlas</text>
+   <circle class="reg" cx="790" cy="140" r="34"/><text x="790" y="112" text-anchor="middle" font-size="15">dotfiles</text>
+   <g id="dots"></g>
+  </svg>
+ </section>
+ <aside class="panel"><div class="label">Region · topic:pi</div><h2>visual-artifact-renderer</h2><div class="m num">70 artifacts in var, ui-v2, node-redesign and 5 more · 8 share “pi”</div>
+  <div class="it"><span class="label">Explainer · node-redesign</span><div class="t">Pi compaction: keep working state, reduce summarizer cost</div></div>
+  <div class="it"><span class="label">Report · node-redesign</span><div class="t">Tool UI inventory: hooks, not visuals</div></div>
+  <div class="it"><span class="label">Review · var</span><div class="t">Artifact direction picker: contract journey</div></div>
+  <div class="it"><span class="label">Report · var</span><div class="t">Pi Sessions Recap — June 11–14, 2026</div></div>
+  <div class="it"><span class="label">Linked region · agents</span><div class="t">Reply routing: follow two callers</div></div>
+ </aside>
+</div>
+<script>
+// deterministic scatter of artifact dots inside each region
+const regs=[[300,300,96,70],[620,210,70,22],[600,460,58,19],[170,520,62,24],[150,140,44,13],[790,140,34,7]];let s=7;const r=()=>(s=(s*9301+49297)%233280)/233280;
+const g=document.getElementById('dots');for(const[x,y,R,n]of regs)for(let i=0;i<Math.min(n,40);i++){const a=r()*6.283,d=Math.sqrt(r())*(R-14);const c=document.createElementNS('http://www.w3.org/2000/svg','circle');c.setAttribute('cx',x+Math.cos(a)*d);c.setAttribute('cy',y+Math.sin(a)*d*0.7+6);c.setAttribute('r',3);c.setAttribute('class','art'+(r()<.12?' new':r()<.08?' open':''));g.appendChild(c)}
+</script>
+</body></html>

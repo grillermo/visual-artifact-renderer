@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>A · Catalogue · Home</title><script src="theme.js"></script><link rel="stylesheet" href="library.css">
+<style>
+.hero{padding:40px 0 20px;display:flex;align-items:end;gap:24px;flex-wrap:wrap}
+.hero h1{font:400 44px/1.05 var(--serif);margin:6px 0 0;letter-spacing:-.01em}
+.hero .stats{margin-left:auto;color:var(--muted);font-size:14px}
+.hero .stats b{color:var(--ink);font-weight:500}
+.now{margin:8px 0 28px;border-top:1px solid var(--rule-strong)}
+.now-head{display:flex;align-items:baseline;gap:12px;padding:10px 0}
+.now-head a{margin-left:auto;font-size:13px;color:var(--brand)}
+.now-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0 28px}
+.now-item{padding:12px 0;border-top:1px solid var(--rule)}
+.now-item .t{font:400 18px/1.35 var(--serif);margin:6px 0 4px}
+.now-item .m{font-size:13px;color:var(--muted)}
+.layout{display:grid;grid-template-columns:15rem 1fr;gap:40px;padding-bottom:64px}
+.rail h4{margin:22px 0 8px}
+.rail .f{display:flex;align-items:center;gap:8px;padding:5px 8px;margin:0 -8px;border-radius:7px;font-size:14px}
+.rail .f.on{background:var(--fill);font-weight:500}
+.rail .f .c{margin-left:auto;font:400 12px/1 var(--mono);color:var(--muted)}
+.rail .tick{font:400 9px/1 var(--mono);letter-spacing:-1px;color:var(--muted)}
+.rail .grp{font-size:12px;color:var(--muted);padding:8px 0 2px}
+.rail .more{font-size:13px;color:var(--muted);padding:6px 0}
+.toolbar{display:flex;align-items:center;gap:10px;margin:14px 0 6px;font-size:13px;color:var(--muted)}
+.toolbar .sp{flex:1}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+.seg span{padding:6px 10px;font-size:13px}.seg span.on{background:var(--fill);color:var(--ink)}
+.week{display:flex;align-items:baseline;gap:10px;border-bottom:1px solid var(--rule-strong);padding:22px 0 8px}
+.week .serif{font-size:20px}
+.row{display:grid;grid-template-columns:7.5rem 1fr 11rem 6rem;gap:16px;align-items:baseline;padding:13px 10px;margin:0 -10px;border-top:1px solid var(--rule);transition:background-color var(--fast)}
+.row:nth-child(odd){background:color-mix(in oklch,var(--fill) 40%,transparent)}
+.row:hover{background:var(--fill)}
+.row .t{font:400 19px/1.35 var(--serif)}
+.row .d{font-size:14px;color:var(--muted);margin-top:3px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.row .x{font-size:13px;color:var(--muted);margin-top:6px;display:flex;gap:14px;flex-wrap:wrap}
+.row .x .s{color:var(--ink)}
+.row .p{font-size:14px;color:var(--muted)}
+.row .w{text-align:right;font:400 13px/1 var(--mono);color:var(--muted)}
+.fold{padding:6px 0 6px 8.5rem;font-size:13px;color:var(--muted);border-top:1px dashed var(--rule)}
+.fold b{color:var(--ink);font-weight:500}
+.mfilter{display:none}
+@media (max-width:1100px){.now-grid{grid-template-columns:1fr 1fr}}
+@media (max-width:860px){
+ .layout{grid-template-columns:1fr}.rail{display:none}.mfilter{display:flex;gap:8px;margin-top:10px}
+ .hero h1{font-size:34px}.hero .stats{margin-left:0}
+ .now-grid{display:flex;overflow-x:auto;gap:16px}.now-item{min-width:78%}
+ .row{grid-template-columns:1fr;gap:4px}.row .p,.row .w{display:none}.row .lbl{order:-1}
+ .fold{padding-left:0}.toolbar .seg,.toolbar>.sp+*{display:none}.row{margin:0;padding:13px 0}
+}
+</style></head><body>
+<header class="site"><span class="crumb"><b>Library</b></span><span class="sp"></span><span class="kbd">⌘K</span><span class="btn">Dark</span></header>
+<main class="wrap">
+ <section class="hero"><div><div class="label">VAR · Library</div><h1>Everything your agents explained</h1></div>
+  <div class="stats num"><b>201</b> artifacts · <b>12</b> repos · <b>34</b> this week · <span class="dot"></span> <b>19</b> open comments</div></section>
+
+ <div class="search"><span>⌕</span><span class="chip">is:current</span><span class="q">benchmark</span><span class="sp"></span><span class="kbd">/</span></div>
+ <div class="mfilter"><span class="btn">Filters · 2</span><span class="btn">Group: week</span></div>
+
+ <section class="now"><div class="now-head"><span class="label">Now</span><span style="font-size:13px;color:var(--muted)">last 7 days and open comments</span><a href="#">Show all 34 →</a></div>
+  <div class="now-grid">
+   <div class="now-item"><span class="label">Review</span> <span class="new">· new</span><div class="t">ui-v2 review, cycle 0</div><div class="m">ui-v2 · visual-artifact-renderer · 4h ago</div></div>
+   <div class="now-item"><span class="label">Explainer</span> <span class="new">· new</span><div class="t">Send later: every node, one feature</div><div class="m">node-redesign · 7h ago</div></div>
+   <div class="now-item"><span class="label">Diagram</span><div class="t">Every diagram the renderer can draw</div><div class="m">project-atlas · yesterday · +1 copy</div></div>
+   <div class="now-item"><span class="label">Explainer</span><div class="t">Visualizer: code architecture overview</div><div class="m"><span class="dot"></span> 1 open · “last row is incorrect”</div></div>
+   <div class="now-item"><span class="label">Report</span><div class="t">Roda de Violão — visual recap</div><div class="m"><span class="dot"></span> 3 open · roda-de-violao</div></div>
+   <div class="now-item"><span class="label">Explainer</span> <span class="new">· new</span><div class="t">agents2: what changed this week</div><div class="m">agents2 · 2 days ago · +2 copies</div></div>
+  </div></section>
+
+ <div class="layout">
+  <aside class="rail">
+   <h4 class="label">Type</h4>
+   <div class="f on">All<span class="c">201</span></div><div class="f">Explainer<span class="c">61</span></div><div class="f">Report<span class="c">56</span></div><div class="f">Review<span class="c">26</span></div><div class="f">Plan<span class="c">18</span></div><div class="f">Idea<span class="c">16</span></div><div class="f">Diagram<span class="c">12</span></div><div class="f">Comparison<span class="c">7</span></div><div class="f">Dashboard<span class="c">3</span></div>
+   <h4 class="label">State</h4>
+   <div class="f on">Current<span class="c">158</span></div><div class="f"><span class="dot"></span> Open comments<span class="c">15</span></div><div class="f">Published<span class="c">35</span></div><div class="f">Superseded and copies<span class="c">23</span></div><div class="f">Fixtures<span class="c">20</span></div>
+   <h4 class="label">Projects · by activity</h4>
+   <div class="grp">visual-artifact-renderer</div>
+   <div class="f">var<span class="tick">▁▁▇▁▁▁▂▁▁▁▁▂</span><span class="c">55</span></div>
+   <div class="f">ui-v2<span class="tick">▁▁▁▁▁▁▁▁▁▁▁▇</span><span class="c">2</span></div>
+   <div class="f">node-redesign<span class="tick">▁▁▁▁▁▁▁▁▁▁▁▅</span><span class="c">6</span></div>
+   <div class="grp">other repos</div>
+   <div class="f">project-atlas<span class="tick">▁▁▁▁▁▁▁▁▁▁▁▇</span><span class="c">13</span></div>
+   <div class="f">flue-pi-agent<span class="tick">▁▁▁▁▇▁▁▁▁▁▁▁</span><span class="c">24</span></div>
+   <div class="f">agents<span class="tick">▂▃▂▂▁▁▁▂▂▁▁▁</span><span class="c">22</span></div>
+   <div class="f">herdr-tab-smart-rename<span class="tick">▁▁▁▂▁▃▁▁▁▁▁▁</span><span class="c">5</span></div>
+   <div class="f">dotfiles<span class="tick">▁▃▂▁▁▁▁▁▁▂▁▁</span><span class="c">7</span></div>
+   <div class="more">+ 23 more, one artifact each</div>
+  </aside>
+
+  <section>
+   <div class="toolbar num"><span><b style="color:var(--ink)">31</b> results for “benchmark”</span><span class="sp"></span><span>Group</span> <span class="seg"><span class="on">Week</span><span>Project</span><span>Series</span><span>Type</span></span></div>
+
+   <div class="week"><span class="serif">Week of 27 July</span><span class="label">8 shown · 24 written</span></div>
+   <div>
+    <div class="row"><span class="label lbl">Review</span><div><div class="t">Agent Benchmark — Final Validation</div><div class="d">Closes the benchmark run: what held, what was corrected, and the scores that stand.</div>
+     <div class="x"><span class="s">Series · Agent benchmark · 6 of 6</span><span>agent-benchmark · validation</span></div></div><span class="p">flue-pi-agent</span><span class="w num">30 Jul</span></div>
+    <div class="fold">▸ <b>5 earlier parts</b>: Accuracy, Architecture, Usability, Fix handoff, Synthesis contract</div>
+    <div class="row"><span class="label lbl">Report</span><div><div class="t">Agent Reliability Score Matrix — Final</div><div class="d">Scores for each agent runtime across delivery, recovery and observability.</div>
+     <div class="x"><span>reliability · benchmark · scores</span><span>Related: 4</span></div></div><span class="p">flue-pi-agent</span><span class="w num">30 Jul</span></div>
+    <div class="row"><span class="label lbl">Comparison</span><div><div class="t">Cloudflare agents reliability benchmark — Agents SDK vs DOs vs Workflows</div><div class="d">Three ways to keep an agent alive on Cloudflare, tested against the same incidents.</div>
+     <div class="x"><span>cloudflare/agents</span><span>Published</span></div></div><span class="p">flue-pi-agent</span><span class="w num">30 Jul</span></div>
+    <div class="row"><span class="label lbl">Report</span><div><div class="t">OpenHands reliability benchmark — event-sourced persistence &amp; delivery</div><div class="d">How OpenHands stores events and what it means for delivery guarantees.</div>
+     <div class="x"><span>openhands · event-sourcing</span></div></div><span class="p">flue-pi-agent</span><span class="w num">30 Jul</span></div>
+   </div>
+
+   <div class="week"><span class="serif">Week of 6 July</span><span class="label">2 shown</span></div>
+   <div>
+    <div class="row"><span class="label lbl">Report</span><div><div class="t">Visualizer Maintainability Refactor</div><div class="d">Registry split, adapter boundaries and the remaining refactor risks.</div>
+     <div class="x"><span class="s">v4 · supersedes 3 versions</span><span>refactor · component-registry</span></div></div><span class="p">var</span><span class="w num">8 Jul</span></div>
+    <div class="fold">▸ <b>v3, v2, v1</b> folded</div>
+    <div class="row"><span class="label lbl">Explainer</span><div><div class="t">Effect TypeScript for Agentic Coding</div><div class="d">Why typed effects make agent-written code easier to check.</div>
+     <div class="x"><span>Effect-TS/effect-smol</span></div></div><span class="p">agents</span><span class="w num">12 Jul</span></div>
+   </div>
+  </section>
+ </div>
+</main></body></html>

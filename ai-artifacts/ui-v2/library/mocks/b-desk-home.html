@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>B · Desk · Home</title><script src="theme.js"></script><link rel="stylesheet" href="library.css">
+<style>
+h1{font:400 40px/1.1 var(--serif);margin:36px 0 18px}
+.tiles{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:auto auto;gap:16px;margin-bottom:40px}
+.tile{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:8px;min-height:150px}
+.tile.big{grid-row:span 2;min-height:316px;background:var(--code)}
+.tile .t{font:400 22px/1.25 var(--serif)} .tile.big .t{font-size:32px}
+.tile .d{color:var(--muted);font-size:14px} .tile .m{margin-top:auto;font-size:13px;color:var(--muted)}
+.shelf{border-top:1px solid var(--rule-strong);padding:14px 0 26px}
+.shelf .h{display:flex;align-items:baseline;gap:12px;margin-bottom:12px}.shelf .h .serif{font-size:22px}.shelf .h a{margin-left:auto;font-size:13px;color:var(--brand)}
+.books{display:grid;grid-auto-flow:column;grid-auto-columns:15rem;gap:14px;overflow-x:auto}
+.book{border-left:2px solid var(--rule);padding:2px 0 2px 12px}
+.book .t{font:400 16px/1.35 var(--serif);margin-top:6px}
+@media (max-width:860px){.tiles{grid-template-columns:1fr}.tile.big{grid-row:auto;min-height:200px}h1{font-size:32px}}
+</style></head><body>
+<header class="site"><span class="crumb"><b>Desk</b></span><span class="sp"></span><div class="search" style="width:22rem;height:36px"><span>⌕</span>Search 201 artifacts<span class="sp"></span><span class="kbd">⌘K</span></div><span class="btn">Dark</span></header>
+<main class="wrap">
+ <h1>Good morning. 34 things moved this week.</h1>
+ <section class="tiles">
+  <div class="tile big"><span class="label">Review · ui-v2 · 4h ago</span><div class="t">ui-v2 review, cycle 0</div><div class="d">Visual QA of the v3 renderer: what passed, what regressed and the next cycle's list.</div><div class="m"><span class="new">New</span> · series: ui-v2 review · 1 of 1</div></div>
+  <div class="tile"><span class="label">Explainer · 7h ago</span><div class="t">Send later: every node, one feature</div><div class="m">node-redesign</div></div>
+  <div class="tile"><span class="label">Diagram · yesterday</span><div class="t">Every diagram the renderer can draw</div><div class="m">project-atlas · +1 copy</div></div>
+  <div class="tile"><span class="label">Report · <span class="dot"></span> 3 open</span><div class="t">Roda de Violão — visual recap</div><div class="m">roda-de-violao</div></div>
+  <div class="tile"><span class="label">Explainer · 2 days</span><div class="t">agents2: what changed this week</div><div class="m">agents2 · +2 copies</div></div>
+ </section>
+ <section class="shelf"><div class="h"><span class="serif">project-atlas</span><span class="label">13</span><a href="#">Open shelf →</a></div><div class="books">
+  <div class="book"><span class="label">Explainer</span><div class="t">How agents2 works</div></div><div class="book"><span class="label">Explainer</span><div class="t">The spawn-lead workflow</div></div><div class="book"><span class="label">Comparison</span><div class="t">Three local data tools: gog, wacli and Birdclaw</div></div><div class="book"><span class="label">Explainer</span><div class="t">Clockwork: how the scheduled jobs actually run</div></div><div class="book"><span class="label">Explainer</span><div class="t">Memory and models: pi-optmem and pi-claude-code</div></div></div></section>
+ <section class="shelf"><div class="h"><span class="serif">var</span><span class="label">55</span><a href="#">Open shelf →</a></div><div class="books">
+  <div class="book"><span class="label">Review</span><div class="t">Artifact direction picker: contract journey</div></div><div class="book"><span class="label">Explainer</span><div class="t">When a new artifact does not render automatically</div></div><div class="book"><span class="label">Idea</span><div class="t">Visualizer Home — Chronological Library</div></div><div class="book"><span class="label">Review</span><div class="t">P1 Hardening — API &amp; Diff Review</div></div><div class="book"><span class="label">Explainer</span><div class="t">v0.4.0: Reliable serve stop</div></div></div></section>
+ <section class="shelf"><div class="h"><span class="serif">flue-pi-agent</span><span class="label">24</span><a href="#">Open shelf →</a></div><div class="books">
+  <div class="book"><span class="label">Review</span><div class="t">Agent Benchmark — Final Validation</div></div><div class="book"><span class="label">Report</span><div class="t">Agent Reliability Score Matrix — Final</div></div><div class="book"><span class="label">Comparison</span><div class="t">Flue + Cloudflare: Peer Landscape</div></div><div class="book"><span class="label">Report</span><div class="t">Flue agent test gap matrix</div></div></div></section>
+ <p style="color:var(--muted);font-size:14px;padding-bottom:48px">+ 38 more shelves</p>
+</main></body></html>
