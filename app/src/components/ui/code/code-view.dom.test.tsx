@@ -37,6 +37,17 @@ test("copy excludes removed lines and shell prompts",async()=>{
   await render({code:"$ echo one\n$ echo two",language:"bash"}); assert.equal(container.querySelector('.va-code-number'),null)
   await act(async()=>{(container.querySelector('[aria-label="Copy code"]') as HTMLButtonElement).click()}); assert.equal(copied,"echo one\necho two")
 })
+test("dense desktop notes stay inline instead of stretching a narrow rail",async()=>{
+  width=1000; await render({code:"a\nb\nc\nd\ne\nf",annotations:[1,2,3,4].map(line=>({line,title:`Note ${line}`,body:"An explanation of this source line."}))})
+  assert.equal(container.querySelector('.va-code-rail'),null)
+  assert.equal(container.querySelectorAll('.va-code-inline-note').length,4)
+})
+test("inactive source context uses a semantic dimmed state without opacity",async()=>{
+  width=1000; await render({code:"a\nb\nc",activeRange:[2,2]})
+  assert.equal(container.querySelectorAll('[data-dimmed]').length,2)
+  assert.equal((container.querySelector('[data-line="1"]') as HTMLElement).style.opacity,"")
+  assert.equal((container.querySelector('[data-active] .va-code-pin') as HTMLElement).style.background,"var(--source-focus)")
+})
 test("narrow notes are inline after range end, not after start",async()=>{
   width=390; await render({code:"a\nb\nc",annotations:[{line:1,end:2,title:"Range"}]})
   assert.equal(container.querySelector('.va-code-rail'),null)

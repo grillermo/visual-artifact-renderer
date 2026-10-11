@@ -126,17 +126,19 @@ Both can apply at once: a proposed dashed edge is green with the `2 4` pattern. 
 
 | Meaning | Token | Treatment |
 |---|---|---|
-| Added | `--change-added` | `+`, row tint 12%, word tint 28%, added count |
-| Removed | `--change-removed` | `−`, row tint 12%, word tint 28%, removed count |
+| Added | `--change-added` | `+`, row tint 18%, word tint 32%, added count |
+| Removed | `--change-removed` | `−`, row tint 18%, word tint 32%, removed count |
 | Paired change | `--change-changed` | split divider tick |
-| Focus | `--brand` | 10% tint, range bracket, filled pin |
+| Focus | `--source-focus` | 18% tint, blue range bracket, filled pin |
 | Note `ok` | `--signal-new` | filled pin, bracket, text underline |
 | Note `risk` | `--signal-risk` | filled pin, bracket, text underline |
 | Note `warn` | `--signal-wait` | filled pin, bracket, text underline |
 | Note `info` | `--ink` | filled pin, bracket, text underline |
 | Note `idea` | `--brand` | filled pin, bracket, text underline |
 
-Diff notes use only `info`, `risk` and `idea`, so green keeps one meaning. Notes are plain text, not tinted cards. Tints use `color-mix(in oklch, ...)`. Color always accompanies a number, glyph or accessible label.
+Source focus aliases the existing blue palette through `--signal-wait`; idea notes remain `--brand`. Source uses 14px mono on a 24px pitch, or 13px in narrow containers. Context uses `--ink-muted` at full opacity. Note ranges use 12% tint.
+
+Diff notes use only `info`, `risk` and `idea`, so green keeps one meaning. Notes are plain text, not tinted cards. Dense notes, four or more averaging fewer than three source rows per note, render inline. Other desktop notes use the collision rail beside a content-height source block. Tints use `color-mix(in oklch, ...)`. Color always accompanies a number, glyph or accessible label.
 
 Shiki uses GitHub high-contrast themes. A syntax color that fails 4.5:1 against conservative code/tint bounds falls back to that theme's foreground. No palette colors are edited. `code-contrast.test.ts` checks every theme JSON foreground.
 
