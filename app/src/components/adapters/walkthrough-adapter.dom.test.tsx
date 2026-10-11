@@ -42,6 +42,9 @@ test("old-side focus follows the old number on shifted unchanged rows",async()=>
   assert.equal(row.querySelector('[data-column="old"]')!.textContent,"2")
   assert.equal(row.querySelector('[data-column="new"]')!.textContent,"3")
   assert.equal(row.querySelectorAll('.va-code-pin').length,2)
+  await act(async()=>root.render(<Walkthrough key="coincident" files={diff.files} steps={Array.from({length:8},(_,i)=>({lines:"2",side:"old",title:`Reader ${i+1}`}))}/>))
+  assert.equal(container.querySelectorAll('.va-walkthrough-pane .va-code-pin').length,8)
+  assert.equal((container.querySelector('.va-walkthrough-pane .va-code') as HTMLElement).style.getPropertyValue("--code-pin-width"),"96px")
 })
 test("live step removal clamps selection to a remaining excerpt",async()=>{
   width=1000

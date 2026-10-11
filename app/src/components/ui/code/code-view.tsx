@@ -1,5 +1,5 @@
 "use client"
-import { Fragment, useId, useMemo, useState } from "react"
+import { Fragment, useId, useMemo, useState, type CSSProperties } from "react"
 import { Check, Copy } from "lucide-react"
 import type { CodeBlockProps } from "@/lib/contract/artifact-manifest"
 import { compareLines, expandHighlight, pairLines, parseUnifiedDiff, splitFits, splitLines, type DiffLine, type Token } from "@/lib/code-lines"
@@ -25,12 +25,14 @@ export function CodeView(props:CodeViewProps) {
   const tokens=useTokens(rows.map(r=>r.value).join("\n"),props.language), tokenMap=new Map<string,Token[]>()
   rows.forEach((row,i)=>{ const t=tokens?.[i]; if(t) { if(row.oldLine!==undefined) tokenMap.set(`old:${row.oldLine}`,t); if(row.newLine!==undefined) tokenMap.set(`new:${row.newLine}`,t) } })
   const anchors=notes.map(note=>Math.max(0,split?pairs.findIndex(pair=>(note.side==="old"?pair.old?.oldLine:pair.new?.newLine)===note.line):display.findIndex(row=>(note.side==="old"?row.oldLine:row.newLine)===note.line))*24+12)
+  const focusAnchor=props.activeRange?display.findIndex(row=>(props.activeSide==="old"?row.oldLine:row.newLine)===props.activeRange?.[0])*24+12:-1
+  const pinWidth=Math.max(24,...anchors.map(anchor=>12*(anchors.filter(other=>other===anchor).length+(anchor===focusAnchor?1:0))))
   const recipe=/^(bash|sh|zsh|shell)$/.test(props.language??"") && !notes.length && !diff
   const numbers=props.lineNumbers??!recipe, name=props.file??props.title??props.src??"Snippet"
   const copyText=diff?rows.filter(r=>r.type!=="remove").map(r=>r.value).join("\n"):recipe?(props.code??"").replace(/^\$ /gm,""):props.code??""
   async function copy() { try { await navigator.clipboard.writeText(copyText); setCopied(true); setCopyFailed(false); setTimeout(()=>setCopied(false),1500) } catch { setCopyFailed(true) } }
   const added=rows.filter(r=>r.type==="add").length, removed=rows.filter(r=>r.type==="remove").length
-  return <figure ref={ref} className="va-code" aria-labelledby={id} data-code-mode={split?"split":diff?"unified":"code"}>
+  return <figure ref={ref} className="va-code" style={{"--code-pin-width":`${pinWidth}px`} as CSSProperties} aria-labelledby={id} data-code-mode={split?"split":diff?"unified":"code"}>
     <figcaption id={id} className="va-code-header"><div className="min-w-0 flex-1"><span className={props.file||props.src?"break-all font-mono text-meta text-ink":"break-words text-small text-ink-muted"}>{name}</span>{props.file && props.title && <span className="ml-3 text-small text-ink-muted">{props.title}</span>}{props.sketch && <span className="ml-2 text-meta text-ink-muted">illustrative</span>}</div>
       <div className="flex items-center gap-3">{diff && <span className="flex gap-2 font-mono text-meta"><span className="text-change-added" aria-label={`${added} added lines`}>+{added}</span><span className="text-change-removed" aria-label={`${removed} removed lines`}>−{removed}</span></span>}<span className="font-mono text-meta text-ink-muted">{props.language??"text"}</span><button type="button" className="va-code-copy" onClick={copy} aria-label={copied?"Code copied":"Copy code"}>{copied?<Check size={16}/>:<Copy size={16}/>}</button></div>
     </figcaption>

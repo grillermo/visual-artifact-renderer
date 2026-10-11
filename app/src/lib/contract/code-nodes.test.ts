@@ -10,6 +10,7 @@ test("code source is exclusive and capped with actionable errors",()=>{
   for(const props of [{before:"a"},{code:"a",before:"a",after:"b"},{code:"x\n".repeat(401)},{code:"x".repeat(24577)}]) { const result=valid(props); assert.equal(result.success,false) }
   const result=valid({code:"x\n".repeat(401)}); if(!result.success) assert.match(result.error.message,/split the excerpt or use walkthrough/)
   assert.equal(valid({before:"",after:"a"}).success,true)
+  assert.equal(valid({before:"",after:"a",annotations:[{line:1,title:"No old row",side:"old"}]}).success,false)
 })
 test("diff notes reject green/warning, accept ranged old and new notes",()=>{
   for(const tone of ["ok","warn"]) assert.equal(valid({before:"a",after:"b",annotations:[{line:1,title:"Note",tone}]}).success,false)

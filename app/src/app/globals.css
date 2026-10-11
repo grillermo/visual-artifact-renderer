@@ -618,7 +618,7 @@ html.dark {
 .va-code-gutter { position: sticky; left: 0; display: flex; flex-shrink: 0; background: var(--code-bg); color: var(--ink-muted); user-select: none; }
 .va-code-number { min-width: 2.75rem; padding-right: .5rem; text-align: right; font-variant-numeric: tabular-nums; }
 .va-code-gutter[data-unified] .va-code-number { min-width: 2.25rem; }
-.va-code-mark { display: flex; align-items: center; justify-content: center; width: 1.5rem; color: var(--brand); }
+.va-code-mark { display: flex; align-items: center; justify-content: center; width: var(--code-pin-width,1.5rem); color: var(--brand); }
 .va-code-mark[data-bracket] { box-shadow: inset 2px 0 var(--note-tone); }
 .va-code-row[data-active] .va-code-mark, .va-code-row[data-highlighted] .va-code-mark { box-shadow: inset 2px 0 var(--brand); }
 .va-code-row code { white-space: pre; padding-right: 1rem; }
