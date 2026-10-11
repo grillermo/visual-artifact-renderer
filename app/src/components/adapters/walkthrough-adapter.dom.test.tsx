@@ -33,6 +33,24 @@ test("narrow width shows every excerpt and full-file disclosures, no sticky pane
   width=390;await render();assert.equal(container.querySelector('.va-walkthrough-pane'),null)
   assert.equal(container.querySelectorAll('li .va-code').length,2);assert.equal(container.querySelectorAll('details').length,2);assert.ok(container.querySelector('.va-walkthrough-nav'))
 })
+test("old-side focus follows the old number on shifted unchanged rows",async()=>{
+  width=1000
+  const diff={files:[{path:"change.ts",before:"one\ntwo\nthree",after:"insert\none\ntwo\nthree"}],steps:[{lines:"2",side:"old" as const,title:"Original"},{lines:"3",side:"new" as const,title:"Replacement"}]}
+  await act(async()=>root.render(<Walkthrough key="old-side" {...diff}/>))
+  const row=container.querySelector('.va-walkthrough-pane [data-active="true"][data-old-line="2"]')!
+  assert.equal(row.getAttribute("data-new-line"),"3")
+  assert.equal(row.querySelector('[data-column="old"]')!.textContent,"2")
+  assert.equal(row.querySelector('[data-column="new"]')!.textContent,"3")
+  assert.equal(row.querySelectorAll('.va-code-pin').length,2)
+})
+test("live step removal clamps selection to a remaining excerpt",async()=>{
+  width=1000
+  await act(async()=>root.render(<Walkthrough key="live" {...props} steps={[...props.steps,{file:"a.ts",lines:"2",title:"Later"}]}/>))
+  await act(async()=>{(container.querySelectorAll('.va-walkthrough-step-title')[2] as HTMLButtonElement).click()})
+  await act(async()=>root.render(<Walkthrough key="live" {...props}/>))
+  assert.match(container.querySelector('.va-walkthrough-pane .va-code-header')!.textContent!,/b.ts/)
+  assert.equal(container.querySelector('.va-walkthrough-steps [data-active]')!.textContent?.includes("Finish"),true)
+})
 test("reduced motion activates instantly",async()=>{
   width=1000;reduced=true;await render();await act(async()=>{(container.querySelectorAll('.va-walkthrough-step-title')[1] as HTMLButtonElement).click()});assert.equal(behavior,"instant")
 })

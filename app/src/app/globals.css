@@ -617,7 +617,8 @@ html.dark {
 .va-code-row[data-active], .va-code-row[data-highlighted] { background: color-mix(in oklch,var(--brand) 10%,transparent); background-image: none; }
 .va-code-gutter { position: sticky; left: 0; display: flex; flex-shrink: 0; background: var(--code-bg); color: var(--ink-muted); user-select: none; }
 .va-code-number { min-width: 2.75rem; padding-right: .5rem; text-align: right; font-variant-numeric: tabular-nums; }
-.va-code-mark { display: grid; place-items: center; width: 1.5rem; color: var(--brand); }
+.va-code-gutter[data-unified] .va-code-number { min-width: 2.25rem; }
+.va-code-mark { display: flex; align-items: center; justify-content: center; width: 1.5rem; color: var(--brand); }
 .va-code-mark[data-bracket] { box-shadow: inset 2px 0 var(--note-tone); }
 .va-code-row[data-active] .va-code-mark, .va-code-row[data-highlighted] .va-code-mark { box-shadow: inset 2px 0 var(--brand); }
 .va-code-row code { white-space: pre; padding-right: 1rem; }
@@ -639,6 +640,7 @@ html.dark {
   .va-code-lines { font-size: 12.5px; line-height: 22px; }
   .va-code-row { min-height: 22px; }
   .va-code-number { min-width: 2.25rem; }
+  .va-code-gutter[data-unified] .va-code-number { min-width: 1.75rem; }
 }
 @media (prefers-reduced-motion: reduce) { .va-code-row { transition: none; } }
 

@@ -14,7 +14,7 @@ const lines = (code: string) => code.replace(/\r\n/g,"\n").replace(/\n$/,"").spl
 type Source = { code?: string; before?: string; after?: string; src?: string; startLine?: number; diff?: boolean }
 export function numberedSource(source: Source, side: "old" | "new" = "new"): Map<number,string> {
   const out = new Map<number,string>(), first=source.startLine??1
-  if (source.before !== undefined && source.after !== undefined) { lines(side==="old"?source.before:source.after).forEach((text,i)=>out.set(first+i,text)); return out }
+  if (source.before !== undefined && source.after !== undefined) { const code=side==="old"?source.before:source.after; if(code!="")lines(code).forEach((text,i)=>out.set(first+i,text)); return out }
   let old=first, next=first
   for (const text of lines(source.code??"")) {
     if (!source.diff) { out.set(next++,text); continue }

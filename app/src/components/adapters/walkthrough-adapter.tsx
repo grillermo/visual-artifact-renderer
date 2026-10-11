@@ -46,7 +46,7 @@ export function Walkthrough({title,files,steps,caption}:WalkthroughProps) {
       if(["ArrowDown","j","ArrowUp","k"].includes(event.key)){event.preventDefault();activate(active+(["ArrowDown","j"].includes(event.key)?1:-1),true)}
     }}>
       <div className="va-walkthrough-pager"><span className="text-meta text-ink-muted" aria-live="polite">Step {active+1} of {steps.length}</span><button type="button" disabled={active===0} aria-label="Previous walkthrough step" onClick={()=>activate(active-1)}>‹</button><button type="button" disabled={active===steps.length-1} aria-label="Next walkthrough step" onClick={()=>activate(active+1)}>›</button></div>
-      <CodeView {...file} file={file.path} activeRange={[range[0],end]} focusText={step.text} focusNumber={active+1} pinOnly routePins={steps.flatMap((other,i)=>i!==active&&(other.file??files[0].path)===file.path?[{line:Number(other.lines.split("-")[0]),title:`Step ${i+1}: ${other.title}`,n:i+1,tone:"info" as const,side:other.side}]:[])}/>
+      <CodeView {...file} file={file.path} activeRange={[range[0],end]} activeSide={step.side} focusText={step.text} focusNumber={active+1} pinOnly routePins={steps.flatMap((other,i)=>i!==active&&(other.file??files[0].path)===file.path?[{line:Number(other.lines.split("-")[0]),title:`Step ${i+1}: ${other.title}`,n:i+1,tone:"info" as const,side:other.side}]:[])}/>
     </div>}
     </div>
     {!wide && files.map(file=><details key={file.path} className="mt-4 border-t border-rule py-3"><summary className="cursor-pointer text-small">Show full file: {file.path}</summary><CodeView {...file} file={file.path}/></details>)}

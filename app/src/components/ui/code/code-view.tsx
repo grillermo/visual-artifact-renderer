@@ -10,7 +10,7 @@ import { SplitRows } from "./split-rows"
 import { useContainerWidth } from "./use-container-width"
 import { useTokens } from "./use-tokens"
 
-export type CodeViewProps=CodeBlockProps&{activeRange?:readonly[number,number];scope?:readonly[number,number];focusText?:string;focusNumber?:number;pinOnly?:boolean;routePins?:CodeNote[]}
+export type CodeViewProps=CodeBlockProps&{activeRange?:readonly[number,number];activeSide?:"old"|"new";scope?:readonly[number,number];focusText?:string;focusNumber?:number;pinOnly?:boolean;routePins?:CodeNote[]}
 export function CodeView(props:CodeViewProps) {
   const dark=useIsDarkTheme()
   const {ref,width}=useContainerWidth<HTMLElement>(), id=useId(), [copied,setCopied]=useState(false), [copyFailed,setCopyFailed]=useState(false)
@@ -36,8 +36,9 @@ export function CodeView(props:CodeViewProps) {
     </figcaption>
     <div className="va-code-surface" data-rail={rail||undefined}>
       <div className="va-code-scroll" tabIndex={0} role="region" aria-label={`${name} code`}><div className="va-code-lines">{split?<SplitRows rows={pairs} notes={notes} tokens={tokenMap} inlineNotes={!rail && !props.pinOnly} dark={dark}/>:display.map((row,i)=>{
-        const line=row.newLine??row.oldLine??0, active=props.activeRange && line>=props.activeRange[0] && line<=props.activeRange[1]
-        const focusNote=active && line===props.activeRange?.[0]?{line,title:"Active step",text:props.focusText,n:props.focusNumber??1,tone:"idea" as const}:undefined
+        const line=row.newLine??row.oldLine??0, focusLine=props.activeSide==="old"?row.oldLine:row.newLine, range=props.activeRange
+        const active=!!range && focusLine!==undefined && focusLine>=range[0] && focusLine<=range[1]
+        const focusNote=active&&range?{line:range[0],end:range[1],side:props.activeSide,title:"Active step",text:props.focusText?.split("\n")[0],n:props.focusNumber??1,tone:"idea" as const}:undefined
         return <Fragment key={i}><CodeRow dark={dark} row={row} tokens={tokens?.[i]} notes={focusNote?[focusNote,...notes]:notes} numbers={numbers} diff={!!diff} highlighted={highlighted.has(line)} active={active} dimmed={props.scope?line<props.scope[0]||line>props.scope[1]:props.activeRange?!active:false}/>
           {!rail && !props.pinOnly && notes.filter(note=>(note.side==="old"?row.oldLine:row.newLine)===(note.end??note.line)).map(note=><div className="va-code-inline-note" key={note.n}><CodeNoteBody note={note}/></div>)}
         </Fragment>
