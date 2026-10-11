@@ -5,24 +5,23 @@
 // Scroll position is the state. Reduced motion, and the first paint before hydration,
 // show the full diagram with no dimming and no sticky stage.
 //
-// Desktop: sticky stage under the site header, full diagram scaled to fill it.
-// Phone: the layout is a narrow column drawn at natural size; the stage shows a window
-// around the current beat's nodes so text never shrinks (tap "Show full map" for all of it).
+// The diagram is rendered by Mermaid (see components/mermaid/map-mermaid.tsx). Beats toggle
+// opacity on its rendered nodes and edges. On phones the stage scrolls sideways at natural size.
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react"
 
 import type { AdapterArgs } from "@/components/artifact-types"
+import { EdgeSummary, MapCanvas, MapLegend, useMapSvg } from "@/components/mermaid/map-mermaid"
 import { Prose } from "@/components/ui/prose"
 import { normalizeBoxEdges } from "@/lib/contract/artifact-manifest"
-import { focusCrop, layoutNarrow, pickOrientation, type MapLayoutInput } from "@/lib/diagram/map-layout"
+import type { MapInput } from "@/lib/diagram/map-to-mermaid"
 import { cn } from "@/lib/utils"
 
-import { EdgeSummary, MapLegend, MapSvg, usePrefersReducedMotion } from "../plan/diagram-svg"
+import { usePrefersReducedMotion } from "../plan/diagram-svg"
 
 const subscribeNever = () => () => {}
 /** Viewport line (fraction from the top) a beat's top must pass to become the current one. */
 const ACTIVATE_AT = 0.45
-const CROP_W = 340
-const CROP_H = 250
+const DIM_OPACITY = 0.25
 
 /** The current beat: the last one whose top is above the line. Before the first reaches it, beat 0. */
 export function activeBeat(tops: readonly number[], viewportHeight: number): number {
@@ -43,17 +42,14 @@ function Story({ node }: Pick<AdapterArgs<"story">, "node">) {
   const reduced = usePrefersReducedMotion()
   const mounted = useSyncExternalStore(subscribeNever, () => true, () => false)
   const [active, setActive] = useState(0)
-  const [expanded, setExpanded] = useState(false)
   const beatRefs = useRef<(HTMLLIElement | null)[]>([])
+  const canvasRef = useRef<HTMLDivElement>(null)
 
-  const input = useMemo<MapLayoutInput>(
-    () => ({ nodes: diagram.nodes, edges: normalizeBoxEdges(diagram.edges).edges, layout: diagram.layout }),
+  const input = useMemo<MapInput>(
+    () => ({ nodes: diagram.nodes, edges: normalizeBoxEdges(diagram.edges).edges, layout: diagram.layout, fitWidth: 460 }),
     [diagram],
   )
-  // Layouts come from content, never from a measured box. CSS (1100px) picks which one shows.
-  const preferred = diagram.layout === "column" ? "column" : "row"
-  const wide = useMemo(() => pickOrientation(input, { width: 640, height: 480 }, preferred), [input, preferred])
-  const narrow = useMemo(() => layoutNarrow(input), [input])
+  const { svg, compiled, error } = useMapSvg(input)
 
   const interactive = mounted && !reduced
 
@@ -85,15 +81,35 @@ function Story({ node }: Pick<AdapterArgs<"story">, "node">) {
     return ids
   }, [interactive, active, beats])
   const focus = useMemo(() => (interactive ? new Set(beats[active].focus ?? []) : undefined), [interactive, active, beats])
-  const crop = useMemo(() => {
-    if (!interactive || expanded) return undefined
-    return focusCrop(narrow, focus && focus.size ? focus : (visible ?? new Set()), CROP_W, CROP_H)
-  }, [interactive, expanded, narrow, focus, visible])
-  const cropped = !!crop && (crop.w < narrow.width || crop.h < narrow.height)
+
+  // Beats act on the rendered Mermaid SVG: nodes by data-mm-node, edges by data-mm-edge.
+  // Not yet shown = hidden; shown but outside a non-empty focus set = dimmed.
+  useEffect(() => {
+    const root = canvasRef.current
+    if (!root || !svg) return
+    const mm = (id: string) => compiled.nodeIds.get(id)
+    const shown = visible && new Set([...visible].map(mm))
+    const lit = focus && focus.size > 0 ? new Set([...focus].map(mm)) : undefined
+    const transition = interactive ? "opacity 300ms ease-out" : ""
+    const apply = (el: Element, show: boolean, dim: boolean) => {
+      const style = (el as SVGElement).style
+      style.transition = transition
+      style.opacity = !show ? "0" : dim ? String(DIM_OPACITY) : ""
+    }
+    root.querySelectorAll<SVGGElement>("[data-mm-node]").forEach((el) => {
+      const id = el.dataset.mmNode!
+      apply(el, !shown || shown.has(id), !!lit && !lit.has(id))
+    })
+    compiled.edges.forEach((edge, i) => {
+      const show = !shown || (shown.has(edge.from) && shown.has(edge.to))
+      const dim = !!lit && !(lit.has(edge.from) && lit.has(edge.to))
+      root.querySelectorAll(`[data-mm-edge="${i}"]`).forEach((el) => apply(el, show, dim))
+    })
+  }, [svg, compiled, visible, focus, interactive])
 
   return (
     <figure
-      className="m-0 grid gap-x-12 min-[1100px]:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]"
+      className="m-0 grid grid-cols-[minmax(0,1fr)] gap-x-12 min-[1100px]:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]"
       data-story=""
       data-active={interactive ? active : undefined}
       aria-label={caption}
@@ -101,40 +117,14 @@ function Story({ node }: Pick<AdapterArgs<"story">, "node">) {
       <div
         className={cn(
           interactive &&
-            "sticky z-10 -mx-4 bg-background px-4 pb-2 pt-2 top-[var(--header-height)] min-[1100px]:top-[calc(var(--header-height)+1rem)] min-[1100px]:mx-0 min-[1100px]:self-start min-[1100px]:bg-transparent min-[1100px]:px-0 min-[1100px]:pb-0",
-          interactive && "max-h-[46svh] min-[1100px]:h-[calc(100svh-var(--header-height)-2rem)] min-[1100px]:max-h-none",
+            "sticky top-[var(--header-height)] z-10 -mx-4 max-h-[46svh] overflow-auto bg-background px-4 pb-2 pt-2 min-[1100px]:top-[calc(var(--header-height)+1rem)] min-[1100px]:mx-0 min-[1100px]:max-h-[calc(100svh-var(--header-height)-2rem)] min-[1100px]:self-start min-[1100px]:bg-transparent min-[1100px]:px-0 min-[1100px]:pb-0",
         )}
       >
-        <div className={cn("flex min-h-0 flex-col justify-center", interactive && "h-full max-h-full overflow-hidden", interactive && expanded && "overflow-auto")}>
-          <div className="hidden min-h-0 min-[1100px]:block">
-            <MapSvg
-              layout={wide}
-              label={caption}
-              visible={visible}
-              focus={focus}
-              animate={interactive}
-              maxScale={2.4}
-              className={interactive ? "max-h-[calc(100svh-var(--header-height)-7rem)]" : undefined}
-            />
-          </div>
-          <div className="min-h-0 min-[1100px]:hidden">
-            <MapSvg layout={narrow} label={caption} visible={visible} focus={focus} animate={interactive} crop={crop} />
-          </div>
+        <div className="flex min-h-0 flex-col justify-center">
+          <MapCanvas svg={svg} label={caption} error={error} svgRef={canvasRef} compiled={compiled} />
         </div>
-        <div className="flex items-baseline justify-between gap-4 min-[1100px]:block">
-          <MapLegend layout={wide} legend={diagram.legend} />
-          {interactive && (cropped || expanded) && (
-            <button
-              type="button"
-              onClick={() => setExpanded((v) => !v)}
-              aria-expanded={expanded}
-              className="mt-3 shrink-0 text-meta text-ink-muted underline underline-offset-4 min-[1100px]:hidden"
-            >
-              {expanded ? "Follow the story" : "Show full map"}
-            </button>
-          )}
-        </div>
-        <EdgeSummary layout={wide} />
+        <MapLegend compiled={compiled} nodes={input.nodes} legend={diagram.legend} />
+        <EdgeSummary input={input} />
       </div>
       <ol className="m-0 list-none p-0">
         {beats.map((beat, index) => (
@@ -146,7 +136,7 @@ function Story({ node }: Pick<AdapterArgs<"story">, "node">) {
             data-beat={index}
             className={cn(
               "flex flex-col justify-center py-6",
-              interactive ? "min-h-[30svh] min-[1100px]:min-h-[44svh]" : "py-3",
+              interactive ? "min-h-[30svh]" : "py-3",
               interactive && "transition-opacity duration-300 ease-out",
               interactive && index !== active && "opacity-65",
             )}
@@ -160,7 +150,7 @@ function Story({ node }: Pick<AdapterArgs<"story">, "node">) {
           </li>
         ))}
       </ol>
-      <figcaption className="mt-4 max-w-[66ch] text-meta text-ink-muted min-[1100px]:col-span-2">{caption}</figcaption>
+      <figcaption className="mt-4 min-[1100px]:col-span-2 max-w-[66ch] text-meta text-ink-muted">{caption}</figcaption>
     </figure>
   )
 }

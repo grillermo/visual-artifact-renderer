@@ -1,14 +1,13 @@
 "use client"
 
 // box-diagram (legacy): rendered through the same text-node renderer as `map`.
-// Old specs keep their grid (columns and rows), tone and mark, but lose the boxes.
+// Grid and groups are ignored (Mermaid lays the nodes out); tone and mark map to signals.
 import { useMemo } from "react"
 
 import type { AdapterArgs } from "@/components/artifact-types"
-import { normalizeBoxEdges, parseGridRows } from "@/lib/contract/artifact-manifest"
-import type { MapKind, MapLayoutInput, MapSignal } from "@/lib/diagram/map-layout"
-
-import { MapFigure } from "./diagram-svg"
+import { normalizeBoxEdges } from "@/lib/contract/artifact-manifest"
+import { MapMermaid } from "@/components/mermaid/map-mermaid"
+import type { MapInput, MapKind, MapSignal } from "@/lib/diagram/map-to-mermaid"
 
 const SHAPE_KIND: Record<string, MapKind> = { db: "store", actor: "actor", note: "file", circle: "external" }
 const TONE_SIGNAL: Partial<Record<string, MapSignal>> = { green: "new", red: "risk", amber: "risk", blue: "wait" }
@@ -18,8 +17,8 @@ export function renderBoxDiagram({ node }: AdapterArgs<"box-diagram">) {
 }
 
 function BoxDiagram({ node }: Pick<AdapterArgs<"box-diagram">, "node">) {
-  const { title, caption, grid, groups, dashed } = node.props
-  const input = useMemo<MapLayoutInput>(
+  const { title, caption, dashed } = node.props
+  const input = useMemo<MapInput>(
     () => ({
       nodes: node.props.nodes.map((n) => ({
         id: n.id,
@@ -30,10 +29,8 @@ function BoxDiagram({ node }: Pick<AdapterArgs<"box-diagram">, "node">) {
         signal: n.mark === "proposed" || n.mark === "added" ? "new" : n.mark === "removed" ? "risk" : TONE_SIGNAL[n.tone ?? "default"],
       })),
       edges: normalizeBoxEdges(node.props.edges).edges,
-      grid: grid ? parseGridRows(grid).cells : undefined,
-      groups: groups?.map((g) => ({ label: g.label, ids: g.ids })),
     }),
-    [node.props.nodes, node.props.edges, grid, groups],
+    [node.props.nodes, node.props.edges],
   )
-  return <MapFigure input={input} label={title ?? caption ?? "Diagram"} title={title} caption={caption} legend={dashed ? { dashed } : undefined} />
+  return <MapMermaid input={input} label={title ?? caption ?? "Diagram"} title={title} caption={caption} legend={dashed ? { dashed } : undefined} />
 }

@@ -1,14 +1,13 @@
 "use client"
 
 // map: a data-flow diagram of at most 6 text nodes with labelled edges.
-// Layout and label placement are pure (lib/diagram), drawing lives in plan/diagram-svg.
+// JSON is compiled to Mermaid text (lib/diagram/map-to-mermaid); Mermaid lays it out.
 import { useMemo } from "react"
 
 import type { AdapterArgs } from "@/components/artifact-types"
+import { MapMermaid } from "@/components/mermaid/map-mermaid"
 import { normalizeBoxEdges } from "@/lib/contract/artifact-manifest"
-import type { MapLayoutInput } from "@/lib/diagram/map-layout"
-
-import { MapFigure } from "../plan/diagram-svg"
+import type { MapInput } from "@/lib/diagram/map-to-mermaid"
 
 export function renderMap({ node }: AdapterArgs<"map">) {
   return <MapNodeView node={node} />
@@ -16,6 +15,6 @@ export function renderMap({ node }: AdapterArgs<"map">) {
 
 function MapNodeView({ node }: Pick<AdapterArgs<"map">, "node">) {
   const { caption, nodes, edges, layout, legend } = node.props
-  const input = useMemo<MapLayoutInput>(() => ({ nodes, edges: normalizeBoxEdges(edges).edges, layout }), [nodes, edges, layout])
-  return <MapFigure input={input} label={caption} caption={caption} legend={legend} preferred={layout === "column" ? "column" : "row"} />
+  const input = useMemo<MapInput>(() => ({ nodes, edges: normalizeBoxEdges(edges).edges, layout }), [nodes, edges, layout])
+  return <MapMermaid input={input} label={caption} caption={caption} legend={legend} />
 }

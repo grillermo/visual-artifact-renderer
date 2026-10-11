@@ -467,3 +467,27 @@ html.dark {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
+/* ---- map / story: Mermaid-rendered flowcharts (components/mermaid/map-mermaid.tsx) ---- */
+.mm-canvas svg { display: block; max-width: none; margin-inline: auto; font-family: var(--font-sans); }
+.mm-canvas .node rect, .mm-canvas .node path, .mm-canvas .node polygon, .mm-canvas .node circle { fill: none !important; stroke: none !important; }
+.mm-canvas .nodeLabel, .mm-canvas .nodeLabel p { margin: 0; color: var(--ink); line-height: 1.25; }
+.mm-canvas .edgeLabel, .mm-canvas .edgeLabel p, .mm-canvas .edgeLabel span { background: var(--paper) !important; color: var(--ink); font-size: var(--fs-meta); opacity: 1; }
+.mm-canvas .edgeLabel p { margin: 0; padding: 1px 4px; }
+.mm-canvas .edgePaths path { fill: none; }
+.mm-canvas .marker { fill: var(--ink-muted); stroke: var(--ink-muted); }
+.mm-n { display: grid; grid-template-columns: 20px auto; column-gap: 6px; align-items: baseline; text-align: left; padding: 2px 0 4px; border-bottom: 1px solid color-mix(in srgb, var(--ink) 30%, transparent); white-space: normal; max-width: 190px; width: max-content; font-size: var(--fs-small); color: var(--ink); }
+.mm-t { font-weight: 600; font-family: var(--font-serif); font-size: calc(var(--fs-small) + 2px); grid-column: 2; }
+.mm-sub { grid-column: 2; font-size: var(--fs-meta); color: var(--ink-muted); font-weight: 400; font-family: var(--font-sans); }
+.mm-g { grid-column: 1; grid-row: 1; width: 16px; height: 16px; align-self: center; background: currentColor; -webkit-mask: var(--mm-glyph) center / contain no-repeat; mask: var(--mm-glyph) center / contain no-repeat; }
+.mm-s-new { color: var(--signal-new); border-bottom-color: color-mix(in srgb, var(--signal-new) 50%, transparent); }
+.mm-s-risk { color: var(--signal-risk); border-bottom-color: color-mix(in srgb, var(--signal-risk) 50%, transparent); }
+.mm-s-wait { color: var(--signal-wait); border-bottom-color: color-mix(in srgb, var(--signal-wait) 50%, transparent); }
+.mm-s-new .mm-sub, .mm-s-risk .mm-sub, .mm-s-wait .mm-sub { color: var(--ink-muted); }
+.mm-k-service { --mm-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke='black' stroke-width='1.4' stroke-linejoin='round'%3E%3Crect x='1.5' y='1.5' width='11' height='11' rx='3'/%3E%3C/svg%3E"); }
+.mm-k-actor { --mm-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke='black' stroke-width='1.4' stroke-linecap='round'%3E%3Ccircle cx='7' cy='4.5' r='3'/%3E%3Cpath d='M1.5 13C1.5 9.8 3.9 8 7 8S12.5 9.8 12.5 13'/%3E%3C/svg%3E"); }
+.mm-k-store { --mm-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke='black' stroke-width='1.4' stroke-linecap='round'%3E%3Cellipse cx='7' cy='3.2' rx='5.5' ry='2.2'/%3E%3Cpath d='M1.5 3.2V10.6C1.5 11.9 4 12.9 7 12.9S12.5 11.9 12.5 10.6V3.2'/%3E%3C/svg%3E"); }
+.mm-k-file { --mm-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke='black' stroke-width='1.4' stroke-linejoin='round'%3E%3Cpath d='M2.5 1.5H8.5L11.5 4.5V12.5H2.5ZM8.5 1.5V4.5H11.5'/%3E%3C/svg%3E"); }
+.mm-k-external { --mm-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke='black' stroke-width='1.4' stroke-dasharray='2.4 2.2'%3E%3Ccircle cx='7' cy='7' r='5.5'/%3E%3C/svg%3E"); }
+.mm-canvas foreignObject { overflow: visible; }
+.mm-canvas .edgeLabel, .mm-canvas .edgeLabel * { letter-spacing: normal; font-family: var(--font-sans); font-size: var(--fs-meta); }

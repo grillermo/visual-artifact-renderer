@@ -35,7 +35,7 @@ function runWithTimeout<T>(fn: () => Promise<T>, ms: number): Promise<T> {
   })
 }
 
-function enqueueMermaidRender<T>(renderFn: () => Promise<T>): Promise<T> {
+export function enqueueMermaidRender<T>(renderFn: () => Promise<T>): Promise<T> {
   return new Promise((resolve, reject) => {
     const run = async () => {
       try {
@@ -52,6 +52,43 @@ function enqueueMermaidRender<T>(renderFn: () => Promise<T>): Promise<T> {
   })
 }
 
+export type DocumentTheme = "light" | "dark"
+
+/** Follows the `dark` class on <html>, so diagrams re-render when the in-page toggle flips. */
+export function useDocumentTheme(): DocumentTheme {
+  const [theme, setTheme] = useState<DocumentTheme>("light")
+  useEffect(() => {
+    const sync = () => setTheme(document.documentElement.classList.contains("dark") ? "dark" : "light")
+    sync()
+    const observer = new MutationObserver(sync)
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] })
+    return () => observer.disconnect()
+  }, [])
+  return theme
+}
+
+/**
+ * Render Mermaid text to SVG through the shared queue. Mermaid keeps one global config, so
+ * every call re-initialises it. `config` is merged over the shared theme settings.
+ */
+export async function renderMermaidSvg(id: string, code: string, config: Record<string, unknown> = {}): Promise<string> {
+  const rendered = await enqueueMermaidRender(async () => {
+    const { default: mermaid } = await import("mermaid")
+    const vars = mermaidThemeVariables()
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: "base",
+      themeVariables: vars,
+      securityLevel: "strict",
+      fontFamily: vars.fontFamily,
+      ...config,
+    })
+    await mermaid.parse(code)
+    return mermaid.render(id, code)
+  })
+  return rendered.svg
+}
+
 export function MermaidDiagram({
   code,
   caption,
@@ -66,7 +103,7 @@ export function MermaidDiagram({
     () => `mermaid-${rawId.replace(/[^a-zA-Z0-9_-]/g, "")}`,
     [rawId]
   )
-  const [theme, setTheme] = useState<"light" | "dark">("light")
+  const theme = useDocumentTheme()
   const [svg, setSvg] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isMaximized, setIsMaximized] = useState(false)
@@ -95,23 +132,6 @@ export function MermaidDiagram({
       code.replace(/\\n/g, "\n").replace(/\\t/g, "\t").replace(/\\\\/g, "\\"),
     [code]
   )
-
-  useEffect(() => {
-    const syncTheme = () =>
-      setTheme(
-        document.documentElement.classList.contains("dark") ? "dark" : "light"
-      )
-
-    syncTheme()
-
-    const observer = new MutationObserver(syncTheme)
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    })
-
-    return () => observer.disconnect()
-  }, [])
 
   useEffect(() => {
     let cancelled = false

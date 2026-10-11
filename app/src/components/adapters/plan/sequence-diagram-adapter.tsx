@@ -5,7 +5,7 @@ import type { AdapterArgs } from "@/components/artifact-types"
 import { normalizeSequenceSteps } from "@/lib/contract/artifact-manifest"
 
 import { ArrowDefs, markerFor, SVG_TEXT } from "./diagram-svg"
-import { estimateTextWidth } from "@/lib/diagram/label-placement"
+import { estimateTextWidth } from "@/lib/diagram/text-width"
 
 const COL = 176
 const PAD = 16
