@@ -62,3 +62,25 @@ it("serves bundle assets in dev and refuses paths outside the assets folder", as
     await rm(root, { recursive: true, force: true })
   }
 })
+
+it("serves home and project indexes in dev, 404 for unknown projects", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "va-dev-index-"))
+  try {
+    await mkdir(join(dir, "demo", "first"), { recursive: true })
+    await writeFile(join(dir, "demo", "first", "artifact.json"), JSON.stringify({ title: "First", artifactType: "explainer" }))
+    const home = await serveDevArtifactRequest(new Request("http://x/data/artifacts/index.json"), dir)
+    assert.equal(home.status, 200)
+    const homeBody = await home.json()
+    assert.deepEqual(homeBody.projects.map((p: { name: string }) => p.name), ["demo"])
+    const project = await serveDevArtifactRequest(new Request("http://x/data/artifacts/demo/index.json"), dir)
+    assert.equal(project.status, 200)
+    const body = await project.json()
+    assert.equal(body.project, "demo")
+    assert.equal(body.artifacts[0].slug, "first")
+    assert.equal(body.artifacts[0].title, "First")
+    const missing = await serveDevArtifactRequest(new Request("http://x/data/artifacts/nope/index.json"), dir)
+    assert.equal(missing.status, 404)
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})

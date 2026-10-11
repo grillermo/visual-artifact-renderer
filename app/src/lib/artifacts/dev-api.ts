@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises"
+import { readdir, readFile, stat } from "node:fs/promises"
 import { homedir } from "node:os"
 import { extname, resolve, sep } from "node:path"
 import { annotationMutationRequestRejection } from "@agents/visual-artifact-annotations"
@@ -9,7 +9,8 @@ import {
   readAnnotationsDocument,
   resolveLocalAuthor,
 } from "../../../../cli/src/lib/annotations"
-import { parseBundleRoute } from "../../../../cli/src/lib/paths"
+import { parseBundleRoute, parseProjectRoute } from "../../../../cli/src/lib/paths"
+import { ARTIFACT_TYPES } from "@agents/visual-artifact-annotations/contract"
 import { readAnnotationMutationBody } from "../../../../cli/src/lib/annotation-body"
 
 const ASSET_TYPES: Record<string, string> = {
@@ -20,6 +21,81 @@ const ASSET_TYPES: Record<string, string> = {
   ".webp": "image/webp",
   ".svg": "image/svg+xml",
   ".avif": "image/avif",
+}
+
+const KEBAB = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+const ARTIFACT_TYPE_SET = new Set<string>(ARTIFACT_TYPES)
+
+type ListEntry = { slug: string; title?: string; description?: string; artifactType?: string; topics?: string[]; modifiedAt: string }
+
+// Mirrors cli/src/lib/scan.ts. Importing that file drags cli/node_modules into webpack, which can't parse it.
+async function listProject(projectDir: string): Promise<ListEntry[]> {
+  const out: ListEntry[] = []
+  let entries
+  try {
+    entries = await readdir(projectDir, { withFileTypes: true })
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return out
+    throw error
+  }
+  for (const entry of entries) {
+    if (!entry.isDirectory() || !KEBAB.test(entry.name)) continue
+    const file = resolve(projectDir, entry.name, "artifact.json")
+    let raw: string
+    let mtime: Date
+    try {
+      raw = await readFile(file, "utf8")
+      mtime = (await stat(file)).mtime
+    } catch {
+      continue
+    }
+    let meta: Record<string, unknown> = {}
+    try { meta = JSON.parse(raw) } catch { /* keep the entry, without metadata */ }
+    const str = (v: unknown) => (typeof v === "string" && v.length > 0 ? v : undefined)
+    out.push({
+      slug: entry.name,
+      title: str(meta.title),
+      description: str(meta.description),
+      artifactType: typeof meta.artifactType === "string" && ARTIFACT_TYPE_SET.has(meta.artifactType) ? meta.artifactType : undefined,
+      topics: Array.isArray(meta.topics) ? meta.topics.filter((t): t is string => typeof t === "string" && t.length > 0) : undefined,
+      modifiedAt: mtime.toISOString(),
+    })
+  }
+  return out.sort((a, b) => b.modifiedAt.localeCompare(a.modifiedAt))
+}
+
+const NO_STORE = { "Cache-Control": "no-store" }
+
+/** Same shape as the CLI static server's /data/artifacts/index.json. */
+async function serveHomeIndex(artifactsDir: string): Promise<Response> {
+  const projects: { name: string; artifactCount: number; lastModifiedAt: string }[] = []
+  const artifacts: (ListEntry & { project: string })[] = []
+  let entries: { name: string; isDirectory(): boolean }[] = []
+  try { entries = await readdir(artifactsDir, { withFileTypes: true }) } catch { /* empty store */ }
+  for (const entry of entries) {
+    if (!entry.isDirectory() || !KEBAB.test(entry.name)) continue
+    const list = await listProject(resolve(artifactsDir, entry.name))
+    if (list.length === 0) continue
+    projects.push({ name: entry.name, artifactCount: list.length, lastModifiedAt: list[0].modifiedAt })
+    artifacts.push(...list.map((a) => ({ ...a, project: entry.name })))
+  }
+  projects.sort((a, b) => b.lastModifiedAt.localeCompare(a.lastModifiedAt))
+  artifacts.sort((a, b) => b.modifiedAt.localeCompare(a.modifiedAt))
+  return Response.json({ projects, recent: artifacts.slice(0, 3), artifacts: artifacts.slice(0, 100) }, { headers: NO_STORE })
+}
+
+/** Same shape as the CLI static server's /data/artifacts/<project>/index.json. */
+async function serveProjectIndex(artifactsDir: string, project: string): Promise<Response> {
+  const route = parseProjectRoute(project)
+  if (!route) return new Response("Not found", { status: 404 })
+  const projectDir = resolve(artifactsDir, route.project)
+  if (!projectDir.startsWith(artifactsDir + sep)) return new Response("Not found", { status: 404 })
+  try {
+    if (!(await stat(projectDir)).isDirectory()) return new Response("Not found", { status: 404 })
+  } catch {
+    return new Response("Not found", { status: 404 })
+  }
+  return Response.json({ project: route.project, artifacts: await listProject(projectDir) }, { headers: NO_STORE })
 }
 
 export function devArtifactsDir(): string {
@@ -34,6 +110,9 @@ export async function serveDevArtifactRequest(request: Request, artifactsDir = d
     if (request.method !== "GET") return new Response("Method not allowed", { status: 405 })
     return Response.json(await resolveLocalAuthor())
   }
+  if (pathname === "/data/artifacts/index.json") return serveHomeIndex(artifactsDir)
+  const projectIndex = pathname.match(/^\/data\/artifacts\/([^/]+)\/index\.json$/)
+  if (projectIndex) return serveProjectIndex(artifactsDir, projectIndex[1])
   const api = pathname.match(/^\/api\/annotations\/([^/]+)\/([^/]+)$/)
   const asset = pathname.match(/^\/data\/artifacts\/([^/]+)\/([^/]+)\/assets\/(.+)$/)
   if (asset) return serveAsset(request, artifactsDir, asset[1], asset[2], asset[3])
