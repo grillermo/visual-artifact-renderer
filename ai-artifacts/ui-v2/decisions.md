@@ -17,6 +17,11 @@
 - The nine-frame trace fixture is explicitly illustrative, not a runtime capture. Its source hash matches the inline example. The trace's About text distinguishes all four provenance modes.
 - Keep large screenshot PNGs local and ignore them; commit the acceptance manifest and repeatable generation/capture scripts. Wait for the mounted toolbar before browser interaction to avoid pre-hydration DOM instrumentation.
 
+- Live artifact updates clamp the active step or frame to the remaining list. Old-side walkthrough focus follows old line numbers, including shifted context rows; unified diffs show both number columns. Source pin numbers follow sorted frame positions, not arbitrary event order values.
+- Shared context rows can carry old and new note pins and underlines. Reserve gutter space consistently for coincident step pins, and compute token offsets before rendering in linear time.
+
+- The injected pnpm `file:../shared` package retained a stale copied `code-schemas.js` after rebuilds. The gate now restores local output hardlinks after the shared build and refuses any runtime path outside this worktree. A regression for empty comparison-side annotations exposed this mismatch.
+
 ## Component critique and re-check
 
 | Before | After | Why |

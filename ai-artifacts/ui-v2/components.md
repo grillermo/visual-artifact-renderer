@@ -62,9 +62,9 @@ Their schema branches, manifest entries and renderer adapters are gone. Historic
 
 ## Cycle 1 verification
 
-The earlier full gate passed shared build, app lint, TypeScript, **231 app tests**, contract export, production build and **319 CLI tests**. The checkpoint passes lint, TypeScript and **35 focused regressions**; the final gate follows after this checkpoint. `verify:artifacts` passes **4 repository specs**, including **2 bundles**, and all **31 manifest examples**.
+The final gate passes shared build, app lint, TypeScript, **234 app tests**, contract export, production build and **319 CLI tests**. `verify:artifacts` passes **4 repository specs**, including **2 bundles**, and all **31 manifest examples**.
 
-The earlier headless agent-browser matrix checked all 12 staged real samples and the acceptance fixture at **1440 and 390**, **light and dark**, with comments open. The **52-capture matrix** has no horizontal page overflow or console errors. Source-bearing samples cover VAR, cloud-agent box, nice-mermaid, Pi extensions and the diagram gallery. Dense desktop notes use five collision connectors; mobile traces start collapsed. Evidence and scripts live in `qa/cycle-1/`, `qa/capture-cycle-1.mjs` and `qa/prepare-cycle-1.ts`.
+Headless agent-browser checked all 12 staged real samples and the acceptance fixture at **1440 and 390**, **light and dark**, with comments open. The **52-capture matrix** has no horizontal page overflow or console errors. Source-bearing samples cover VAR, cloud-agent box, nice-mermaid, Pi extensions and the diagram gallery. Dense desktop notes use five collision connectors; mobile traces start collapsed. Evidence and scripts live in `qa/cycle-1/`, `qa/capture-cycle-1.mjs` and `qa/prepare-cycle-1.ts`.
 
 ## Cycle 0 verification
 
