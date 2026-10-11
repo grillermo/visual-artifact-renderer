@@ -1,0 +1,14 @@
+[
+ {"project":"project-atlas","slug":"spawn-lead-workflow","title":"Spawn lead workflow","types":["alert","definition-list","flow"]},
+ {"project":"project-atlas","slug":"diagram-gallery","title":"Diagram gallery","types":["mermaid","timeline"]},
+ {"project":"project-atlas","slug":"pi-compaction-flow","title":"Pi compaction flow","types":[]},
+ {"project":"project-atlas","slug":"pi-extensions-how-it-works","title":"Pi extensions how it works","types":[]},
+ {"project":"node-redesign-proj","slug":"after-agents2-implementation-plan","title":"agents2 implementation plan","types":[]},
+ {"project":"obsidian-vault","slug":"latticehq-multi-tenant-support-copilot","title":"LatticeHQ support copilot","types":["alert","comparison-table","definition-list","grid","mermaid","stat-card","status-grid"]},
+ {"project":"agents","slug":"themed-agent-correspondence-now-next","title":"Themed agent correspondence","types":["accordion","alert","comparison-table","flow","grid","mermaid","stat-card","status-grid","stepper"]},
+ {"project":"logview-verification-plan","slug":"logview-project-recap-2026-09-19","title":"Logview project recap","types":["alert","card","comparison-table","data-table","grid","mermaid","stat-card","status-grid","stepper","timeline"]},
+ {"project":"project-atlas","slug":"var-how-it-works","title":"VAR how it works","types":["code-block","comparison-table","status-grid"]},
+ {"project":"agents2","slug":"agents2-week-2026-10-04","title":"agents2 week 2026-10-04","types":["card","comparison-table","flow","grid","status-grid"]},
+ {"project":"nice-mermaid-nvim","slug":"nice-mermaid-inline-render-pipeline","title":"nice-mermaid inline render pipeline","types":["alert","code-block","mermaid","status-grid"]},
+ {"project":"dotfiles","slug":"cloud-agent-box-guided-tour","title":"Cloud agent box guided tour","types":["accordion","alert","code-block","comparison-table","definition-list","flow","grid","mermaid","stat-card","timeline"]}
+]
