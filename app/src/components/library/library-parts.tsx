@@ -132,13 +132,17 @@ export function SearchBox({ value, onChange, placeholder, inputRef, locked = [],
   )
 }
 
-function foldSummary(row: LibraryRow): string {
+function FoldSummary({ row }: { row: LibraryRow }) {
   const versions = row.folded.filter((f) => f.kind === "version")
   const copies = row.folded.filter((f) => f.kind === "copy")
-  const parts: string[] = []
-  if (versions.length) parts.push(`${versions.map((f) => f.label).join(", ")} folded`)
-  if (copies.length) parts.push(`${plural(copies.length, "copy", "copies")} in ${copies.map((f) => f.label).join(", ")}`)
-  return parts.join(" · ")
+  const places = [...new Set(copies.map((f) => f.label))]
+  return (
+    <span>
+      {versions.length > 0 && <><b>{versions.map((f) => f.label).join(", ")}</b> folded</>}
+      {versions.length > 0 && copies.length > 0 && " · "}
+      {copies.length > 0 && <><b>{plural(copies.length, "copy", "copies")}</b> in {places.join(", ")}</>}
+    </span>
+  )
 }
 
 export function CatalogueRow({ row, now, href, showProject = true }: { row: LibraryRow; now: number; href: (project: string, slug: string) => string; showProject?: boolean }) {
@@ -148,7 +152,7 @@ export function CatalogueRow({ row, now, href, showProject = true }: { row: Libr
   const firstLink = useRef<HTMLAnchorElement>(null)
   return (
     <div className="lib-item">
-      <Link href={href(a.project, a.slug)} className="lib-row" data-library-row>
+      <Link href={href(a.project, a.slug)} className={showProject ? "lib-row" : "lib-row lib-row-solo"} data-library-row>
         <span className="lib-label">
           {typeLabel(a.artifactType)}
           {isNew(a, now) && <span className="lib-new"> · new</span>}
@@ -166,11 +170,11 @@ export function CatalogueRow({ row, now, href, showProject = true }: { row: Libr
             {row.version && <span className="s">{row.version} · latest of {row.folded.length + 1}</span>}
             {a.topics && a.topics.length > 0 && <span>{a.topics.slice(0, 3).join(" · ")}</span>}
             {a.published && <span>Published</span>}
-            {!showProject && <span className="lib-num sm:hidden">{shortDate(a.modifiedAt, now)}</span>}
-            {showProject && <span className="sm:hidden">{a.project} · {shortDate(a.modifiedAt, now)}</span>}
+            {!showProject && <span className="lib-num min-[861px]:hidden">{shortDate(a.modifiedAt, now)}</span>}
+            {showProject && <span className="min-[861px]:hidden">{a.project} · {shortDate(a.modifiedAt, now)}</span>}
           </div>
         </div>
-        <span className="lib-proj">{showProject ? a.project : ""}</span>
+        {showProject && <span className="lib-proj">{a.project}</span>}
         <span className="lib-when lib-num">{shortDate(a.modifiedAt, now)}</span>
       </Link>
       {row.folded.length > 0 && (
@@ -183,7 +187,7 @@ export function CatalogueRow({ row, now, href, showProject = true }: { row: Libr
             onClick={() => { setOpen((v) => !v); if (!open) requestAnimationFrame(() => firstLink.current?.focus({ preventScroll: true })) }}
           >
             <span className="chev" aria-hidden>▸</span>
-            <span><b>{plural(row.folded.length, "more")}</b> · {foldSummary(row)}</span>
+            <FoldSummary row={row} />
           </button>
           {open && (
             <div id={foldId} className="lib-fold-list">

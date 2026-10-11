@@ -367,6 +367,7 @@ html.dark {
 .lib-chip button { color: var(--ink-muted); line-height: 1; padding: 0 0 0 2px; border-radius: 3px; }
 .lib-chip button:hover { color: var(--ink); }
 .lib-row { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr) 11rem 5rem; gap: 16px; align-items: baseline; padding: 13px 10px; margin: 0 -10px; border-top: 1px solid var(--rule); transition: background-color var(--lib-fast); border-radius: 2px; }
+.lib-row-solo { grid-template-columns: 7.5rem minmax(0, 1fr) 5rem; }
 .lib-rows > :nth-child(odd of .lib-item) > .lib-row { background: color-mix(in oklch, var(--lib-fill) 40%, transparent); }
 @media (hover: hover) { .lib-row:hover { background: var(--lib-fill) !important; } }
 .lib-row:focus-visible, .lib-rail-f:focus-visible, .lib-now-item:focus-visible, .lib-fold-toggle:focus-visible, .lib-seg button:focus-visible, .lib-chip button:focus-visible, .lib-link:focus-visible { outline: 2px solid var(--signal-wait); outline-offset: 2px; }
@@ -421,7 +422,14 @@ html.dark {
 .lib-table tr { position: relative; }
 .lib-table tr:has(a:focus-visible) { outline: 2px solid var(--signal-wait); outline-offset: -2px; }
 .lib-side-r { display: flex; align-items: baseline; gap: 8px; font-size: 0.875rem; padding: 6px 0; border-top: 1px solid var(--rule); color: var(--ink); }
-.lib-side-r .c { margin-left: auto; font: 400 0.75rem/1 var(--font-geist-mono), ui-monospace, monospace; color: var(--ink-muted); }
+.lib-side-r .c { margin-left: auto; font: 400 0.75rem/1 var(--font-geist-mono), ui-monospace, monospace; color: var(--ink-muted); white-space: nowrap; }
+.lib-side-r { padding-inline: 6px; margin-inline: -6px; border-radius: 2px; transition: background-color var(--lib-fast); }
+@media (hover: hover) { .lib-side-r:hover { background: color-mix(in oklch, var(--lib-fill) 60%, transparent); } }
+.lib-side-r[aria-pressed="true"] { background: var(--lib-fill); font-weight: 500; }
+.lib-side-r:focus-visible, .lib-legend:focus-visible { outline: 2px solid var(--signal-wait); outline-offset: 2px; }
+.lib-legend { font: 400 0.75rem/1 var(--font-geist-mono), ui-monospace, monospace; color: var(--ink-muted); padding: 5px 7px; margin-left: -7px; border-radius: 6px; transition: background-color var(--lib-fast), color var(--lib-fast); }
+@media (hover: hover) { .lib-legend:hover { color: var(--ink); background: color-mix(in oklch, var(--lib-fill) 60%, transparent); } }
+.lib-legend[aria-pressed="true"] { background: var(--lib-fill); color: var(--ink); }
 @keyframes lib-results-enter { from { opacity: 0.6; } to { opacity: 1; } }
 .lib-results { animation: lib-results-enter 160ms ease-out both; }
 @media (max-width: 1100px) { .lib-now-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -435,7 +443,7 @@ html.dark {
 }
 @media (prefers-reduced-motion: reduce) {
   .lib-results { animation: none; }
-  .lib-row, .lib-rail-f, .lib-now-item, .lib-seg button, .lib-search, .lib-table tbody tr { transition: none; }
+  .lib-row, .lib-rail-f, .lib-now-item, .lib-seg button, .lib-search, .lib-table tbody tr, .lib-side-r, .lib-legend { transition: none; }
   .lib-fold-toggle .chev { transition: none; }
 }
 }

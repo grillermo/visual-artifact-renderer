@@ -4,6 +4,7 @@ import { describe, test } from "node:test"
 import type { RecentArtifact } from "./artifact-index"
 import {
   activityTicks,
+  copiesElsewhere,
   filterRows,
   foldArtifacts,
   groupProjects,
@@ -11,6 +12,9 @@ import {
   libraryFacets,
   nowStrip,
   projectActivity,
+  projectRows,
+  projectTopics,
+  relatedProjects,
 } from "./library"
 
 const NOW = Date.parse("2026-10-12T12:00:00.000Z")
@@ -99,5 +103,32 @@ describe("library grouping", () => {
     assert.deepEqual(groups[0].projects.map((p) => p.name), ["ui-v2-samples", "var", "node-redesign-proj"])
     assert.equal(groups.at(-1)!.repo, undefined)
     assert.equal(activityTicks([0, 1, 4]), "▁▂▇")
+  })
+})
+
+describe("project page", () => {
+  test("folds copies from other projects under the project's own row", () => {
+    const rows = projectRows(library, "ui-v2-samples")
+    assert.equal(rows.length, 1)
+    assert.equal(rows[0].artifact.project, "ui-v2-samples")
+    assert.deepEqual(rows[0].folded.map((f) => [f.kind, f.label]), [["copy", "project-atlas"]])
+    assert.deepEqual(copiesElsewhere(rows), [{ name: "project-atlas", count: 1 }])
+  })
+
+  test("keeps version chains inside the project", () => {
+    const rows = projectRows(library, "var")
+    assert.deepEqual(rows.map((r) => r.artifact.slug), ["test", "refactor-v3"])
+  })
+
+  test("counts topics and ranks related projects, skipping copies", () => {
+    const items = [
+      art({ project: "a", slug: "one", title: "One", topics: ["pi", "herdr"] }),
+      art({ project: "a", slug: "two", title: "Two", topics: ["pi"] }),
+      art({ project: "b", slug: "x", title: "X", topics: ["pi", "herdr"] }),
+      art({ project: "c", slug: "y", title: "Y", topics: ["pi"] }),
+      art({ project: "samples", slug: "one", title: "One", topics: ["pi", "herdr"] }),
+    ]
+    assert.deepEqual(projectTopics(items.filter((a) => a.project === "a")), [{ name: "pi", count: 2 }, { name: "herdr", count: 1 }])
+    assert.deepEqual(relatedProjects(items, "a"), [{ name: "b", count: 2 }, { name: "c", count: 1 }])
   })
 })

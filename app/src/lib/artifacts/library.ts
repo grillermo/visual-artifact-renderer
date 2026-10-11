@@ -55,7 +55,7 @@ export function isNew(artifact: RecentArtifact, now: number): boolean {
   return now - Date.parse(artifact.modifiedAt) < NEW_WITHIN_DAYS * DAY_MS
 }
 
-function titleKey(artifact: RecentArtifact): string {
+export function titleKey(artifact: RecentArtifact): string {
   return (artifact.title || artifact.slug).trim().toLocaleLowerCase().replace(/\s+/g, " ")
 }
 
@@ -312,6 +312,68 @@ export function groupProjects(projects: ProjectActivity[]): ProjectGroup[] {
     groups.set(repo, group)
   }
   return [...groups.values(), other].filter((group) => group.projects.length > 0)
+}
+
+/**
+ * Rows for one project page. Versions fold within the project; artifacts with
+ * the same title in other projects fold under each row as copies, so the page
+ * shows its own work first even when the original lives elsewhere.
+ */
+export function projectRows(all: RecentArtifact[], project: string): LibraryRow[] {
+  const here = all.filter((a) => a.project === project)
+  const elsewhere = new Map<string, RecentArtifact[]>()
+  for (const a of all) {
+    if (a.project === project) continue
+    const key = titleKey(a)
+    elsewhere.set(key, [...(elsewhere.get(key) ?? []), a])
+  }
+  return foldArtifacts(here).map((row) => {
+    const copies = (elsewhere.get(titleKey(row.artifact)) ?? []).sort(newestFirst)
+    if (copies.length === 0) return row
+    return {
+      ...row,
+      folded: [...row.folded, ...copies.map((artifact) => ({ artifact, kind: "copy" as const, label: artifact.project }))],
+    }
+  })
+}
+
+export interface CountedName { name: string; count: number }
+
+function counted(map: Map<string, number>): CountedName[] {
+  return [...map].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
+}
+
+/** Topics used in a project, most used first. */
+export function projectTopics(artifacts: RecentArtifact[]): CountedName[] {
+  const counts = new Map<string, number>()
+  for (const a of artifacts) for (const topic of new Set(a.topics ?? [])) counts.set(topic, (counts.get(topic) ?? 0) + 1)
+  return counted(counts)
+}
+
+/** Other projects ranked by how many distinct topics they share with this one. */
+export function relatedProjects(all: RecentArtifact[], project: string): CountedName[] {
+  const own = all.filter((a) => a.project === project)
+  const mine = new Set(own.flatMap((a) => a.topics ?? []))
+  const ownTitles = new Set(own.map(titleKey))
+  const shared = new Map<string, Set<string>>()
+  for (const a of all) {
+    // Copies of this project's own work are not a relation; they show under "Copies elsewhere".
+    if (a.project === project || ownTitles.has(titleKey(a))) continue
+    for (const topic of a.topics ?? []) {
+      if (!mine.has(topic)) continue
+      const set = shared.get(a.project) ?? new Set<string>()
+      set.add(topic)
+      shared.set(a.project, set)
+    }
+  }
+  return counted(new Map([...shared].map(([name, set]) => [name, set.size])))
+}
+
+/** Where this project's rows have copies, by project. */
+export function copiesElsewhere(rows: LibraryRow[]): CountedName[] {
+  const counts = new Map<string, number>()
+  for (const row of rows) for (const f of row.folded) if (f.kind === "copy") counts.set(f.label, (counts.get(f.label) ?? 0) + 1)
+  return counted(counts)
 }
 
 const TICKS = ["▁", "▂", "▃", "▅", "▇"]
