@@ -397,6 +397,42 @@ export {
   type GridRow,
 } from "./plan-primitives.js"
 import { ShortLabel } from "./plan-primitives.js"
+import { ProseSizeSchema } from "./editorial-schemas.js"
+import {
+  COLUMNS_CHILD_TYPES,
+  CalloutPropsSchema,
+  ChapterPropsSchema,
+  ChecklistPropsSchema,
+  ColumnsPropsSchema,
+  ComparePropsSchema,
+  DetailsPropsSchema,
+  FiguresPropsSchema,
+  LedgerPropsSchema,
+  LinksPropsSchema,
+  MapPropsSchema,
+  QuotePropsSchema,
+  StepsPropsSchema,
+  StoryPropsSchema,
+  TablePropsSchema,
+  TimelinePropsSchema,
+  TrendPropsSchema,
+  type CalloutProps as EditorialCalloutProps,
+  type ChapterProps,
+  type ChecklistProps,
+  type ColumnsProps,
+  type CompareProps,
+  type DetailsProps,
+  type FiguresProps,
+  type LedgerProps,
+  type LinksProps,
+  type MapProps,
+  type QuoteProps,
+  type StepsProps,
+  type StoryProps,
+  type TableProps,
+  type TimelineProps,
+  type TrendProps,
+} from "./editorial-schemas.js"
 import {
   BoxDiagramPropsSchema,
   CallStackPropsSchema,
@@ -409,6 +445,7 @@ import {
   MockupPropsSchema,
   QuotesPropsSchema,
   SequenceDiagramPropsSchema,
+  SequencePropsSchema,
   StateMachinePropsSchema,
   WireframePropsSchema,
   flattenFileTreePaths,
@@ -424,6 +461,7 @@ import {
   type MockupProps,
   type QuotesProps,
   type SequenceDiagramProps,
+  type SequenceProps,
   type StateMachineProps,
   type WireframeProps,
 } from "./plan-schemas.js"
@@ -805,7 +843,7 @@ export type ArtifactNode =
     }
   | {
       type: "prose"
-      props: { content: string; tone?: "default" | "muted" }
+      props: { content: string; tone?: "default" | "muted"; size?: "lead" | "base" }
       metadata?: { id?: string }
     }
   | {
@@ -847,7 +885,7 @@ export type ArtifactNode =
   | { type: "separator"; props?: Record<string, never>; metadata?: { id?: string } }
   | {
       type: "table"
-      props: { dataKey: string; columns?: ArtifactColumn[]; caption?: string }
+      props: TableProps
       metadata?: { id?: string }
     }
   | {
@@ -882,7 +920,7 @@ export type ArtifactNode =
     }
   | {
       type: "timeline"
-      props: { dataKey: string; titleKey?: string; markerKey?: string; descriptionKey?: string; statusKey?: string; caption?: string }
+      props: TimelineProps
       metadata?: { id?: string }
     }
   | {
@@ -897,6 +935,22 @@ export type ArtifactNode =
   | { type: "decision"; props: DecisionProps; metadata?: { id?: string } }
   | { type: "change-stats"; props: ChangeStatsProps; metadata?: { id?: string } }
   | { type: "quotes"; props: QuotesProps; metadata?: { id?: string } }
+  | { type: "chapter"; props: ChapterProps; children?: ArtifactNode[]; metadata?: { id?: string } }
+  | { type: "columns"; props?: ColumnsProps; children: ArtifactNode[]; metadata?: { id?: string } }
+  | { type: "callout"; props: EditorialCalloutProps; metadata?: { id?: string } }
+  | { type: "details"; props: DetailsProps; children: ArtifactNode[]; metadata?: { id?: string } }
+  | { type: "ledger"; props: LedgerProps; metadata?: { id?: string } }
+  | { type: "checklist"; props: ChecklistProps; metadata?: { id?: string } }
+  | { type: "figures"; props: FiguresProps; metadata?: { id?: string } }
+  | { type: "steps"; props: StepsProps; metadata?: { id?: string } }
+  | { type: "map"; props: MapProps; metadata?: { id?: string } }
+  | { type: "story"; props: StoryProps; metadata?: { id?: string } }
+  | { type: "compare"; props: CompareProps; metadata?: { id?: string } }
+  | { type: "trend"; props: TrendProps; metadata?: { id?: string } }
+  | { type: "links"; props: LinksProps; metadata?: { id?: string } }
+  | { type: "quote"; props: QuoteProps; metadata?: { id?: string } }
+  | { type: "code"; props: CodeBlockProps; metadata?: { id?: string } }
+  | { type: "sequence"; props: SequenceProps; metadata?: { id?: string } }
   | { type: "claim-tree"; props?: ClaimTreeProps; children: ArtifactNode[]; metadata?: { id?: string } }
   | { type: "claim"; props: ClaimProps; children?: ArtifactNode[]; metadata?: { id?: string } }
   | { type: "state-machine"; props: StateMachineProps; children?: ArtifactNode[]; metadata?: { id?: string } }
@@ -1392,6 +1446,7 @@ export const ArtifactNodeSchema: z.ZodType<ArtifactNode> = z.lazy(() => {
     leafSchema("prose", {
       content: z.string().min(1),
       tone: z.enum(["default", "muted"]).optional(),
+      size: ProseSizeSchema.optional(),
     }),
     leafSchema("heading", {
       text: z.string().min(1),
@@ -1439,11 +1494,7 @@ export const ArtifactNodeSchema: z.ZodType<ArtifactNode> = z.lazy(() => {
       size: ButtonSizeSchema.optional(),
     }),
     optionalPropsSchema("separator", {}),
-    leafSchema("table", {
-      dataKey: z.string().min(1),
-      columns: z.array(ColumnSchema).min(1).optional(),
-      caption: z.string().min(1).optional(),
-    }),
+    planLeaf("table", TablePropsSchema),
     leafSchema("data-table", {
       dataKey: z.string().min(1),
       columns: z.array(ColumnSchema).min(1).optional(),
@@ -1479,14 +1530,7 @@ export const ArtifactNodeSchema: z.ZodType<ArtifactNode> = z.lazy(() => {
       caption: z.string().min(1).optional(),
       items: z.array(FlowItemSchema).min(2),
     }),
-    leafSchema("timeline", {
-      dataKey: z.string().min(1),
-      titleKey: z.string().min(1).optional(),
-      markerKey: z.string().min(1).optional(),
-      descriptionKey: z.string().min(1).optional(),
-      statusKey: z.string().min(1).optional(),
-      caption: z.string().min(1).optional(),
-    }),
+    planLeaf("timeline", TimelinePropsSchema),
     planLeaf("code-block", CodeBlockPropsSchema),
     planLeaf("call-stack", CallStackPropsSchema),
     planLeaf("sequence-diagram", SequenceDiagramPropsSchema),
@@ -1495,6 +1539,33 @@ export const ArtifactNodeSchema: z.ZodType<ArtifactNode> = z.lazy(() => {
     planLeaf("decision", DecisionPropsSchema),
     planLeaf("change-stats", ChangeStatsPropsSchema),
     planLeaf("quotes", QuotesPropsSchema),
+    planLeaf("code", CodeBlockPropsSchema),
+    planLeaf("sequence", SequencePropsSchema),
+    planLeaf("callout", CalloutPropsSchema),
+    planLeaf("ledger", LedgerPropsSchema),
+    planLeaf("checklist", ChecklistPropsSchema),
+    planLeaf("figures", FiguresPropsSchema),
+    planLeaf("steps", StepsPropsSchema),
+    planLeaf("map", MapPropsSchema),
+    planLeaf("story", StoryPropsSchema),
+    planLeaf("compare", ComparePropsSchema),
+    planLeaf("trend", TrendPropsSchema),
+    planLeaf("links", LinksPropsSchema),
+    planLeaf("quote", QuotePropsSchema),
+    z
+      .object({ type: z.literal("chapter"), props: ChapterPropsSchema, children: childNodes, metadata: metadataSchema })
+      .strict(),
+    z
+      .object({
+        type: z.literal("columns"),
+        props: ColumnsPropsSchema.optional(),
+        children: z.array(ArtifactNodeSchema).min(2).max(3),
+        metadata: metadataSchema,
+      })
+      .strict(),
+    z
+      .object({ type: z.literal("details"), props: DetailsPropsSchema, children: requiredChildNodes, metadata: metadataSchema })
+      .strict(),
     z
       .object({
         type: z.literal("claim-tree"),
@@ -1661,6 +1732,19 @@ const VisualArtifactSpecShapeSchema = z
             code: "custom",
             message: "button href uses a disallowed URL scheme; use http, https, mailto, tel, or a relative path",
             path: [...nodePath, "props", "href"],
+          })
+        }
+
+        if (node.type === "columns") {
+          const allowed: readonly string[] = COLUMNS_CHILD_TYPES
+          node.children.forEach((child, childIndex) => {
+            if (!allowed.includes(child.type)) {
+              context.addIssue({
+                code: "custom",
+                message: `columns holds text only (${COLUMNS_CHILD_TYPES.join(", ")}); "${child.type}" does not fit`,
+                path: [...nodePath, "children", childIndex, "type"],
+              })
+            }
           })
         }
 

@@ -1,50 +1,31 @@
 ---
-description: "Build architecture diagrams: topology, text-heavy overviews, and hybrid layouts."
-date created: 2026-06-17
-date modified: 2026-06-28
-tags: ["visual-artifact", "architecture", "mermaid", "diagrams"]
+description: "Build architecture diagrams: small maps, a scroll story for the core flow, and sequences."
+tags: ["visual-artifact", "architecture", "map", "diagrams"]
 ---
 
 # Architecture diagrams
 
-Use for system topology, module relationships, runtime flows, and container-style diagrams.
+Use for system topology, module relationships and runtime flows.
 
 ## Three sizes
 
-| Size | Element count | Approach |
+| Size | Nodes | Approach |
 |---|---:|---|
-| Simple topology | < 10 | `mermaid` flowchart |
-| Text-heavy overview | < 15 | `flow` + `grid`/`card` detail |
-| Complex architecture | 15+ | small Mermaid overview + detailed sections/tables |
+| One idea | 2 to 6 | `map`, with a one-sentence caption |
+| One flow that builds up | up to 8 | `story`: a map plus 3 to 5 beats revealed on scroll |
+| Messages over time | up to 10 steps | `sequence` |
+| More than that | | Split. Two maps with a sentence between them, or a map plus a `ledger` of parts |
 
-## Simple topology
+## Rules
 
-- Use `mermaid` with `flowchart LR` for simple left-to-right handoffs.
-- Use `flowchart TD` when the graph branches or labels get long.
-- Label edges for protocols, data shapes, or ownership.
-- Keep the diagram readable before making it complete.
+- `map` allows 6 nodes and 8 edges. More is a validation error. Split it.
+- Label every edge with the thing that moves ("save facts", "POST"), not a verb like "uses".
+- Mark what is **new** with `signal: "new"`, and what can break with `risk`. One or two per diagram.
+- Prefer `layout: "row"` for a pipeline, `"hub"` for one centre with spokes, `"column"` for layers.
+- Use `+ a -> b` for a proposed edge and `a --> b` for an optional or retired one.
+- One `story` per page. Put the full sequence of messages in `details`.
+- `mermaid` is only for diagrams `map` and `sequence` cannot draw (ERD, class). `svg-diagram` is the last resort.
 
-## Text-heavy overview
+## Parts and responsibilities
 
-- Use `flow` for the main sequence.
-- Use `grid` with `card` nodes for modules.
-- Each card carries responsibilities, key files, and collaborators.
-- Use `section` dividers to separate layers.
-
-## Complex architecture
-
-1. Lead with a small overview diagram.
-2. Follow with tables/cards for subsystem detail.
-3. Use `tabs` for alternate views: runtime, storage, validation, operations.
-4. Never force a full codebase into one giant diagram.
-
-## Node selection
-
-| Content | Node |
-|---|---|
-| Topology / connections | `mermaid` |
-| Linear runtime flow | `flow` |
-| Module descriptions | `card` inside `grid` |
-| Layered sections | `section` |
-| File/function lists | `file-tree` or `data-table` |
-| Precise interactive map | `svg-diagram` |
+Do not draw a card per module. Use a `ledger` (title: module, body: what it owns, `next`: what it depends on) or `prose` list rows with `**Label:**`.

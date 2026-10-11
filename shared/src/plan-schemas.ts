@@ -240,53 +240,84 @@ const SequenceStepObjectSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("divider"), text: ShortLabel(60) }).strict(),
 ])
 
+const SequenceParticipantsSchema = z
+  .array(
+    z
+      .object({
+        id: PlanIdSchema,
+        label: ShortLabel(28).optional(),
+        kind: z.enum(["actor", "service", "store", "external"]).optional(),
+        mark: ChangeMarkSchema.optional(),
+      })
+      .strict(),
+  )
+  .min(2)
+  .max(8)
+
+const SequenceStepsSchema = z.union([z.string().min(1).max(200), SequenceStepObjectSchema])
+
+function lintSequenceProps(
+  props: { participants: { id: string }[]; steps: (string | Record<string, unknown>)[] },
+  ctx: Ctx,
+) {
+  const ids = new Set<string>()
+  props.participants.forEach((participant, index) => {
+    if (ids.has(participant.id)) report(ctx, ["participants", index, "id"], `participant "${participant.id}" is declared twice`)
+    ids.add(participant.id)
+  })
+  const { steps, errors } = normalizeSequenceSteps(props.steps as Parameters<typeof normalizeSequenceSteps>[0])
+  reportTerse(ctx, "steps", errors)
+  const uses = new Map<string, number>()
+  steps.forEach((step, index) => {
+    const ends = step.kind === "message" ? [step.from, step.to] : step.kind === "note" ? step.over : []
+    for (const end of ends) {
+      if (!ids.has(end)) report(ctx, ["steps", index], `step ${index + 1}: unknown participant "${end}"`)
+    }
+    if (step.kind === "message") {
+      uses.set(step.from, (uses.get(step.from) ?? 0) + 1)
+      if (step.to !== step.from) uses.set(step.to, (uses.get(step.to) ?? 0) + 1)
+    }
+  })
+  if (props.participants.length >= 4 && errors.length === 0) {
+    props.participants.forEach((participant, index) => {
+      if ((uses.get(participant.id) ?? 0) < 2) {
+        report(ctx, ["participants", index], `participant "${participant.id}" appears in one message — fold it into a note or drop it`)
+      }
+    })
+  }
+}
+
 export const SequenceDiagramPropsSchema = z
   .object({
     title: ShortLabel(120).optional(),
     caption: ShortLabel(240),
-    participants: z
-      .array(
-        z
-          .object({
-            id: PlanIdSchema,
-            label: ShortLabel(28).optional(),
-            kind: z.enum(["actor", "service", "store", "external"]).optional(),
-            mark: ChangeMarkSchema.optional(),
-          })
-          .strict(),
-      )
-      .min(2)
-      .max(8),
-    steps: z.array(z.union([z.string().min(1).max(200), SequenceStepObjectSchema])).min(1).max(40),
+    participants: SequenceParticipantsSchema,
+    steps: z.array(SequenceStepsSchema).min(1).max(40),
+  })
+  .strict()
+  .superRefine((props, ctx) => lintSequenceProps(props, ctx))
+
+/** `sequence`: the editorial sequence node. Same props, at most 10 steps, plus `key`: 0-based indices of the message steps to emphasise (dividers and notes are not counted). */
+export const SEQUENCE_MAX_STEPS = 10
+export const SequencePropsSchema = z
+  .object({
+    title: ShortLabel(120).optional(),
+    caption: ShortLabel(240),
+    participants: SequenceParticipantsSchema,
+    steps: z.array(SequenceStepsSchema).min(1).max(SEQUENCE_MAX_STEPS, "Split into two sequences."),
+    key: z.array(z.number().int().min(0)).max(SEQUENCE_MAX_STEPS).optional(),
   })
   .strict()
   .superRefine((props, ctx) => {
-    const ids = new Set<string>()
-    props.participants.forEach((participant, index) => {
-      if (ids.has(participant.id)) report(ctx, ["participants", index, "id"], `participant "${participant.id}" is declared twice`)
-      ids.add(participant.id)
-    })
-    const { steps, errors } = normalizeSequenceSteps(props.steps)
-    reportTerse(ctx, "steps", errors)
-    const uses = new Map<string, number>()
-    steps.forEach((step, index) => {
-      const ends = step.kind === "message" ? [step.from, step.to] : step.kind === "note" ? step.over : []
-      for (const end of ends) {
-        if (!ids.has(end)) report(ctx, ["steps", index], `step ${index + 1}: unknown participant "${end}"`)
-      }
-      if (step.kind === "message") {
-        uses.set(step.from, (uses.get(step.from) ?? 0) + 1)
-        if (step.to !== step.from) uses.set(step.to, (uses.get(step.to) ?? 0) + 1)
+    lintSequenceProps(props, ctx)
+    const messages = normalizeSequenceSteps(props.steps as Parameters<typeof normalizeSequenceSteps>[0]).steps.filter((st) => st.kind === "message").length
+    props.key?.forEach((stepIndex, index) => {
+      if (stepIndex >= messages) {
+        report(ctx, ["key", index], `key step ${stepIndex} is outside the ${messages} message steps (0-based, dividers and notes are not counted)`)
       }
     })
-    if (props.participants.length >= 4 && errors.length === 0) {
-      props.participants.forEach((participant, index) => {
-        if ((uses.get(participant.id) ?? 0) < 2) {
-          report(ctx, ["participants", index], `participant "${participant.id}" appears in one message — fold it into a note or drop it`)
-        }
-      })
-    }
   })
+export type SequenceProps = z.infer<typeof SequencePropsSchema>
 export type SequenceDiagramProps = z.infer<typeof SequenceDiagramPropsSchema>
 
 // ---------------------------------------------------------------------------
@@ -712,7 +743,7 @@ export function lintPlanSpec(nodes: readonly LooseNode[], ctx: Ctx) {
         report(ctx, [...path, "children", 0], `claim ${label}: put the exhibit first, then at most one decision or alert, then child claims`)
       } else {
         let index = 1
-        if (children[index] && (children[index].type === "decision" || children[index].type === "alert")) index++
+        if (children[index] && (children[index].type === "decision" || children[index].type === "alert" || children[index].type === "callout")) index++
         for (; index < children.length; index++) {
           if (children[index].type !== "claim") {
             report(ctx, [...path, "children", index], `claim ${label}: put the exhibit first, then at most one decision or alert, then child claims`)

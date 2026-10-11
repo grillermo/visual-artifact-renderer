@@ -3,6 +3,7 @@ import path from "path"
 
 import {
   ARTIFACT_NODE_TYPES,
+  LEGACY_NODE_TYPES,
   ARTIFACT_SPEC_RESOURCE_LIMITS,
   ArtifactNodeSchema,
   VisualArtifactSpecSchema,
@@ -120,11 +121,22 @@ async function main() {
   }
 
   const expectedNodeTypes = [...ARTIFACT_NODE_TYPES].sort()
+  // The manifest holds advertised and legacy types; only advertised ones reach the contract.
+  const expectedManifestTypes = [...ARTIFACT_NODE_TYPES, ...LEGACY_NODE_TYPES].sort()
   const manifestNodeTypes = Object.keys(artifactManifest).sort()
-  if (JSON.stringify(manifestNodeTypes) !== JSON.stringify(expectedNodeTypes)) {
+  if (JSON.stringify(manifestNodeTypes) !== JSON.stringify(expectedManifestTypes)) {
     throw new Error(
-      `Manifest nodeTypes mismatch: expected=[${expectedNodeTypes.join(", ")}] manifest=[${manifestNodeTypes.join(", ")}]`,
+      `Manifest nodeTypes mismatch: expected=[${expectedManifestTypes.join(", ")}] manifest=[${manifestNodeTypes.join(", ")}]`,
     )
+  }
+  for (const entry of artifactComponentManifest) {
+    const isLegacy = (LEGACY_NODE_TYPES as readonly string[]).includes(entry.type)
+    if (isLegacy !== Boolean(entry.legacy)) {
+      throw new Error(`Manifest entry ${entry.type} must ${isLegacy ? "" : "not "}carry legacy { replacedBy, hint }`)
+    }
+    if (entry.legacy && !(ARTIFACT_NODE_TYPES as readonly string[]).includes(entry.legacy.replacedBy)) {
+      throw new Error(`Legacy ${entry.type} points at ${entry.legacy.replacedBy}, which is not an advertised node type`)
+    }
   }
 
   // Every manifest example must parse as an ArtifactNode.
@@ -170,7 +182,7 @@ async function main() {
   const contract = JSON.parse(contractRaw)
 
   const manifestDataNodes = artifactComponentManifest
-    .filter((entry) => entry.requiresData)
+    .filter((entry) => entry.requiresData && !entry.legacy)
     .map((entry) => entry.type)
     .sort()
 

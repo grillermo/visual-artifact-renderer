@@ -28,20 +28,21 @@ For each section, decide:
 
 ## Good defaults
 
-- Opening thesis: `text` with `size: "lg"`.
-- Summary band: `grid` + `stat-card`.
-- System map: `mermaid`.
-- Linear path: `flow`.
-- Component evidence: `comparison-table` or `data-table`.
-- Health/verification: `status-grid`.
-- Commands/config: `code-block`.
-- Secondary notes: `accordion`.
+- One `chapter` per question the reader has: kicker, title, one-sentence deck, takeaway.
+- Opening thesis: a `prose` paragraph before the first chapter.
+- Summary numbers: `figures`, at most 4.
+- System map: `map` (6 nodes or fewer) or a `story` for the core flow.
+- Linear path: `steps`, with 1 or 2 `key` steps.
+- Component evidence: `table` (`onlyDiffs`) or `ledger`.
+- Health and verification: `ledger` grouped by what to do, or `checklist`.
+- Commands and config: `code`.
+- Secondary notes: `details`.
 
 ## Diagram guidance
 
-- Use Mermaid for most architecture diagrams.
-- Use `svg-diagram` only for precise layout or interactivity.
-- Keep Mermaid diagrams small enough to scan; split when needed.
+- Use `map` for most architecture diagrams, and split anything over 6 nodes.
+- Use `sequence` for messages over time.
+- Use `mermaid` only for ERD or class diagrams. `svg-diagram` is the last resort.
 - Caption diagrams so readers know what to look for.
 
 ## Output

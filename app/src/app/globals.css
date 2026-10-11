@@ -49,6 +49,36 @@
   --color-change-added: var(--change-added);
   --color-change-changed: var(--change-changed);
   --color-change-removed: var(--change-removed);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-rule: var(--rule);
+  --color-rule-strong: var(--rule-strong);
+  --color-brand: var(--brand);
+  --color-signal-new: var(--signal-new);
+  --color-signal-risk: var(--signal-risk);
+  --color-signal-wait: var(--signal-wait);
+  --color-signal-done: var(--signal-done);
+  --color-code-bg: var(--code-bg);
+  --text-display: var(--fs-display);
+  --text-display--line-height: var(--lh-display);
+  --text-chapter: var(--fs-chapter);
+  --text-chapter--line-height: var(--lh-chapter);
+  --text-deck: var(--fs-deck);
+  --text-deck--line-height: var(--lh-deck);
+  --text-pull: var(--fs-pull);
+  --text-pull--line-height: var(--lh-pull);
+  --text-figure: var(--fs-figure);
+  --text-figure--line-height: 1;
+  --text-row-title: var(--fs-row-title);
+  --text-row-title--line-height: var(--lh-row-title);
+  --text-body: var(--fs-body);
+  --text-body--line-height: var(--lh-body);
+  --text-small: var(--fs-small);
+  --text-small--line-height: var(--lh-small);
+  --text-meta: var(--fs-meta);
+  --text-meta--line-height: var(--lh-meta);
+  --text-label: var(--fs-label);
+  --text-label--line-height: var(--lh-label);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -120,6 +150,34 @@
   --sidebar-border: var(--gray-300);
   --sidebar-ring: var(--clay);
 
+  /* Editorial tokens (node redesign, spec P2/P3). `--brand` is the spec's
+     `--accent`; shadcn already owns `--accent` as a neutral hover fill. */
+  --ink: #141413;
+  --ink-muted: #5e5d59;
+  --rule: #e3dfd6;
+  --rule-strong: #141413;
+  --brand: #b0502f;
+  --signal-new: #3a7448;
+  --signal-risk: #b34e14;
+  --signal-wait: #2f6db3;
+  --signal-done: var(--ink-muted);
+  --code-bg: #f1eee7;
+
+  /* Type scale (desktop). Mobile overrides below. */
+  --fs-figure: 2.75rem;
+  --fs-display: 3.5rem;   --lh-display: 3.75rem;
+  --fs-chapter: 2.5rem;   --lh-chapter: 2.75rem;
+  --fs-deck: 1.25rem;     --lh-deck: 1.875rem;
+  --fs-pull: 1.375rem;    --lh-pull: 2rem;
+  --fs-row-title: 1.1875rem; --lh-row-title: 1.625rem;
+  --fs-body: 1.125rem;    --lh-body: 1.875rem;
+  --fs-small: 1rem;       --lh-small: 1.625rem;
+  --fs-meta: 0.875rem;    --lh-meta: 1.375rem;
+  --fs-label: 0.75rem;    --lh-label: 1rem;
+
+  /* Sticky site header: h-14 row + 1px bottom border (site-header.tsx). */
+  --header-height: calc(3.5rem + 1px);
+
   /* Annotation motion tokens */
   --va-annotation-ease: cubic-bezier(0.16, 1, 0.3, 1);
   --va-annotation-ease-standard: cubic-bezier(0.2, 0, 0, 1);
@@ -147,6 +205,17 @@ html.dark {
   --gray-500: #b8b2a6;
   --gray-700: #d8d0c3;
 
+
+  --ink: #f2ede4;
+  --ink-muted: #a8a29a;
+  --rule: #2e2c28;
+  --rule-strong: #f2ede4;
+  --brand: #e08a69;
+  --signal-new: #6fcf8e;
+  --signal-risk: #f0904d;
+  --signal-wait: #7fb0ea;
+  --code-bg: #1c1b18;
+
   /* Semantic overrides that differ from light */
   --primary-foreground: #151412;
   --chart-3: #c9ad83;
@@ -157,6 +226,16 @@ html.dark {
   /* Dark shadows use a deeper black tint so elevated surfaces still read. */
   --shadow-card: 0 10px 34px rgba(0, 0, 0, 0.2);
   --shadow-card-sm: 0 8px 26px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 719px) {
+  :root {
+    --fs-display: 2.375rem;  --lh-display: 2.625rem;
+    --fs-chapter: 2rem;      --lh-chapter: 2.25rem;
+    --fs-deck: 1.125rem;     --lh-deck: 1.75rem;
+    --fs-pull: 1.1875rem;    --lh-pull: 1.75rem;
+    --fs-body: 1.0625rem;    --lh-body: 1.75rem;
+  }
 }
 
 @layer base {
@@ -383,4 +462,8 @@ html.dark {
     opacity: 1 !important;
     transform: none !important;
   }
+}
+@keyframes details-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

@@ -250,9 +250,57 @@ export function renderText({ node }: AdapterArgs<"text">) {
   )
 }
 
+const LABEL_ITEM = /^[-*]\s+\*\*([^*]+?)\*\*\s*[:\u2013\u2014-]?\s*(.*)$/
+
+/** A markdown list where every item starts with `**Label:**` becomes hairline label rows. */
+function parseLabelRows(content: string): { label: string; text: string }[] | null {
+  const lines = content.trim().split("\n").filter((line) => line.trim())
+  if (lines.length < 2) return null
+  const rows: { label: string; text: string }[] = []
+  for (const line of lines) {
+    const match = LABEL_ITEM.exec(line.trim())
+    if (!match) return null
+    rows.push({ label: match[1].replace(/[:\u2013\u2014-]\s*$/, "").trim(), text: match[2].trim() })
+  }
+  return rows
+}
+
 export function renderProse({ node }: AdapterArgs<"prose">) {
-  const className = node.props.tone === "muted" ? "text-muted-foreground" : undefined
-  return <Prose className={className}>{node.props.content}</Prose>
+  const { content, tone, size } = node.props
+  const muted = tone === "muted"
+  const rows = parseLabelRows(content)
+
+  if (rows) {
+    return (
+      <dl className="flex max-w-[66ch] flex-col" data-label-rows>
+        {rows.map((row, index) => (
+          <div
+            key={index}
+            className="grid gap-x-6 gap-y-1 border-t border-rule py-3 last:border-b min-[720px]:grid-cols-[minmax(10ch,12rem)_1fr]"
+          >
+            <dt className="break-words font-mono text-label font-medium uppercase tracking-[0.14em] text-ink-muted min-[720px]:pt-1.5">
+              {row.label}
+            </dt>
+            <dd className={cn("break-words text-small", muted ? "text-ink-muted" : "text-ink")}>
+              <Prose className="[&>p]:my-0 [&_code]:rounded [&_code]:bg-code-bg [&_code]:px-1 [&_code]:text-[0.9em] [&_code]:before:content-none [&_code]:after:content-none">{row.text}</Prose>
+            </dd>
+          </div>
+        ))}
+      </dl>
+    )
+  }
+
+  return (
+    <Prose
+      className={[
+        size === "lead" ? "max-w-[52ch] text-deck" : "max-w-[66ch] text-body",
+        muted ? "text-ink-muted" : "text-ink",
+        "[&_strong]:font-semibold [&_code]:rounded [&_code]:bg-code-bg [&_code]:px-1 [&_code]:text-[0.9em] [&_code]:before:content-none [&_code]:after:content-none",
+      ].join(" ")}
+    >
+      {content}
+    </Prose>
+  )
 }
 
 export function renderMetric({ node }: AdapterArgs<"metric">) {
@@ -333,5 +381,5 @@ export function renderSeparator() {
 export function renderCodeBlock({ node }: AdapterArgs<"code-block">) {
   if (codeBlockIsStructured(node.props)) return <StructuredCodeBlock {...node.props} />
   const { title, language, code, caption } = node.props
-  return <CodeBlock title={title} language={language} code={code} caption={caption} />
+  return <CodeBlock variant="bare" title={title} language={language} code={code} caption={caption} />
 }

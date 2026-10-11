@@ -75,7 +75,7 @@ function Stepper({ className, items, ...props }: StepperProps) {
                   {item.title}
                 </p>
                 {item.description && (
-                  <p className="min-w-0 break-all text-sm leading-6 text-muted-foreground">
+                  <p className="min-w-0 break-words text-sm leading-6 text-muted-foreground">
                     {item.description}
                   </p>
                 )}

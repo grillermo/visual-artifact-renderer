@@ -11,7 +11,7 @@ import { artifactJsonPath, assetsDirPath, bundleDirPath, publishJsonPath } from 
 import { createSourceReadContext, readSourceFile, type DiskSourceFileMeta, type SourceReadContext } from "../lib/source-files.ts"
 import { readServerState, serverStateMatchesConfig, serverStatePath } from "../lib/server-lifecycle.ts"
 import type { Logger, ResultData } from "../logger.ts"
-import { validateSpec, ValidationError } from "../validate.ts"
+import { legacyNodeWarnings, validateSpec, ValidationError } from "../validate.ts"
 import { validateMermaidNodes } from "../mermaid.ts"
 import { extractSourceFacts } from "../source-facts.ts"
 import { deriveProjectName, ensureDir, readStdinOrFile } from "../util.ts"
@@ -336,6 +336,7 @@ export async function create(
 
   try {
     const spec = validateSpec(specJson)
+    for (const warning of legacyNodeWarnings(spec)) log.warn(warning)
 
     // Validate Mermaid diagram content before writing. Structural validation
     // above only checks node shape; this runs the real `mermaid.parse()` so a

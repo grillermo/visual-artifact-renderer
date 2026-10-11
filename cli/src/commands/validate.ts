@@ -1,7 +1,7 @@
 import { ConfigValidationError, loadConfig } from "../config.ts"
 import { preflightArtifactSpec } from "@agents/visual-artifact-annotations/contract"
 import type { Logger, ResultData } from "../logger.ts"
-import { validateSpec, ValidationError } from "../validate.ts"
+import { legacyNodeWarnings, validateSpec, ValidationError } from "../validate.ts"
 import { validateMermaidNodes } from "../mermaid.ts"
 import { readStdinOrFile } from "../util.ts"
 import type { GlobalOpts } from "../types.ts"
@@ -40,6 +40,7 @@ export async function validate(inputPath: string | undefined, opts: ValidateOpts
 
   try {
     const spec = validateSpec(specJson)
+    for (const warning of legacyNodeWarnings(spec)) log.warn(warning)
 
     // Validate Mermaid diagram content so `validate` reports the same broken
     // graphs that `create` would reject.

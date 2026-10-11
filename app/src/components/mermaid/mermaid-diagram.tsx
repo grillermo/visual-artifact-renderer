@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useId, useMemo, useState } from "react"
+import { useEffect, useId, useMemo, useRef, useState } from "react"
 
 import {
   Dialog,
@@ -10,6 +10,9 @@ import {
 } from "@/components/ui/dialog"
 
 import { MermaidViewport } from "./mermaid-viewport"
+import { mermaidThemeVariables, svgNaturalSize } from "./mermaid-theme"
+
+const FRAME_CHROME = 16 + 56 // frame padding + toolbar row
 
 let mermaidRenderQueue: Promise<unknown> = Promise.resolve()
 
@@ -63,10 +66,29 @@ export function MermaidDiagram({
     () => `mermaid-${rawId.replace(/[^a-zA-Z0-9_-]/g, "")}`,
     [rawId]
   )
-  const [theme, setTheme] = useState<"default" | "dark">("default")
+  const [theme, setTheme] = useState<"light" | "dark">("light")
   const [svg, setSvg] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isMaximized, setIsMaximized] = useState(false)
+  const frameRef = useRef<HTMLDivElement>(null)
+  const [frameWidth, setFrameWidth] = useState(0)
+
+  useEffect(() => {
+    const el = frameRef.current
+    if (!el) return
+    const observer = new ResizeObserver(() => setFrameWidth(el.clientWidth))
+    observer.observe(el)
+    setFrameWidth(el.clientWidth)
+    return () => observer.disconnect()
+  }, [svg])
+
+  // A small diagram gets a short frame: natural height at <= 100% scale, never above `height`.
+  const frameHeight = useMemo(() => {
+    const natural = svgNaturalSize(svg)
+    if (!natural || !frameWidth) return height
+    const scale = Math.min(1, (frameWidth - 16) / natural.width)
+    return Math.min(height, Math.ceil(natural.height * scale) + FRAME_CHROME)
+  }, [svg, frameWidth, height])
 
   const normalizedCode = useMemo(
     () =>
@@ -77,7 +99,7 @@ export function MermaidDiagram({
   useEffect(() => {
     const syncTheme = () =>
       setTheme(
-        document.documentElement.classList.contains("dark") ? "dark" : "default"
+        document.documentElement.classList.contains("dark") ? "dark" : "light"
       )
 
     syncTheme()
@@ -104,9 +126,10 @@ export function MermaidDiagram({
 
           mermaid.initialize({
             startOnLoad: false,
-            theme,
+            theme: "base",
+            themeVariables: mermaidThemeVariables(),
             securityLevel: "strict",
-            fontFamily: "var(--font-geist-sans)",
+            fontFamily: mermaidThemeVariables().fontFamily,
           })
 
           await mermaid.parse(normalizedCode)
@@ -152,12 +175,13 @@ export function MermaidDiagram({
         </div>
       ) : (
         <div
-          className="relative rounded-2xl bg-white p-2 shadow-[var(--shadow-card-sm)]"
-          style={{ height }}
+          ref={frameRef}
+          className="relative p-2"
+          style={{ height: frameHeight }}
         >
           <MermaidViewport
             svg={svg}
-            height={height - 16}
+            height={frameHeight - 16}
             instructionsId={`${diagramId}-instructions`}
             onToggleMaximize={() => setIsMaximized(true)}
           />
@@ -188,7 +212,7 @@ export function MermaidDiagram({
                 {error}
               </pre>
             ) : (
-              <div className="relative flex-1 rounded-2xl bg-white p-2">
+              <div className="relative flex-1 p-2">
                 <MermaidViewport
                   svg={svg}
                   height="100%"

@@ -26,6 +26,8 @@ export {
   preflightArtifactSpec,
   safeParseVisualArtifactSpec,
   type ArtifactColumn,
+  type LedgerLiteralProps,
+  type LedgerDataProps,
   type ArtifactFlowItem,
   type ArtifactNode,
   type ArtifactPreflightResult,

@@ -11,10 +11,10 @@ A plan is a tree of claims. The reader should be able to skim the claim sentence
 | Level | Answers | Good exhibit |
 |---|---|---|
 | 1 Why / what | What changes for the user or system? | `mockup`, `state-machine` |
-| 2 How | Which code moves, in what order? | `call-stack`, `sequence-diagram`, `box-diagram` |
-| 3 Where | Which files and lines? | `code-block` (`diff`, `annotations`), `file-tree` (`notes`, `statusStyle: "marks"`) |
+| 2 How | Which code moves, in what order? | `call-stack`, `sequence`, `map` |
+| 3 Where | Which files and lines? | `code` (`diff`, `annotations`), `file-tree` (`notes`, `statusStyle: "marks"`) |
 
-Open the page with a one-sentence `text` (size `lg`), then `change-stats` and `quotes` for the size and the reasons, then the `claim-tree`.
+Open the page with a one-paragraph `prose`, then `figures` for the size (at most 4 numbers) and `quote` for the reason, then the `claim-tree`. A simple phased plan with no exhibits can be chapters of `checklist`s instead; see [recipes](./recipes.md).
 
 ## Rules
 
@@ -29,8 +29,8 @@ Open the page with a one-sentence `text` (size `lg`), then `change-stats` and `q
 ## Choosing between overlapping nodes
 
 - `call-stack` sketches what calls what. `execution-trace` is for verified API boundaries and types.
-- `sequence-diagram` when the plan changes messages; `mermaid` for a generic sequence.
-- `box-diagram` for a graph with placement and proposed parts; `flow` for a linear strip.
+- `sequence` when the plan changes messages.
+- `map` for parts and links with proposed edges (`+ a -> b`); `steps` for a linear strip.
 
 ## Example
 

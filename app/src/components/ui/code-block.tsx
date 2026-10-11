@@ -19,6 +19,8 @@ export type CodeBlockProps = {
   title?: string
   caption?: string
   className?: string
+  /** "bare": title row sits above a flat code surface, no card chrome. */
+  variant?: "card" | "bare"
 }
 
 export function CodeBlock({
@@ -27,7 +29,9 @@ export function CodeBlock({
   title,
   caption,
   className,
+  variant = "card",
 }: CodeBlockProps) {
+  const bare = variant === "bare"
   const [html, setHtml] = useState("")
   const [error, setError] = useState<string | null>(null)
   const isDark = useIsDarkTheme()
@@ -80,8 +84,11 @@ export function CodeBlock({
 
   return (
     <figure
+      data-code-variant={variant}
       className={cn(
-        "overflow-hidden rounded-2xl border bg-card shadow-sm",
+        bare
+          ? "flex flex-col gap-2"
+          : "overflow-hidden rounded-2xl border bg-card shadow-sm",
         className
       )}
       aria-labelledby={title ? titleId : undefined}
@@ -89,7 +96,10 @@ export function CodeBlock({
       {(title || displayLanguage) && (
         <figcaption
           id={titleId}
-          className="flex items-center justify-between gap-3 border-b bg-muted px-4 py-2"
+          className={cn(
+            "flex items-center justify-between gap-3",
+            bare ? "" : "border-b bg-muted px-4 py-2"
+          )}
         >
           <span className="min-w-0 flex-1 break-words font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
             {title ?? "Snippet"}
@@ -116,7 +126,7 @@ export function CodeBlock({
           </div>
         </figcaption>
       )}
-      <div className="relative overflow-x-auto bg-slate">
+      <div className={cn("relative overflow-x-auto", bare ? "rounded-lg bg-code-bg [&_pre]:!bg-transparent" : "bg-slate")}>
         {error ? (
           <pre className="min-w-full p-4 text-sm leading-6 text-destructive">
             <code>{code}</code>
@@ -133,7 +143,7 @@ export function CodeBlock({
         )}
       </div>
       {caption && (
-        <p className="break-words border-t bg-muted px-4 py-2 text-sm leading-6 text-muted-foreground">
+        <p className={cn("break-words text-sm leading-6 text-muted-foreground", bare ? "text-meta text-ink-muted" : "border-t bg-muted px-4 py-2")}>
           {caption}
         </p>
       )}

@@ -42,7 +42,7 @@ export function SiteHeader() {
   const homeHref = `/${homeFilterSearch}`
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur">
+    <header data-slot="site-header" className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
         <Breadcrumb className="min-w-0 flex-1 overflow-hidden">
           <BreadcrumbList className="min-w-0 flex-nowrap overflow-hidden">
@@ -133,7 +133,12 @@ export function SiteHeader() {
             >
               <ToggleGroupItem
                 value="comments"
-                className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm"
+                aria-label={
+                  annotationCtx.totalThreadCount > 0
+                    ? `Comments (${annotationCtx.totalThreadCount})`
+                    : "Comments"
+                }
+                className="relative min-w-[2.75rem] sm:min-w-7 after:absolute after:inset-x-0 after:-inset-y-2 after:content-[''] data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm"
               >
                 <MessageSquare data-icon="inline-start" />
                 <span className="hidden sm:inline">Comments</span>
@@ -146,7 +151,12 @@ export function SiteHeader() {
 
               <ToggleGroupItem
                 value="colab"
-                className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm"
+                aria-label={
+                  aiColabCtx && aiColabCtx.comments.length > 0
+                    ? `Colab (${aiColabCtx.comments.length})`
+                    : "Colab"
+                }
+                className="relative min-w-[2.75rem] sm:min-w-7 after:absolute after:inset-x-0 after:-inset-y-2 after:content-[''] data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm"
               >
                 <Bot data-icon="inline-start" />
                 <span className="hidden sm:inline">Colab</span>

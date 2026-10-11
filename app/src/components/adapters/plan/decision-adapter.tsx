@@ -38,27 +38,28 @@ function DecisionCard({ node }: AdapterArgs<"decision">) {
 
   return (
     <fieldset
-      className={cn("rounded-xl border bg-card p-4 sm:p-5", pending ? "border-clay/70" : "border-border")}
+      className="flex min-w-0 flex-col gap-4 border-t border-rule-strong pt-5"
       data-decision={id}
       data-source={answer.source}
       aria-labelledby={questionId}
     >
       <legend className="sr-only">{question}</legend>
-      <p className={cn("text-xs font-medium", pending ? "text-clay-dark dark:text-clay" : "text-muted-foreground")}>{heading}</p>
-      <p id={questionId} className="mt-1 text-base font-semibold text-foreground">
-        {question}
-      </p>
-      {pending && <p className="mt-1 text-xs text-muted-foreground">Using suggestion · confirm or change</p>}
-      <div className="mt-3 grid gap-2 sm:grid-cols-2" role={multiple ? "group" : "radiogroup"} aria-labelledby={questionId}>
+      <div className="flex flex-col gap-2">
+        <p className={cn("font-mono text-label uppercase tracking-[0.14em]", pending ? "text-brand" : "text-ink-muted")}>{heading}</p>
+        <p id={questionId} className="max-w-[40ch] font-serif text-row-title text-ink [text-wrap:balance]">
+          {question}
+        </p>
+        {pending && <p className="text-meta text-ink-muted">Using suggestion · confirm or change</p>}
+      </div>
+      <div className="flex flex-col" role={multiple ? "group" : "radiogroup"} aria-labelledby={questionId}>
         {all.map((option) => {
           const checked = answer.optionIds.includes(option.id)
           return (
             <label
               key={option.id}
               className={cn(
-                "flex cursor-pointer items-start gap-3 rounded-lg border bg-background/40 px-3 py-2.5 transition-colors hover:bg-muted",
-                "has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring",
-                checked && "border-clay bg-clay/[0.07]",
+                "flex cursor-pointer items-start gap-4 border-b border-rule py-4 transition-colors duration-100 ease-out hover:bg-ink/[0.03]",
+                "has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-brand",
               )}
             >
               <input
@@ -67,12 +68,14 @@ function DecisionCard({ node }: AdapterArgs<"decision">) {
                 value={option.id}
                 checked={checked}
                 onChange={() => choose(option.id)}
-                className="mt-1 size-4 shrink-0 accent-[var(--clay)]"
+                className="mt-1.5 size-4 shrink-0 accent-[var(--brand)]"
               />
               <span className="min-w-0">
-                <span className="font-medium text-foreground">{option.label}</span>
-                {option.suggested && <span className="ml-2 text-xs text-muted-foreground">Suggested</span>}
-                {option.consequence && <span className="mt-0.5 block text-sm text-muted-foreground">{option.consequence}</span>}
+                <span className={cn("break-words font-serif text-row-title", checked ? "text-ink" : "text-ink")}>{option.label}</span>
+                {option.suggested && (
+                  <span className="ml-3 font-mono text-label uppercase tracking-[0.14em] text-brand">suggested</span>
+                )}
+                {option.consequence && <span className="mt-1 block break-words text-small text-ink-muted">{option.consequence}</span>}
               </span>
             </label>
           )
@@ -85,7 +88,7 @@ function DecisionCard({ node }: AdapterArgs<"decision">) {
           onChange={(event) => setAnswer(answer.optionIds, event.target.value)}
           placeholder="Your answer"
           aria-label={`Other answer for ${question}`}
-          className="mt-2 h-9 w-full rounded-md border bg-background px-3 text-sm"
+          className="h-10 w-full border-b border-rule-strong bg-transparent px-1 text-small outline-none focus-visible:border-brand"
         />
       )}
     </fieldset>
