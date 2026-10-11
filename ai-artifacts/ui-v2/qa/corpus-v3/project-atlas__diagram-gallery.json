@@ -382,15 +382,38 @@
       },
       "children": [
         {
-          "type": "call-stack",
+          "type": "walkthrough",
           "props": {
             "title": "Rendering a chapter",
-            "rows": [
-              "  <VisualArtifactRenderer/> @ app/src/components/visual-artifact-renderer.tsx",
-              "~   <RailLayout/> @ app/src/components/page-rail.tsx",
-              "+     chapterIdsFromSpec() @ app/src/lib/artifacts/chapter-ids.ts",
-              "+   <ChapterAdapter/> @ app/src/components/adapters/editorial/chapter-adapter.tsx",
-              "~     useChapterRegistry() @ app/src/components/scroll-active-provider.tsx"
+            "caption": "Call outline retained from the original diagram. This is not verified source.",
+            "files": [
+              {
+                "path": "call-outline.txt",
+                "language": "text",
+                "code": "<VisualArtifactRenderer/> @ app/src/components/visual-artifact-renderer.tsx\n  <RailLayout/> @ app/src/components/page-rail.tsx\n    chapterIdsFromSpec() @ app/src/lib/artifacts/chapter-ids.ts\n  <ChapterAdapter/> @ app/src/components/adapters/editorial/chapter-adapter.tsx\n    useChapterRegistry() @ app/src/components/scroll-active-provider.tsx"
+              }
+            ],
+            "steps": [
+              {
+                "lines": "1",
+                "title": "<VisualArtifactRenderer/>"
+              },
+              {
+                "lines": "2",
+                "title": "<RailLayout/>"
+              },
+              {
+                "lines": "3",
+                "title": "chapterIdsFromSpec()"
+              },
+              {
+                "lines": "4",
+                "title": "<ChapterAdapter/>"
+              },
+              {
+                "lines": "5",
+                "title": "useChapterRegistry()"
+              }
             ]
           }
         }
