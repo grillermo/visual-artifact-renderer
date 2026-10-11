@@ -12,6 +12,9 @@ Keep Geist Sans, Geist Mono and the editorial serif. Colour identifies source fo
 | 40svh empty step slots | Compact ordered steps with file and line labels | The whole route is visible beside its source |
 | Faint repeated symbols, full paths and deep indent | Narrative frame label first, symbol and basename below, at most 24px depth | Distinguish frames even when they call the same symbol |
 | Fixed 384px stack and minimum 320px source slab | Stack takes 42% up to 512px; source height follows its content | Spend width on frame identity and remove unused source space |
+| Map disappears when comments resize its container | Unique Mermaid ID for every render; QA waits for mounted drawings | Mermaid was removing the old SVG while React saw an unchanged HTML string |
+
+The wider-component sweep exposed a real resize bug, not a styling preference. Preserve mounted maps during same-layout rerenders by giving Mermaid a fresh ID. The capture harness now checks map and story drawings after opening comments so an empty diagram cannot pass as visual evidence.
 
 Trace selection uses the same blue pin, full outline and fill as walkthrough focus. Return, throw and boundary glyphs use success, risk and focus colours. Boundary outcomes retain their word and dot. Abbreviated row locations expose the full path through an accessible name and native title; the source header keeps the full path. On desktop the source stays in view alongside a long stack. Inspector columns have dividing rules, and empty inspectors disappear. The schema stays unchanged.
 

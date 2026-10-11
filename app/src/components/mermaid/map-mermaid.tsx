@@ -32,16 +32,20 @@ export type MapRender = { svg: string; compiled: CompiledMap }
 export function useMapSvg(input: MapInput): { svg: string; compiled: CompiledMap; error: string | null } {
   const rawId = useId()
   const baseId = useMemo(() => `map-${rawId.replace(/[^a-zA-Z0-9_-]/g, "")}`, [rawId])
+  const revision = useRef(0)
   const theme = useDocumentTheme()
   const compiled = useMemo(() => compileMap(input), [input])
   const [state, setState] = useState<{ svg: string; error: string | null }>({ svg: "", error: null })
 
   useEffect(() => {
     let cancelled = false
+    // Mermaid removes existing DOM with its render ID. Resize can produce the
+    // same SVG, so reusing an ID clears the mounted drawing without React restoring it.
+    const renderId = `${baseId}-${theme}-${revision.current++}`
     // Mermaid measures labels while rendering, so the web fonts must be ready first.
     const fontsReady = document.fonts?.ready ?? Promise.resolve()
     fontsReady
-      .then(() => renderMermaidSvg(`${baseId}-${theme}`, compiled.code, { flowchart: FLOWCHART_CONFIG, themeVariables: { ...mermaidThemeVariables(), fontSize: "14px" } }))
+      .then(() => renderMermaidSvg(renderId, compiled.code, { flowchart: FLOWCHART_CONFIG, themeVariables: { ...mermaidThemeVariables(), fontSize: "14px" } }))
       .then((svg) => !cancelled && setState({ svg, error: null }))
       .catch((e) => !cancelled && setState({ svg: "", error: e instanceof Error ? e.message : "Could not render map" }))
     return () => {
