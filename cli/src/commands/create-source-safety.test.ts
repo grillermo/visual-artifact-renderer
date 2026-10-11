@@ -172,6 +172,27 @@ describe("create: source read containment", () => {
     expect(written.nodes[0].props.items[0].src).toBeUndefined()
   })
 
+  test("code and walkthrough inline ranged src and revalidate steps", async () => {
+    const project = join(dir, "project")
+    await mkdir(project)
+    await writeFile(join(project, "a.ts"), "one\ntwo\nthree\nfour\n")
+    const spec = { slug: "walk", title: "Walk", nodes: [
+      { type: "code", props: { src: "a.ts:2-3" } },
+      { type: "walkthrough", props: { files: [{ path: "a.ts", src: "a.ts:2-4" }], steps: [{ lines: "2", title: "Start" }, { lines: "4", title: "End" }] } },
+    ] }
+    const log = makeLogger()
+    expect(await create(await writeSpec(dir, spec), { ...EMPTY_GLOBAL_OPTS, project, serve: false }, log as any)).toBe(0)
+    const result = JSON.parse(log._logs.find(l => l.startsWith("output: "))!.slice(8))
+    const saved = JSON.parse(await readFile(result.path, "utf8"))
+    expect(saved.nodes[0].props.code).toBe("two\nthree")
+    expect(saved.nodes[0].props.startLine).toBe(2)
+    expect(saved.nodes[1].props.files[0].src).toBeUndefined()
+    spec.nodes[1].props.steps![1].lines = "5"
+    expect(await create(await writeSpec(dir, spec), { ...EMPTY_GLOBAL_OPTS, project, serve: false }, makeLogger() as any)).toBe(2)
+    spec.nodes[1].props.files![0].src = "../a.ts"
+    expect(await create(await writeSpec(dir, spec), { ...EMPTY_GLOBAL_OPTS, project, serve: false }, makeLogger() as any)).toBe(2)
+  })
+
   test("execution-trace identity is verified while git provenance is refreshed", async () => {
     const project = join(dir, "project")
     const srcDir = join(project, "src")

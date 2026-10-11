@@ -191,6 +191,30 @@ async function resolveDiskSources(
       await walkItems(propsObj.items)
     }
 
+    if ((obj.type === "code" || obj.type === "walkthrough") && obj.props && typeof obj.props === "object") {
+      const props = obj.props as Record<string, unknown>
+      const sources = obj.type === "code" ? [props] : Array.isArray(props.files) ? props.files : []
+      for (const item of sources) {
+        if (!item || typeof item !== "object") continue
+        const source = item as Record<string, unknown>
+        if (typeof source.src !== "string") continue
+        if (source.code === undefined) {
+          const match = /^(.*?):(\d+)(?:-(\d+))?$/.exec(source.src)
+          const path = match?.[1] ?? source.src
+          const result = await readSourceFile(path, context, aggregateBytes)
+          aggregateBytes = result.newAggregateBytes
+          files.push(result.info)
+          const lines = result.content.replace(/\r\n/g, "\n").replace(/\n$/, "").split("\n")
+          const first = match ? Number(match[2]) : 1
+          const last = match ? Number(match[3] ?? match[2]) : lines.length
+          if (first < 1 || last < first || last > lines.length) throw new ValidationError(`${obj.type} source range ${first}-${last} is outside 1-${lines.length}`)
+          source.code = lines.slice(first - 1, last).join("\n")
+          source.startLine = first
+        }
+        delete source.src
+      }
+    }
+
     if (obj.type === "execution-trace" && obj.props && typeof obj.props === "object") {
       const propsObj = obj.props as Record<string, unknown>
       if (Array.isArray(propsObj.events)) {
