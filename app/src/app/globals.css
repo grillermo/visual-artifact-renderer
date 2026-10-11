@@ -183,7 +183,7 @@
   /* Exhibit width stays independent of the prose measure and feedback panel. */
   --va-content-max-width: 96rem;
   --va-figure-min-width: 14rem;
-  --va-trace-stack-width: 24rem;
+  --va-trace-stack-width: clamp(24rem, 42cqw, 32rem);
 
   /* Annotation motion tokens */
   --va-annotation-ease: cubic-bezier(0.16, 1, 0.3, 1);
@@ -429,26 +429,40 @@ html.dark {
 .va-trace-main { display: grid; grid-template-columns: minmax(0,1fr); gap: 1.5rem; padding-block: 1rem; }
 .va-trace-frames { padding: 0; margin: 0; list-style: none; }
 .va-trace-frames[data-long] { max-height: clamp(20rem,60svh,36rem); overflow-y: auto; }
-.va-trace-frame { display: flex; align-items: baseline; gap: .5rem; width: 100%; min-height: 44px; padding: .75rem .5rem; text-align: left; border-bottom: 1px solid var(--rule); }
-.va-trace-frame[aria-current] { background: color-mix(in oklch,var(--brand) 10%,transparent); }
+.va-trace-frame { display: flex; align-items: flex-start; gap: .5rem; width: 100%; min-height: 44px; padding: .75rem; text-align: left; border: 1px solid transparent; border-bottom-color: var(--rule); }
+.va-trace-frame:hover:not([aria-current]) { background: var(--muted); }
+.va-trace-frame[aria-current] { background: color-mix(in oklch,var(--source-focus) 12%,transparent); border-color: color-mix(in oklch,var(--source-focus) 45%,var(--rule)); border-radius: var(--radius-md); }
+.va-trace-frame:focus-visible { outline: 2px solid var(--source-focus); outline-offset: 2px; }
 .va-trace-order { display: grid; place-items: center; width: 22px; height: 22px; flex-shrink: 0; font: 500 11px/1 var(--font-mono); font-variant-numeric: tabular-nums; color: var(--ink-muted); border-radius: 50%; }
-.va-trace-frame[aria-current] .va-trace-order { background: var(--brand); color: var(--background); }
+.va-trace-frame[aria-current] .va-trace-order { background: var(--source-focus); color: var(--background); }
 .va-trace-frame-content { min-width: 0; flex: 1; }
-.va-trace-identity { display: flex; flex-wrap: wrap; gap: .5rem; font: 400 13px/1.6 var(--font-mono); overflow-wrap: anywhere; }
+.va-trace-identity { display: flex; flex-wrap: wrap; align-items: baseline; gap: .25rem .5rem; margin-top: .25rem; font: 400 13px/1.6 var(--font-mono); color: var(--ink-muted); overflow-wrap: anywhere; }
 .va-trace-identity [data-kind="throw"] { color: var(--signal-risk); }
-.va-trace-location { margin-left: auto; font-size: var(--fs-meta); color: var(--ink-muted); }
-.va-trace-label { display: block; margin-top: .25rem; font-size: var(--fs-small); color: var(--ink-muted); overflow-wrap: anywhere; }
+.va-trace-identity [data-kind="return"] { color: var(--signal-new); }
+.va-trace-identity [data-kind="boundary"] { color: var(--source-focus); }
+.va-trace-location { margin-left: auto; font-size: 12px; color: var(--ink-muted); }
+.va-trace-label { display: block; font-size: var(--fs-small); line-height: 1.5; font-weight: 500; color: var(--ink); overflow-wrap: anywhere; }
 .va-depth-guides { display: flex; align-self: stretch; flex-shrink: 0; }
-.va-depth-guides i { width: 1rem; border-left: 1px solid var(--rule); }
-.va-trace-current { display: flex; align-items: baseline; gap: .5rem; margin-top: .5rem; }
-.va-trace-source { min-width: 0; }
-.va-trace-source .va-code-scroll { min-height: 20rem; max-height: clamp(20rem,60svh,36rem); }
+.va-depth-guides i { width: .5rem; border-left: 1px solid var(--rule); }
+.va-trace-outcome { display: block; margin-top: .25rem; font: 400 12px/1.5 var(--font-mono); color: var(--ink-muted); }
+.va-trace-outcome[data-outcome="passed"] { color: var(--signal-new); }
+.va-trace-outcome[data-outcome="failed"], .va-trace-outcome[data-outcome="blocked"] { color: var(--signal-risk); }
+.va-trace-current { display: flex; align-items: flex-start; gap: .75rem; margin-top: .75rem; }
+.va-trace-stack-title { display: flex; align-items: center; justify-content: space-between; font-size: var(--fs-small); font-weight: 500; }
+.va-trace-stack details[open] .va-trace-stack-title svg { transform: rotate(180deg); }
+.va-trace-source { min-width: 0; align-self: start; }
+.va-trace-source .va-code-scroll { max-height: clamp(12rem,60svh,36rem); }
+.va-execution-trace[data-wide] .va-trace-source { position: sticky; top: calc(var(--header-height) + 1rem); }
 .va-trace-inspector { display: grid; grid-template-columns: minmax(0,1fr); gap: 1.5rem; border-top: 1px solid var(--rule); padding-block: 1rem; }
+.va-trace-inspector:empty { display: none; }
 .va-trace-inspector > section { min-width: 0; }
-.va-trace-stack summary { cursor: pointer; padding-block: .5rem; }
+.va-trace-inspector > section + section { border-top: 1px solid var(--rule); padding-top: 1rem; }
+.va-trace-stack summary { cursor: pointer; padding: .75rem 0; list-style: none; border-block: 1px solid var(--rule); }
+.va-trace-stack summary::-webkit-details-marker { display: none; }
 @container va-trace (min-width: 60rem) {
   .va-trace-main { grid-template-columns: var(--va-trace-stack-width) minmax(0,1fr); }
   .va-trace-inspector { grid-template-columns: repeat(auto-fit,minmax(15rem,1fr)); }
+  .va-trace-inspector > section + section { border-top: 0; padding-top: 0; border-left: 1px solid var(--rule); padding-left: 1.5rem; }
 }
 
 /* The narrow map is a connection list, not a miniaturised or clipped drawing. */

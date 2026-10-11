@@ -38,7 +38,7 @@ Headings use the editorial stack for report-like weight. Code and data use mono.
 - Feedback panels reserve 360px outside the content column at viewport widths of at least 1280px. The chapter rail becomes a Contents disclosure while a panel is open.
 - Below 1280px, feedback opens as a bottom sheet. It does not change the content width.
 - Walkthroughs use compact ordered steps beside a following source pane at 900px container width. Below that, every step has its own excerpt. Clicking a desktop step updates the source without jumping the page.
-- Execution traces switch to side-by-side panes only when their own container reaches 60rem. Narrow traces stack the source above the call stack.
+- Execution traces switch to side-by-side panes when their own container reaches 60rem. The stack takes 42% of that width, bounded to 24–32rem. Frame labels lead; symbol and basename follow. Full paths stay accessible. The source has no forced minimum height and stays sticky beside long stacks. Narrow traces use a collapsed stack disclosure above the source.
 - Figures wrap into fewer columns before values collide. Map diagrams become connection lists below a container width of 44rem.
 - Claims retain plain collapsible rendering. Feedback uses the same node boundary as every other component, without claim-specific comment controls.
 

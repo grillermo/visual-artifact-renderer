@@ -10,6 +10,10 @@ Keep Geist Sans, Geist Mono and the editorial serif. Colour identifies source fo
 | Small source, brown focus and faded context | 14px source, blue focus and full-opacity muted context | Make the selected range distinct without sacrificing contrast |
 | Dense notes stretch the whole source background | Dense notes inline; ordinary notes in a plain rail | The note explains the range without creating an empty slab |
 | 40svh empty step slots | Compact ordered steps with file and line labels | The whole route is visible beside its source |
+| Faint repeated symbols, full paths and deep indent | Narrative frame label first, symbol and basename below, at most 24px depth | Distinguish frames even when they call the same symbol |
+| Fixed 384px stack and minimum 320px source slab | Stack takes 42% up to 512px; source height follows its content | Spend width on frame identity and remove unused source space |
+
+Trace selection uses the same blue pin, full outline and fill as walkthrough focus. Return, throw and boundary glyphs use success, risk and focus colours. Boundary outcomes retain their word and dot. Abbreviated row locations expose the full path through an accessible name and native title; the source header keeps the full path. On desktop the source stays in view alongside a long stack. Inspector columns have dividing rules, and empty inspectors disappear. The schema stays unchanged.
 
 Walkthroughs split at 900px container width, not 720px. Smaller containers use excerpts. The desktop pane still follows scroll, but clicking or paging changes the source locally without jumping the page. Keyboard selection stays instant. The active step gets a blue pin, full outline and soft fill. Inactive pins keep their note intent. Mobile navigation scrolls the selected excerpt beneath the sticky navigation.
 

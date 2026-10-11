@@ -1,6 +1,6 @@
 "use client"
 import { useMemo, useState } from "react"
-import { ArrowLeft, ArrowRight, Info } from "lucide-react"
+import { ArrowLeft, ArrowRight, ChevronDown, Info } from "lucide-react"
 import type { AdapterArgs } from "@/components/artifact-types"
 import type { ExecutionTraceEvent, ExecutionTraceTypeDefinition, ExecutionTraceTypedValue } from "@/lib/contract/artifact-schema"
 import { CodeView } from "@/components/ui/code/code-view"
@@ -19,8 +19,8 @@ export function ExecutionTrace({title,caption,provenance,events,typeDefinitions=
   if(!event) return null
   const evidenceNote={captured:"Captured from runtime.",inferred:"Based on reviewed source; values may be examples.",mixed:"Captured and source-inferred evidence; check each event.",simulated:"Illustrative values, not a runtime recording."}[provenance.mode]
   const stack=<ol aria-label="Call stack" className="va-trace-frames" data-long={ordered.length>14||undefined}>{ordered.map((frame,i)=><li key={frame.id}><button type="button" className="va-trace-frame" aria-current={selected===i?"step":undefined} onClick={()=>setSelected(i)}>
-    <span className="va-trace-order">{i+1}</span><span className="va-depth-guides" aria-hidden="true">{Array.from({length:Math.min(6,depths[i])},(_,d)=><i key={d}/>)}</span>
-    <span className="va-trace-frame-content"><span className="va-trace-identity"><span data-kind={frame.kind} aria-label={frame.kind}>{glyph[frame.kind]??"·"}</span><span>{identity(frame)}</span><span className="va-trace-location">{location(frame)}</span></span><span className="va-trace-label">{frame.label}</span>{frame.boundary && <span className="text-meta font-mono text-ink-muted">● {frame.boundary.outcome}</span>}</span>
+    <span className="va-trace-order">{i+1}</span><span className="va-depth-guides" aria-hidden="true">{Array.from({length:Math.min(3,depths[i])},(_,d)=><i key={d}/>)}</span>
+    <span className="va-trace-frame-content"><span className="va-trace-label">{frame.label}</span><span className="va-trace-identity"><span data-kind={frame.kind} aria-label={frame.kind}>{glyph[frame.kind]??"·"}</span><span>{identity(frame)}</span><span className="va-trace-location" title={location(frame)} aria-label={location(frame)}>{location(frame,true)}</span></span>{frame.boundary && <span className="va-trace-outcome" data-outcome={frame.boundary.outcome}>● {frame.boundary.outcome}</span>}</span>
   </button></li>)}</ol>
   return <figure ref={ref} className="va-execution-trace" data-wide={wide||undefined}>
     <header className="va-trace-heading"><div className="min-w-0"><div className="flex items-center gap-2"><h3 className="text-row-title font-semibold break-words">{title??"Execution trace"}</h3><TooltipProvider><Tooltip><TooltipTrigger render={<button type="button" aria-label="About this trace" className="va-trace-about"><Info size={16}/></button>}/><TooltipContent>{evidenceNote}</TooltipContent></Tooltip></TooltipProvider></div>{caption && <p className="text-small text-ink-muted break-words">{caption}</p>}</div>
@@ -28,7 +28,7 @@ export function ExecutionTrace({title,caption,provenance,events,typeDefinitions=
     </header>
     {event.boundary && <div className="va-trace-boundary"><span className="font-mono text-meta">{event.boundary.kind}</span><span>{event.boundary.from.label} → {event.boundary.to.label}</span><span className="font-mono text-meta" data-outcome={event.boundary.outcome}>● {event.boundary.outcome}</span></div>}
     <div className="va-trace-main" style={!showCallStack?{gridTemplateColumns:"minmax(0,1fr)"}:undefined}>{showCallStack && <aside className="va-trace-stack" onKeyDown={e=>{if(e.key==="ArrowDown"||e.key==="ArrowUp"){e.preventDefault();move(e.key==="ArrowDown"?1:-1)}}}>
-      {wide?<><h4 className="text-small font-medium mb-2">Call stack · {ordered.length} frames</h4>{stack}</>:<details><summary><span className="block text-small font-medium">Call stack · {ordered.length} frames</span><span className="va-trace-current"><span className="va-code-pin" style={{background:"var(--brand)"}}>{selected+1}</span><span aria-label={event.kind}>{glyph[event.kind]}</span><span className="break-all font-mono text-meta">{identity(event)} · {location(event)}</span></span></summary>{stack}</details>}
+      {wide?<><h4 className="text-small font-medium mb-2">Call stack · {ordered.length} frames</h4>{stack}</>:<details><summary><span className="va-trace-stack-title">Call stack · {ordered.length} frames<ChevronDown size={16} aria-hidden="true"/></span><span className="va-trace-current"><span className="va-code-pin" style={{background:"var(--source-focus)"}}>{selected+1}</span><span className="va-trace-frame-content"><span className="va-trace-label">{event.label}</span><span className="va-trace-identity"><span aria-label={event.kind}>{glyph[event.kind]}</span><span>{identity(event)}</span><span className="va-trace-location" title={location(event)}>{location(event,true)}</span></span></span></span></summary>{stack}</details>}
     </aside>}
     <SourcePane event={event} number={selected+1}/></div>
     <div className="va-trace-inspector">
@@ -39,7 +39,7 @@ export function ExecutionTrace({title,caption,provenance,events,typeDefinitions=
   </figure>
 }
 function identity(event:ExecutionTraceEvent){return event.source.facts.focus.symbol?`${event.source.facts.focus.symbol}()` : event.source.facts.focus.text.replace(/\s+/g," ").trim()}
-function location(event:ExecutionTraceEvent){const span=event.source.facts.span;return `${span.file}:${span.startLine}${span.endLine===span.startLine?"":`–${span.endLine}`}`}
+function location(event:ExecutionTraceEvent,short=false){const span=event.source.facts.span,file=short?span.file.split("/").pop():span.file;return `${file}:${span.startLine}${span.endLine===span.startLine?"":`–${span.endLine}`}`}
 function SourcePane({event,number}:{event:ExecutionTraceEvent;number:number}){
   const {span,focus,scope,language,excerpt}=event.source.facts, content=event.source.content
   if(!content) return <section className="va-trace-source"><p className="text-small text-ink-muted py-10">Source not included. Run trace inspect and create again to include the verified source.</p></section>

@@ -74,6 +74,8 @@ describe("execution trace adapter", () => {
     assert.match(html, /inside formatFooter\(\)/)
     assert.match(html, /Format 24% for the footer/)
     assert.match(html, /src\/format\.ts:3/)
+    assert.match(html, /class="va-trace-location" title="src\/format\.ts:3" aria-label="src\/format\.ts:3">format\.ts:3/)
+    assert.match(html, /va-trace-label[^>]*>Format 24% for the footer<\/span><span class="va-trace-identity"/)
     assert.match(html, /aria-label="About this trace"/)
     assert.doesNotMatch(html, /source-derived/)
     assert.doesNotMatch(html, /Source-derived review path/)
