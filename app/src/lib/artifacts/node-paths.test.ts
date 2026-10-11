@@ -3,101 +3,46 @@ import assert from "node:assert/strict"
 
 import { VisualArtifactSpecSchema } from "@/lib/contract/artifact-schema"
 import { resolveNodePath } from "@/lib/artifacts/node-paths"
-import type { VisualArtifactSpec } from "@/lib/contract/artifact-schema"
 
 const specFixture = VisualArtifactSpecSchema.parse({
-  slug: "anchor-test",
-  title: "Anchor test",
-  nodes: [
-    { type: "text", props: { text: "Top level 0" }, metadata: { id: "root-0" } },
-    {
-      type: "grid",
-      props: { columns: 2 },
-      children: [
-        { type: "text", props: { text: "Child 0" } },
-        {
-          type: "card",
-          children: [{ type: "text", props: { text: "Nested child 0" } }],
-        },
-      ],
-    },
-    {
-      type: "tabs",
-      props: {
-        items: [
-          { value: "a", label: "Tab A", nodes: [{ type: "text", props: { text: "Tab A node" } }] },
-          { value: "b", label: "Tab B", nodes: [{ type: "text", props: { text: "Tab B node" } }] },
-        ],
-      },
-    },
-    {
-      type: "accordion",
-      props: {
-        items: [
-          { title: "Item 1", nodes: [{ type: "text", props: { text: "Accordion item 1 node" } }] },
-        ],
-      },
-    },
+  slug: "anchor-test", title: "Anchor test", nodes: [
+    { type: "prose", props: { content: "Top level 0" }, metadata: { id: "root-0" } },
+    { type: "chapter", props: { title: "Chapter" }, children: [
+      { type: "columns", children: [
+        { type: "prose", props: { content: "Child 0" } },
+        { type: "prose", props: { content: "Child 1" } },
+      ] },
+      { type: "details", props: { summary: "More" }, children: [{ type: "prose", props: { content: "Nested child 0" } }] },
+    ] },
   ],
-}) satisfies VisualArtifactSpec
+})
 
 describe("resolveNodePath", () => {
   it("resolves top-level nodes", () => {
     const node = resolveNodePath(specFixture, "nodes.0")
-    assert.equal(node?.type, "text")
-    assert.equal(node?.props.text, "Top level 0")
-    assert.equal(node?.metadata?.id, "root-0")
+    assert.equal(node?.type, "prose")
+    assert.equal(node.props.content, "Top level 0")
+    assert.equal(node.metadata?.id, "root-0")
   })
-
-  it("resolves children of containers", () => {
-    const first = resolveNodePath(specFixture, "nodes.1.children.0")
-    assert.equal(first?.type, "text")
-    assert.equal(first?.props.text, "Child 0")
-
-    const nested = resolveNodePath(specFixture, "nodes.1.children.1.children.0")
-    assert.equal(nested?.type, "text")
-    assert.equal(nested?.props.text, "Nested child 0")
+  it("resolves chapter, columns and details children", () => {
+    for (const [path, content] of [["nodes.1.children.0.children.0", "Child 0"], ["nodes.1.children.1.children.0", "Nested child 0"]]) {
+      const node = resolveNodePath(specFixture, path)
+      assert.equal(node?.type, "prose")
+      assert.equal(node.props.content, content)
+    }
   })
-
-  it("resolves nodes inside tabs", () => {
-    const a = resolveNodePath(specFixture, "nodes.2.props.items.0.nodes.0")
-    assert.equal(a?.type, "text")
-    assert.equal(a?.props.text, "Tab A node")
-
-    const b = resolveNodePath(specFixture, "nodes.2.props.items.1.nodes.0")
-    assert.equal(b?.type, "text")
-    assert.equal(b?.props.text, "Tab B node")
-  })
-
-  it("resolves nodes inside accordions", () => {
-    const node = resolveNodePath(specFixture, "nodes.3.props.items.0.nodes.0")
-    assert.equal(node?.type, "text")
-    assert.equal(node?.props.text, "Accordion item 1 node")
-  })
-
   it("returns undefined for unknown paths", () => {
-    assert.equal(resolveNodePath(specFixture, "nodes.99"), undefined)
-    assert.equal(resolveNodePath(specFixture, "nodes.1.children.99"), undefined)
-    assert.equal(resolveNodePath(specFixture, "nodes.2.props.items.0.nodes.99"), undefined)
+    for (const path of ["nodes.99", "nodes.1.children.99", "nodes.1.children.0.children.99", "nodes.1.props.items.0.nodes.0"]) {
+      assert.equal(resolveNodePath(specFixture, path), undefined)
+    }
   })
 })
 
 describe("metadata schema", () => {
   it("accepts nodes without metadata", () => {
-    const result = VisualArtifactSpecSchema.safeParse({
-      slug: "no-metadata",
-      title: "No metadata",
-      nodes: [{ type: "text", props: { text: "Hello" } }],
-    })
-    assert.equal(result.success, true)
+    assert.equal(VisualArtifactSpecSchema.safeParse({ slug: "no-metadata", title: "No metadata", nodes: [{ type: "prose", props: { content: "Hello" } }] }).success, true)
   })
-
   it("rejects empty metadata id", () => {
-    const result = VisualArtifactSpecSchema.safeParse({
-      slug: "empty-id",
-      title: "Empty id",
-      nodes: [{ type: "text", props: { text: "Hello" }, metadata: { id: "" } }],
-    })
-    assert.equal(result.success, false)
+    assert.equal(VisualArtifactSpecSchema.safeParse({ slug: "empty-id", title: "Empty id", nodes: [{ type: "prose", props: { content: "Hello" }, metadata: { id: "" } }] }).success, false)
   })
 })

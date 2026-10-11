@@ -173,51 +173,9 @@ export const ARTIFACT_NODE_TYPES = [
   ...SPECIALISED_NODE_TYPES,
 ] as const satisfies readonly string[]
 
-/**
- * Node types that still parse and render (stored artifacts keep working) but are
- * hidden from the agent contract. Each carries `legacy: { replacedBy, hint }` in the manifest.
- */
-export const LEGACY_NODE_TYPES = [
-  "text",
-  "heading",
-  "section",
-  "card",
-  "grid",
-  "tabs",
-  "accordion",
-  "stat-card",
-  "metric",
-  "badge",
-  "button",
-  "separator",
-  "alert",
-  "status-grid",
-  "comparison-table",
-  "data-table",
-  "definition-list",
-  "flow",
-  "stepper",
-  "box-diagram",
-  "sequence-diagram",
-  "code-block",
-  "diff",
-  "log",
-  "chart",
-  "area-chart",
-  "radar-chart",
-  "scatter-chart",
-  "pie-chart",
-  "donut-chart",
-  "heatmap",
-  "change-stats",
-  "quotes",
-] as const satisfies readonly string[]
+export type ArtifactNodeType = (typeof ARTIFACT_NODE_TYPES)[number]
 
-export type ArtifactCoreNodeType = (typeof ARTIFACT_NODE_TYPES)[number]
-export type LegacyNodeType = (typeof LEGACY_NODE_TYPES)[number]
-export type ArtifactNodeType = ArtifactCoreNodeType | LegacyNodeType
-
-export const CONTRACT_VERSION = "2.0.0"
+export const CONTRACT_VERSION = "3.0.0"
 
 export interface NodeDef {
   description: string
@@ -228,15 +186,8 @@ export interface NodeDef {
   example: unknown
 }
 
-export interface LegacyInfo {
-  replacedBy: string
-  hint: string
-}
-
 export interface ArtifactManifestEntry extends NodeDef {
   type: ArtifactNodeType
-  /** Set on legacy node types: still parses and renders, hidden from the contract. */
-  legacy?: LegacyInfo
 }
 
 export const artifactPatternExamples = {
@@ -320,7 +271,7 @@ export const artifactPatternExamples = {
                 { text: "Add the new node schemas", state: "done" },
                 { text: "Register stub adapters", state: "doing" },
                 { text: "Export the contract", state: "todo" },
-                { text: "Migrate stored artifacts", state: "dropped", note: "Old specs keep parsing." },
+                { text: "Migrate stored artifacts", state: "dropped", note: "Major 3 rejects removed nodes; no migration command." },
               ],
             },
           },
@@ -385,84 +336,6 @@ export const artifactPatternExamples = {
 }
 
 export const artifactManifest = {
-  "alert": {
-    type: "alert",
-    legacy: { replacedBy: "callout", hint: "Use callout (tone: note, risk, new, wait)." },
-    description: "An alert message to call out important information.",
-    props: { title: "string", description: "string?", variant: '"default" | "destructive"?', tone: '"info" | "warn" | "risk" | "ok" | "idea"? — callout tone; wins over variant (destructive = risk)' },
-    children: false,
-    example: { type: "alert", props: { title: "No secret-file filter yet", description: "The sandbox stops path escapes, not reads of .env inside the root.", tone: "risk" } },
-  },
-  "definition-list": {
-    type: "definition-list",
-    legacy: { replacedBy: "ledger", hint: "Term on the left, text on the right is a ledger row." },
-    description: "A compact list of terms and descriptions.",
-    props: { items: "{ term: string, description: string }[]" },
-    children: false,
-    example: { type: "definition-list", props: { items: [{ term: "Term", description: "Description" }] } },
-  },
-  "diff": {
-    type: "diff",
-    legacy: { replacedBy: "code", hint: "Use code with diff: true and lines starting '+ ', '- ', '  '." },
-    description: "Code or text difference visualization. Accepts either a raw unified diff string (content) or a before/after pair.",
-    props: { before: "string?", after: "string?", content: "string?", language: "string?", title: "string?", defaultOpen: "boolean?", mode: '"unified" | "split"?', showLineNumbers: "boolean?", indicators: '"bars" | "plus-minus" | "none"?', highlightInline: "boolean?", hunkSeparator: '"default" | "custom"?', caption: "string?" },
-    children: false,
-    example: { type: "diff", props: { content: "diff --git a/index.ts b/index.ts\n--- a/index.ts\n+++ b/index.ts\n@@ -1,3 +1,3 @@\n- old\n+ new\n", language: "typescript", title: "Sample diff" } },
-  },
-  "donut-chart": {
-    type: "donut-chart",
-    legacy: { replacedBy: "figures", hint: "Donut charts mislead. Use figures or table." },
-    description: "A donut chart for proportional data.",
-    props: { dataKey: "string", categoryKey: "string", valueKey: "string" },
-    children: false,
-    requiresData: true,
-    example: { type: "donut-chart", props: { dataKey: "browserStats", categoryKey: "browser", valueKey: "visitors" } },
-  },
-  "area-chart": {
-    type: "area-chart",
-    legacy: { replacedBy: "trend", hint: "Use trend." },
-    description: "An area chart for cumulative trends.",
-    props: { dataKey: "string", xKey: "string?", yKey: "string?", label: "string?", color: "string?" },
-    children: false,
-    requiresData: true,
-    example: { type: "area-chart", props: { dataKey: "monthlyRevenue", xKey: "month", yKey: "revenue" } },
-  },
-  "radar-chart": {
-    type: "radar-chart",
-    legacy: { replacedBy: "table", hint: "Radar charts mislead. Use table or compare." },
-    description: "A radar chart for multi-dimensional comparisons.",
-    props: { dataKey: "string", subjectKey: "string?", valueKey: "string?", label: "string?", color: "string?" },
-    children: false,
-    requiresData: true,
-    example: { type: "radar-chart", props: { dataKey: "skillScores", subjectKey: "skill", valueKey: "score" } },
-  },
-  "scatter-chart": {
-    type: "scatter-chart",
-    legacy: { replacedBy: "trend", hint: "Use trend, or table when exact values matter." },
-    description: "A scatter chart for correlations.",
-    props: { dataKey: "string", xKey: "string?", yKey: "string?", label: "string?", color: "string?" },
-    children: false,
-    requiresData: true,
-    example: { type: "scatter-chart", props: { dataKey: "experienceVsSalary", xKey: "years", yKey: "salary" } },
-  },
-  "heatmap": {
-    type: "heatmap",
-    legacy: { replacedBy: "table", hint: "Use table with highlightKey." },
-    description: "A heatmap for matrix data and correlations.",
-    props: { dataKey: "string", xKey: "string?", yKey: "string?", valueKey: "string?", caption: "string?" },
-    children: false,
-    requiresData: true,
-    example: { type: "heatmap", props: { dataKey: "riskMatrix", xKey: "category", yKey: "quarter", valueKey: "score" } },
-  },
-  "log": {
-    type: "log",
-    legacy: { replacedBy: "code", hint: "Use code with language 'log'." },
-    description: "A scrollable terminal-like log output.",
-    props: { lines: "string[]?", dataKey: "string?" },
-    children: false,
-    requiresData: true,
-    example: { type: "log", props: { dataKey: "deploymentLogs" } },
-  },
   "file-tree": {
     type: "file-tree",
     description: "A collapsible file explorer tree. Defaults to the enhanced look: empty dirs are flattened, file-type icons (iconSet=standard), default density. Add gitStatus for status badges (rows auto-align), searchable for a filter box. File items may carry `content` + `language` (tapping renders a code-block below the tree) or `src` (a repo-relative or absolute path that `visual-artifact create` reads and inlines into `content` at save time).",
@@ -477,123 +350,12 @@ export const artifactManifest = {
     children: false,
     example: { type: "image", props: { src: "hero.png", alt: "Placeholder", zoom: true } },
   },
-  "pie-chart": {
-    type: "pie-chart",
-    legacy: { replacedBy: "figures", hint: "Pie charts mislead. Use figures or table." },
-    description: "A pie chart for proportional data.",
-    props: { dataKey: "string", categoryKey: "string", valueKey: "string" },
-    children: false,
-    requiresData: true,
-    example: { type: "pie-chart", props: { dataKey: "browserStats", categoryKey: "browser", valueKey: "visitors" } },
-  },
-  "stepper": {
-    type: "stepper",
-    legacy: { replacedBy: "steps", hint: "Use steps (or checklist for status)." },
-    description: "A step-by-step progress indicator.",
-    props: { items: "{ title: string, description?: string, status?: \"complete\" | \"current\" | \"pending\" }[]" },
-    children: false,
-    example: { type: "stepper", props: { items: [{ title: "Step 1", status: "complete" }, { title: "Step 2", status: "current" }] } },
-  },
-  heading: {
-    type: "heading",
-    legacy: { replacedBy: "chapter", hint: "Use chapter (kicker, title, deck, takeaway) instead of free headings." },
-    description: "Section or page heading. Use sparingly; renderer already supplies the page hero.",
-    props: { text: "string", level: "1 | 2 | 3 | 4?", align: "left | center | right?" },
-    children: false,
-    example: { type: "heading", props: { text: "Quarterly Revenue", level: 2 } },
-  },
   prose: {
     type: "prose",
-    description: "Markdown text for prose, lists, links, and long-form narrative. Use this instead of 'text' when you need multiple paragraphs or basic markdown formatting.",
+    description: "Markdown paragraphs, lists, links and long-form narrative.",
     props: { content: "string", tone: "default | muted?" },
     children: false,
     example: { type: "prose", props: { content: "Here is a list of items:\n\n- First item\n- Second item\n\n[Learn more](https://example.com)" } },
-  },
-  text: {
-    type: "text",
-    legacy: { replacedBy: "prose", hint: "Use prose for paragraphs; chapter carries the headings." },
-    description: "Paragraph text for narrative. Keep copy compact; use tables/status grids for structured facts.",
-    props: { text: "string", tone: "default | muted?", size: "sm | base | lg?", align: "left | center | right?" },
-    children: false,
-    example: { type: "text", props: { text: "Revenue grew across enterprise accounts.", tone: "muted" } },
-  },
-  card: {
-    type: "card",
-    legacy: { replacedBy: "columns", hint: "No boxes. Use columns for text side by side, or chapter + prose." },
-    description: "General content container. Use tone for a subtle left accent; do not wrap every tiny fact in a card when stat-card/status-grid fits better.",
-    props: { title: "string?", description: "string?", size: "default | sm?", tone: "default | accent | success | warning | danger?" },
-    children: "nodes",
-    example: { type: "card", props: { title: "Summary", tone: "accent" }, children: [{ type: "text", props: { text: "One clear idea." } }] },
-  },
-  metric: {
-    type: "metric",
-    legacy: { replacedBy: "figures", hint: "Use figures." },
-    description: "Compact KPI display inside another container. Prefer stat-card for top-level dashboard KPI tiles.",
-    props: { label: "string", value: "string | number", delta: "string?", trend: "up | down | neutral?" },
-    children: false,
-    example: { type: "metric", props: { label: "Revenue", value: "$128,400", delta: "+12.5%", trend: "up" } },
-  },
-  "stat-card": {
-    type: "stat-card",
-    legacy: { replacedBy: "figures", hint: "Use figures: an inline band of at most 4 numbers, no tiles." },
-    description: "Standalone dashboard KPI tile. Best for summary bands: counts, state, health, totals, deltas.",
-    props: { label: "string", value: "string | number", delta: "string?", trend: "up | down | neutral?", caption: "string?", tone: "default | accent | success | warning | danger?" },
-    children: false,
-    example: { type: "stat-card", props: { label: "Install state", value: "linked", delta: "healthy", trend: "up", caption: "Tracked targets already linked.", tone: "success" } },
-  },
-  badge: {
-    type: "badge",
-    legacy: { replacedBy: "ledger", hint: "Status is a dot plus a word inside ledger or checklist rows." },
-    description: "Small passive label. Use for metadata, not primary status summaries.",
-    props: { label: "string", variant: "default | secondary | destructive | outline | ghost | link?" },
-    children: false,
-    example: { type: "badge", props: { label: "On track", variant: "secondary" } },
-  },
-  button: {
-    type: "button",
-    legacy: { replacedBy: "links", hint: "Use links for a plain row of underlined links." },
-    description: "Action link or button-looking link. Avoid file:// links in shareable artifacts.",
-    props: { label: "string", href: "string?", variant: "default | outline | secondary | ghost | destructive | link?", size: "default | xs | sm | lg?" },
-    children: false,
-    example: { type: "button", props: { label: "Open source", href: "https://example.com", variant: "outline" } },
-  },
-  separator: {
-    type: "separator",
-    legacy: { replacedBy: "chapter", hint: "Chapters draw their own rule." },
-    description: "Visual separator between sections.",
-    props: {},
-    children: false,
-    example: { type: "separator" },
-  },
-  "data-table": {
-    type: "data-table",
-    legacy: { replacedBy: "table", hint: "Use table with dense: true." },
-    description: "Dense table variant for operational data, logs, inventories, and evidence lists.",
-    props: { dataKey: "string", columns: "(string | { key, label? })[]?", caption: "string?" },
-    children: false,
-    requiresData: true,
-    data: "data[dataKey] must be an array of row objects.",
-    example: { type: "data-table", props: { dataKey: "accounts", columns: [{ key: "name", label: "Account" }] } },
-  },
-  "comparison-table": {
-    type: "comparison-table",
-    legacy: { replacedBy: "table", hint: "Use table with statusKey (and onlyDiffs)." },
-    description: "Dashboard comparison table with stronger first column and optional status chips. Use for options, risks, validations, runtimes, and parity checks.",
-    props: { dataKey: "string", columns: "(string | { key, label? })[]?", statusKey: "string?", caption: "string?" },
-    children: false,
-    requiresData: true,
-    data: "data[dataKey] must be an array of row objects. statusKey values are rendered as status chips.",
-    example: { type: "comparison-table", props: { dataKey: "checks", columns: ["check", "result", "evidence"], statusKey: "result" } },
-  },
-  chart: {
-    type: "chart",
-    legacy: { replacedBy: "trend", hint: "Use trend: bare line or bar with direct labels." },
-    description: "Line or bar chart backed by embedded data. Pair charts with table detail when exact values matter.",
-    props: { dataKey: "string", xKey: "string", yKey: "string", kind: "line | bar?", label: "string?", color: "string?" },
-    children: false,
-    requiresData: true,
-    data: "data[dataKey] must be an array of row objects containing xKey and yKey.",
-    example: { type: "chart", props: { dataKey: "revenueByMonth", xKey: "month", yKey: "revenue", kind: "line" } },
   },
   mermaid: {
     type: "mermaid",
@@ -608,14 +370,6 @@ export const artifactManifest = {
     props: { html: "string", title: "string?", caption: "string?", height: "integer? 240-1600" },
     children: false,
     example: { type: "svg-diagram", props: { title: "Interactive architecture", height: 720, html: "<!doctype html><html><head><script>(function(){try{const k='visualizer-theme',s=localStorage.getItem(k),d=s?s==='dark':matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('dark',d)}catch(e){}})();</script><style>:root{--bg:#FAF9F5;--ink:#141413;}html.dark{--bg:#141413;--ink:#FAF9F5;}body{background:var(--bg);}</style></head><body><svg viewBox='0 0 100 40'><text x='5' y='24' fill='var(--ink)'>Architecture</text></svg></body></html>" } },
-  },
-  flow: {
-    type: "flow",
-    legacy: { replacedBy: "steps", hint: "Use steps: a step line with 1-2 key steps." },
-    description: "Inline architecture diagram for ordered handoffs, pipelines, request paths, and deployment chains.",
-    props: { title: "string?", caption: "string?", items: "{ title: string, label?: string, description?: string, status?: string }[]" },
-    children: false,
-    example: { type: "flow", props: { title: "Request path", items: [{ title: "Client", label: "POST /retrieve" }, { title: "FastAPI" }, { title: "ADK pipeline", status: "running" }] } },
   },
   "execution-trace": {
     type: "execution-trace",
@@ -673,27 +427,19 @@ export const artifactManifest = {
       },
     },
   },
-  "code-block": {
-    type: "code-block",
-    legacy: { replacedBy: "code", hint: "Alias: same props as code; prefer the new name." },
-    description: "Syntax-highlighted code block with a copy button. Use for commands, config snippets, env contracts, file maps, and ASCII trees. Set language for accurate highlighting (bash, typescript, python, yaml, json, etc.).",
-    props: { title: "string?", language: "string?", code: "string", caption: "string?", lineNumbers: "boolean?", startLine: "number? — first gutter number", highlight: '(number | "a-b")[]?', annotations: '{ line: number, title: string ≤80, body?: string ≤280, tone?: "info" | "warn" | "risk" | "ok" }[]? — max 12, one per line, lines are real (startLine-based)', diff: 'boolean? — lines start with "+ ", "- ", "  " or "@@"', sketch: "boolean? — illustrative, not real code", src: '"path:12-30"? — create inlines the range' },
-    children: false,
-    example: { type: "code-block", props: { title: "Smoke release", language: "bash", code: "git tag smoke-v0.0.1\ngit push origin smoke-v0.0.1" } },
-  },
   "claim-tree": {
     type: "claim-tree",
     description: "Plan spine: numbered, collapsible claims with a contents rail. Children must be claim nodes. At most one per spec. open: \"needs\" opens claims that hold a decision.",
     props: { title: "string?", open: '"all" | 1 | 2 | "needs"?', contents: "boolean? — side contents rail (default true)" },
     children: "nodes",
-    example: { type: "claim-tree", props: { open: "needs" }, children: [{ type: "claim", props: { text: "The user can pick a time in the composer." }, children: [{ type: "text", props: { text: "Exhibit goes first." } }] }] },
+    example: { type: "claim-tree", props: { open: "needs" }, children: [{ type: "claim", props: { text: "The user can pick a time in the composer." }, children: [{ type: "prose", props: { content: "Exhibit goes first." } }] }] },
   },
   "claim": {
     type: "claim",
-    description: "One numbered plan claim inside a claim-tree or claim (max 3 levels). Children order: one exhibit, then at most one decision or alert, then child claims. aux \"shared\" renders ✱, \"scope\" renders –. ref links to a call-stack row id.",
+    description: "One numbered plan claim inside a claim-tree or claim (max 3 levels). Children order: one exhibit, then at most one decision or callout, then child claims. aux \"shared\" renders ✱, \"scope\" renders –. ref links to a call-stack row id.",
     props: { text: "string ≤280", aux: '"shared" | "scope"?', ref: "call-stack row id?", open: "boolean?" },
     children: "nodes",
-    example: { type: "claim", props: { text: "A worker claims due messages once a minute." }, children: [{ type: "text", props: { text: "Exhibit." } }] },
+    example: { type: "claim", props: { text: "A worker claims due messages once a minute." }, children: [{ type: "prose", props: { content: "Exhibit." } }] },
   },
   "call-stack": {
     type: "call-stack",
@@ -709,25 +455,9 @@ export const artifactManifest = {
     children: "nodes",
     example: { type: "state-machine", props: { initial: "scheduled", states: [{ id: "scheduled" }, { id: "sending" }, { id: "sent", final: true }, { id: "failed", final: true }], events: ["scheduled -at-send-at-> sending : at send_at", "sending -ok-> sent", "+ sending -error-> failed"], grid: ["| scheduled | sending | sent |", "| . | failed | . |"] } },
   },
-  "sequence-diagram": {
-    type: "sequence-diagram",
-    legacy: { replacedBy: "sequence", hint: "Alias: same props as sequence; prefer the new name." },
-    description: "Lifeline sequence diagram from terse steps: \"a -> b : text\" (call), \"a --> b\" (reply), \"a -x-> b\" (lost), \"note over a, b: text\", \"--- label ---\" divider. Prefix + - ~ to mark a message. caption is required (one line on why it matters).",
-    props: { title: "string?", caption: "string", participants: '{ id, label? ≤28, kind?: "actor"|"service"|"store"|"external", mark? }[] 2-8', steps: "(string | object)[] ≤40" },
-    children: false,
-    example: { type: "sequence-diagram", props: { caption: "Cancel wins only before the worker claims the row.", participants: [{ id: "user", kind: "actor" }, { id: "api" }, { id: "db", kind: "store" }], steps: ["user -> api : cancel", "api -> db : update status", "db --> api : 1 row", "api --> user : 204"] } },
-  },
-  "box-diagram": {
-    type: "box-diagram",
-    legacy: { replacedBy: "map", hint: "Use map: 2-6 nodes, label-safe edges. Split bigger diagrams." },
-    description: "Grid-placed box-and-arrow diagram. Terse edges: \"a -> b : label\" (solid), \"a --> b\" (dashed, needs props.dashed legend), \"a => b\" (bold), \"<->\" both ways, + prefix = proposed. Grid rows are \"| a | b | . |\" (max 4 columns).",
-    props: { title: "string?", caption: "string?", nodes: '{ id, label ≤40, sub?, shape?: "box"|"pill"|"diamond"|"db"|"circle"|"note"|"actor", tone?, mark?, href?: "#anchor" }[] ≤16', edges: "(string | { from, to, label?, style?, both?, mark? })[]", grid: "GridRow[] ≤6", groups: "{ label, ids }[]? — must fill a grid rectangle", dashed: "string? — what a dashed line means" },
-    children: false,
-    example: { type: "box-diagram", props: { nodes: [{ id: "web", label: "Web" }, { id: "api", label: "API" }, { id: "db", label: "Postgres", shape: "db" }], edges: ["web -> api : POST", "api -> db"], grid: ["| web | api | db |"] } },
-  },
   "mockup": {
     type: "mockup",
-    description: "Framed UI mockup built from child nodes (wireframe, text, badge, button, code-block…). Pins point at a child metadata.id or at x/y fractions. No claims, decisions, mockups or state-machines inside.",
+    description: "Framed UI mockup built from wireframe, prose or code nodes. Pins point at a child metadata.id or at x/y fractions. No claims, decisions, mockups or state-machines inside.",
     props: { frame: '"none" | "browser" | "phone" | "desktop" | "terminal"', width: "number? 280-1440", label: "string? — URL bar or window title", caption: "string?", pins: "{ n?, target?: metadata.id, x?, y?, text ≤140 }[]? ≤12" },
     children: "nodes",
     example: { type: "mockup", props: { frame: "terminal", label: "zsh" }, children: [{ type: "wireframe", props: { element: "prompt", text: "visual-artifact create plan.json" } }, { type: "wireframe", props: { element: "output", text: "✓ created" } }] },
@@ -746,65 +476,6 @@ export const artifactManifest = {
     children: false,
     example: { type: "decision", props: { id: "limit", question: "How many scheduled messages per user?", options: [{ id: "fifty", label: "50", suggested: true }, { id: "five-hundred", label: "500" }, { id: "none", label: "No limit", consequence: "risk of abuse" }] } },
   },
-  "change-stats": {
-    type: "change-stats",
-    legacy: { replacedBy: "figures", hint: "Use figures." },
-    description: "One-line change summary: +added ~changed −removed files and optional line counts.",
-    props: { label: "string?", added: "number", changed: "number", removed: "number", files: "number?", lines: "{ add, del }?" },
-    children: false,
-    example: { type: "change-stats", props: { added: 4, changed: 2, removed: 0, lines: { add: 212, del: 9 } } },
-  },
-  "quotes": {
-    type: "quotes",
-    legacy: { replacedBy: "quote", hint: "Use quote for one pull-quote, or ledger rows with meta for a list." },
-    description: "Collapsible list of verbatim source quotes (the \"why\") with source icon, author, date and link.",
-    props: { title: "string?", open: "boolean?", items: '{ text ≤600, via: "prompt"|"slack"|"github"|"doc"|"email"|"meeting"|"transcript", from?, date?: YYYY-MM-DD, href?: https }[] 1-8' },
-    children: false,
-    example: { type: "quotes", props: { items: [{ text: "Users keep asking to send later.", via: "slack", from: "Dana", date: "2026-09-30" }] } },
-  },
-  "status-grid": {
-    type: "status-grid",
-    legacy: { replacedBy: "ledger", hint: "Use ledger: groups by status, risk first; data-backed via groupKey." },
-    description: "Data-backed grid of operational states with status chips. Best for health, readiness, validation, component state, and risk boards.",
-    props: { dataKey: "string", titleKey: "string?", statusKey: "string", descriptionKey: "string?", metaKey: "string?", columns: "1 | 2 | 3 | 4?", caption: "string?" },
-    children: false,
-    requiresData: true,
-    data: "data[dataKey] must be an array of row objects. statusKey chooses chip tone from values like pass/ok/healthy/warn/fail/risk.",
-    example: { type: "status-grid", props: { dataKey: "runtimeStatus", titleKey: "component", statusKey: "status", descriptionKey: "notes", columns: 3 } },
-  },
-  grid: {
-    type: "grid",
-    legacy: { replacedBy: "columns", hint: "Grids of cards are the anti-pattern. Use columns for text, figures for numbers." },
-    description: "Responsive grid layout for child nodes. Use with stat-card, card, badge groups, and mixed dashboard sections.",
-    props: { columns: "1 | 2 | 3 | 4?" },
-    children: "nodes",
-    example: { type: "grid", props: { columns: 2 }, children: [{ type: "card", props: { title: "A" } }] },
-  },
-  section: {
-    type: "section",
-    legacy: { replacedBy: "chapter", hint: "Use chapter: it adds a kicker, deck and takeaway." },
-    description: "Named content section with optional description. Use sections to create scan rhythm before dense components.",
-    props: { title: "string?", description: "string?" },
-    children: "nodes",
-    example: { type: "section", props: { title: "Findings" }, children: [{ type: "text", props: { text: "One finding." } }] },
-  },
-  tabs: {
-    type: "tabs",
-    legacy: { replacedBy: "compare", hint: "Tabs hide content. Use compare or ledger groups." },
-    description: "Tabbed organization for alternate views. Good for Pi/OpenCode/wrapper splits or monthly/segment detail.",
-    props: { defaultValue: "string?", items: "{ value: string, label: string, nodes: nodes[] }[]" },
-    children: "items",
-    example: { type: "tabs", props: { items: [{ value: "summary", label: "Summary", nodes: [{ type: "text", props: { text: "Tab content." } }] }] } },
-  },
-  accordion: {
-    type: "accordion",
-    legacy: { replacedBy: "details", hint: "Use details for one quiet 'more detail' disclosure." },
-    description: "Expandable sections for details, FAQs, sharp edges, or lower-priority evidence. Do not hide primary conclusions here.",
-    props: { items: "{ title: string, nodes: nodes[] }[]" },
-    children: "items",
-    example: { type: "accordion", props: { items: [{ title: "Why?", nodes: [{ type: "text", props: { text: "Because it is useful." } }] }] } },
-  },
-
   chapter: {
     type: "chapter",
     description: "A page chapter: mono kicker, serif title, one deck line, children, then one pull-line takeaway. Replaces section and heading. Each chapter is a rail/TOC entry. Do not number titles.",
@@ -920,7 +591,7 @@ export const artifactManifest = {
   },
   code: {
     type: "code",
-    description: "Syntax-highlighted code (props identical to code-block; code-block, diff and log are aliases or legacy). Flat surface, title above as mono caps. Use for commands, config, env contracts. Set diff: true for +/- lines.",
+    description: "Syntax-highlighted code on a flat surface, with title above. Use for commands, config and env contracts. Set diff: true for +/- lines.",
     props: { title: "string?", language: "string?", code: "string", caption: "string?", lineNumbers: "boolean?", startLine: "number?", highlight: '(number | "a-b")[]?', annotations: '{ line, title ≤80, body? ≤280, tone? }[]? — max 12', diff: 'boolean? — lines start with "+ ", "- ", "  " or "@@"', sketch: "boolean?", src: '"path:12-30"? — create inlines the range' },
     children: false,
     example: { type: "code", props: { title: "Smoke release", language: "bash", code: "pnpm export:contract\npnpm verify:artifacts" } },
@@ -1007,13 +678,11 @@ export interface ArtifactContract {
   nodeTypes: readonly string[]
   nodes: Record<string, NodeDef>
   dataNodes: readonly string[]
-  /** Legacy node types still parse and render but are hidden from `nodes`: type -> what to use instead. */
-  legacy: Record<string, string>
   patternExamples: Record<string, { description: string; nodes: unknown[] }>
 }
 
 export function createArtifactContract(): ArtifactContract {
-  const advertised = artifactComponentManifest.filter((entry) => !entry.legacy)
+  const advertised = artifactComponentManifest
   return {
     version: CONTRACT_VERSION,
     limits: ARTIFACT_SPEC_RESOURCE_LIMITS,
@@ -1057,39 +726,6 @@ export function createArtifactContract(): ArtifactContract {
       ])
     ),
     dataNodes: advertised.filter((e) => e.requiresData).map((e) => e.type),
-    legacy: Object.fromEntries(
-      artifactComponentManifest.filter((entry) => entry.legacy).map((entry) => [entry.type, `use ${entry.legacy!.replacedBy}: ${entry.legacy!.hint}`]),
-    ),
     patternExamples: artifactPatternExamples,
   }
-}
-
-/** Legacy type -> replacement hint, for create/validate warnings. */
-export function legacyNodeHint(type: string): string | undefined {
-  const entry = (artifactManifest as Record<string, ArtifactManifestEntry>)[type]
-  return entry?.legacy ? `${type} is legacy; use ${entry.legacy.replacedBy} (${entry.legacy.hint})` : undefined
-}
-
-/** Walk a spec's nodes and collect one warning per legacy type used. */
-export function findLegacyNodeWarnings(nodes: readonly unknown[]): string[] {
-  const seen = new Map<string, string>()
-  const visit = (list: readonly unknown[]) => {
-    for (const node of list) {
-      if (!node || typeof node !== "object") continue
-      const n = node as { type?: unknown; children?: unknown; props?: { items?: unknown } }
-      if (typeof n.type === "string" && !seen.has(n.type)) {
-        const hint = legacyNodeHint(n.type)
-        if (hint) seen.set(n.type, hint)
-      }
-      if (Array.isArray(n.children)) visit(n.children)
-      if ((n.type === "tabs" || n.type === "accordion") && Array.isArray(n.props?.items)) {
-        for (const item of n.props.items) {
-          const nodes = (item as { nodes?: unknown }).nodes
-          if (Array.isArray(nodes)) visit(nodes)
-        }
-      }
-    }
-  }
-  visit(nodes)
-  return [...seen.values()]
 }

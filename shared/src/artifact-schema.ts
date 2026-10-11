@@ -179,26 +179,6 @@ function countNodesIterative(
       return { totalNodes: MAX_TOTAL_NODES, maxDepth }
     }
 
-    if (
-      (node.type === "tabs" || node.type === "accordion") &&
-      isPlainObject(node.props) &&
-      Array.isArray(node.props.items)
-    ) {
-      if (node.props.items.length > MAX_TOTAL_NODES) {
-        pushIssue(issues, [...path, "props", "items"], `Artifact cannot contain more than ${MAX_TOTAL_NODES} nodes`)
-        return { totalNodes: MAX_TOTAL_NODES, maxDepth }
-      }
-      for (let i = node.props.items.length - 1; i >= 0; i--) {
-        const item = node.props.items[i]
-        if (
-          isPlainObject(item) &&
-          Array.isArray(item.nodes) &&
-          !enqueue(item.nodes, nextDepth, [...path, "props", "items", i, "nodes"])
-        ) {
-          return { totalNodes: MAX_TOTAL_NODES, maxDepth }
-        }
-      }
-    }
   }
 
   return { totalNodes, maxDepth }
@@ -364,26 +344,6 @@ export const ArtifactSlugSchema = z
   .max(ARTIFACT_SLUG_MAX_LENGTH)
   .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use kebab-case slugs")
 
-const TextAlignSchema = z.enum(["left", "center", "right"])
-const BadgeVariantSchema = z.enum([
-  "default",
-  "secondary",
-  "destructive",
-  "outline",
-  "ghost",
-  "link",
-])
-const ButtonVariantSchema = z.enum([
-  "default",
-  "outline",
-  "secondary",
-  "ghost",
-  "destructive",
-  "link",
-])
-const ButtonSizeSchema = z.enum(["default", "xs", "sm", "lg"])
-const TrendSchema = z.enum(["up", "down", "neutral"])
-const ChartKindSchema = z.enum(["line", "bar"])
 const ToneSchema = z.enum(["default", "accent", "success", "warning", "danger"])
 
 export {
@@ -434,33 +394,23 @@ import {
   type TrendProps,
 } from "./editorial-schemas.js"
 import {
-  BoxDiagramPropsSchema,
   CallStackPropsSchema,
-  CalloutToneSchema,
-  ChangeStatsPropsSchema,
   ClaimPropsSchema,
   ClaimTreePropsSchema,
   CodeBlockPropsSchema,
   DecisionPropsSchema,
   MockupPropsSchema,
-  QuotesPropsSchema,
-  SequenceDiagramPropsSchema,
   SequencePropsSchema,
   StateMachinePropsSchema,
   WireframePropsSchema,
   flattenFileTreePaths,
   lintPlanSpec,
-  type BoxDiagramProps,
   type CallStackProps,
-  type CalloutTone,
-  type ChangeStatsProps,
   type ClaimProps,
   type ClaimTreeProps,
   type CodeBlockProps,
   type DecisionProps,
   type MockupProps,
-  type QuotesProps,
-  type SequenceDiagramProps,
   type SequenceProps,
   type StateMachineProps,
   type WireframeProps,
@@ -489,31 +439,6 @@ function planLeaf<T extends string, P extends z.ZodType<unknown>>(type: T, props
     .object({
       type: z.literal(type),
       props,
-      metadata: metadataSchema,
-    })
-    .strict()
-}
-
-function optionalPropsSchema<T extends string, S extends z.ZodRawShape>(type: T, shape: S) {
-  return z
-    .object({
-      type: z.literal(type),
-      props: z.object(shape).strict().optional(),
-      metadata: metadataSchema,
-    })
-    .strict()
-}
-
-function containerSchema<T extends string, S extends z.ZodRawShape, C extends z.ZodType<unknown>>(
-  type: T,
-  shape: S,
-  children: C,
-) {
-  return z
-    .object({
-      type: z.literal(type),
-      props: z.object(shape).strict().optional(),
-      children,
       metadata: metadataSchema,
     })
     .strict()
@@ -757,7 +682,7 @@ export interface ExecutionTraceProvenance {
 }
 
 export type ArtifactNode =
-  | { type: "definition-list"; props: { items: { term: string; description: string }[] }; metadata?: { id?: string } }
+
   | {
       type: "file-tree"
       props: {
@@ -774,71 +699,8 @@ export type ArtifactNode =
       metadata?: { id?: string }
     }
   | {
-      type: "diff"
-      props: {
-        before?: string
-        after?: string
-        content?: string
-        language?: string
-        title?: string
-        defaultOpen?: boolean
-        mode?: "unified" | "split"
-        showLineNumbers?: boolean
-        indicators?: "bars" | "plus-minus" | "none"
-        highlightInline?: boolean
-        hunkSeparator?: "default" | "custom"
-        caption?: string
-      }
-      metadata?: { id?: string }
-    }
-  | {
-      type: "stepper"
-      props: { items: { title: string; description?: string; status?: "complete" | "current" | "pending" }[] }
-      metadata?: { id?: string }
-    }
-  | {
       type: "image"
       props: { src: string; alt: string; caption?: string; aspect?: "auto" | "square" | "video" | "wide"; zoom?: boolean }
-      metadata?: { id?: string }
-    }
-  | {
-      type: "alert"
-      props: { title: string; description?: string; variant?: "default" | "destructive"; tone?: CalloutTone }
-      metadata?: { id?: string }
-    }
-  | {
-      type: "pie-chart"
-      props: { dataKey: string; categoryKey: string; valueKey: string }
-      metadata?: { id?: string }
-    }
-  | {
-      type: "donut-chart"
-      props: { dataKey: string; categoryKey: string; valueKey: string }
-      metadata?: { id?: string }
-    }
-  | {
-      type: "area-chart"
-      props: { dataKey: string; xKey?: string; yKey?: string; label?: string; color?: string }
-      metadata?: { id?: string }
-    }
-  | {
-      type: "radar-chart"
-      props: { dataKey: string; subjectKey?: string; valueKey?: string; label?: string; color?: string }
-      metadata?: { id?: string }
-    }
-  | {
-      type: "scatter-chart"
-      props: { dataKey: string; xKey?: string; yKey?: string; label?: string; color?: string }
-      metadata?: { id?: string }
-    }
-  | {
-      type: "heatmap"
-      props: { dataKey: string; xKey?: string; yKey?: string; valueKey?: string; caption?: string }
-      metadata?: { id?: string }
-    }
-  | {
-      type: "log"
-      props: { lines?: string[]; dataKey?: string }
       metadata?: { id?: string }
     }
   | {
@@ -847,60 +709,8 @@ export type ArtifactNode =
       metadata?: { id?: string }
     }
   | {
-      type: "heading"
-      props: { text: string; level?: 1 | 2 | 3 | 4; align?: "left" | "center" | "right" }
-      metadata?: { id?: string }
-    }
-  | {
-      type: "text"
-      props: { text: string; tone?: "default" | "muted"; size?: "sm" | "base" | "lg"; align?: "left" | "center" | "right" }
-      metadata?: { id?: string }
-    }
-  | {
-      type: "card"
-      props?: { title?: string; description?: string; size?: "default" | "sm"; tone?: ArtifactTone }
-      children?: ArtifactNode[]
-      metadata?: { id?: string }
-    }
-  | {
-      type: "metric"
-      props: { label: string; value: string | number; delta?: string; trend?: "up" | "down" | "neutral" }
-      metadata?: { id?: string }
-    }
-  | {
-      type: "stat-card"
-      props: { label: string; value: string | number; delta?: string; trend?: "up" | "down" | "neutral"; caption?: string; tone?: ArtifactTone }
-      metadata?: { id?: string }
-    }
-  | {
-      type: "badge"
-      props: { label: string; variant?: z.infer<typeof BadgeVariantSchema> }
-      metadata?: { id?: string }
-    }
-  | {
-      type: "button"
-      props: { label: string; href?: string; variant?: z.infer<typeof ButtonVariantSchema>; size?: z.infer<typeof ButtonSizeSchema> }
-      metadata?: { id?: string }
-    }
-  | { type: "separator"; props?: Record<string, never>; metadata?: { id?: string } }
-  | {
       type: "table"
       props: TableProps
-      metadata?: { id?: string }
-    }
-  | {
-      type: "data-table"
-      props: { dataKey: string; columns?: ArtifactColumn[]; caption?: string }
-      metadata?: { id?: string }
-    }
-  | {
-      type: "comparison-table"
-      props: { dataKey: string; columns?: ArtifactColumn[]; statusKey?: string; caption?: string }
-      metadata?: { id?: string }
-    }
-  | {
-      type: "chart"
-      props: { dataKey: string; xKey: string; yKey: string; kind?: "line" | "bar"; label?: string; color?: string }
       metadata?: { id?: string }
     }
   | {
@@ -914,27 +724,13 @@ export type ArtifactNode =
       metadata?: { id?: string }
     }
   | {
-      type: "flow"
-      props: { title?: string; caption?: string; items: ArtifactFlowItem[] }
-      metadata?: { id?: string }
-    }
-  | {
       type: "timeline"
       props: TimelineProps
       metadata?: { id?: string }
     }
-  | {
-      type: "code-block"
-      props: CodeBlockProps
-      metadata?: { id?: string }
-    }
   | { type: "call-stack"; props: CallStackProps; metadata?: { id?: string } }
-  | { type: "sequence-diagram"; props: SequenceDiagramProps; metadata?: { id?: string } }
-  | { type: "box-diagram"; props: BoxDiagramProps; metadata?: { id?: string } }
   | { type: "wireframe"; props: WireframeProps; metadata?: { id?: string } }
   | { type: "decision"; props: DecisionProps; metadata?: { id?: string } }
-  | { type: "change-stats"; props: ChangeStatsProps; metadata?: { id?: string } }
-  | { type: "quotes"; props: QuotesProps; metadata?: { id?: string } }
   | { type: "chapter"; props: ChapterProps; children?: ArtifactNode[]; metadata?: { id?: string } }
   | { type: "columns"; props?: ColumnsProps; children: ArtifactNode[]; metadata?: { id?: string } }
   | { type: "callout"; props: EditorialCalloutProps; metadata?: { id?: string } }
@@ -955,38 +751,6 @@ export type ArtifactNode =
   | { type: "claim"; props: ClaimProps; children?: ArtifactNode[]; metadata?: { id?: string } }
   | { type: "state-machine"; props: StateMachineProps; children?: ArtifactNode[]; metadata?: { id?: string } }
   | { type: "mockup"; props: MockupProps; children: ArtifactNode[]; metadata?: { id?: string } }
-  | {
-      type: "status-grid"
-      props: { dataKey: string; titleKey?: string; statusKey: string; descriptionKey?: string; metaKey?: string; columns?: 1 | 2 | 3 | 4; caption?: string }
-      metadata?: { id?: string }
-    }
-  | {
-      type: "grid"
-      props?: { columns?: 1 | 2 | 3 | 4 }
-      children?: ArtifactNode[]
-      metadata?: { id?: string }
-    }
-  | {
-      type: "section"
-      props?: { title?: string; description?: string }
-      children?: ArtifactNode[]
-      metadata?: { id?: string }
-    }
-  | {
-      type: "tabs"
-      props: {
-        defaultValue?: string
-        items: { value: string; label: string; nodes: ArtifactNode[] }[]
-      }
-      metadata?: { id?: string }
-    }
-  | {
-      type: "accordion"
-      props: {
-        items: { title: string; nodes: ArtifactNode[] }[]
-      }
-      metadata?: { id?: string }
-    }
   | {
       type: "execution-trace"
       props: {
@@ -1330,28 +1094,11 @@ const ExecutionTraceNodeSchema = z
 
 const DiagramHeightSchema = z.number().int().min(240).max(1600)
 
-function hrefIsAllowed(href: string): boolean {
-  // Browsers ignore leading/control whitespace when interpreting schemes.
-  const normalized = href.trim().replace(/[\u0000-\u0020\u007f]/g, "")
-  const scheme = /^([a-z][a-z0-9+.-]*):/i.exec(normalized)?.[1]?.toLowerCase()
-  return !scheme || ["http", "https", "mailto", "tel"].includes(scheme)
-}
-
 export const ArtifactNodeSchema: z.ZodType<ArtifactNode> = z.lazy(() => {
   const childNodes = z.array(ArtifactNodeSchema).optional()
   const requiredChildNodes = z.array(ArtifactNodeSchema).min(1)
 
   return z.discriminatedUnion("type", [
-    leafSchema("definition-list", {
-      items: z.array(
-        z
-          .object({
-            term: z.string().min(1),
-            description: z.string().min(1),
-          })
-          .strict(),
-      ).min(1),
-    }),
     leafSchema("file-tree", {
       items: z.array(FileTreeItemSchema).min(1),
       flattenEmpty: z.boolean().optional(),
@@ -1363,31 +1110,6 @@ export const ArtifactNodeSchema: z.ZodType<ArtifactNode> = z.lazy(() => {
       notes: z.record(z.string().min(1).max(500), ShortLabel(80)).optional(),
       statusStyle: z.enum(["letters", "marks"]).optional(),
     }),
-    leafSchema("diff", {
-      before: z.string().optional(),
-      after: z.string().optional(),
-      content: z.string().optional(),
-      language: z.string().optional(),
-      title: z.string().optional(),
-      defaultOpen: z.boolean().optional(),
-      mode: z.enum(["unified", "split"]).optional(),
-      showLineNumbers: z.boolean().optional(),
-      indicators: z.enum(["bars", "plus-minus", "none"]).optional(),
-      highlightInline: z.boolean().optional(),
-      hunkSeparator: z.enum(["default", "custom"]).optional(),
-      caption: z.string().optional(),
-    }),
-    leafSchema("stepper", {
-      items: z.array(
-        z
-          .object({
-            title: z.string().min(1),
-            description: z.string().optional(),
-            status: z.enum(["complete", "current", "pending"]).optional(),
-          })
-          .strict(),
-      ).min(1),
-    }),
     leafSchema("image", {
       src: z.string(),
       alt: z.string(),
@@ -1395,125 +1117,12 @@ export const ArtifactNodeSchema: z.ZodType<ArtifactNode> = z.lazy(() => {
       aspect: z.enum(["auto", "square", "video", "wide"]).optional(),
       zoom: z.boolean().optional(),
     }),
-    leafSchema("alert", {
-      title: z.string().min(1),
-      description: z.string().optional(),
-      variant: z.enum(["default", "destructive"]).optional(),
-      tone: CalloutToneSchema.optional(),
-    }),
-    leafSchema("pie-chart", {
-      dataKey: z.string().min(1),
-      categoryKey: z.string().min(1),
-      valueKey: z.string().min(1),
-    }),
-    leafSchema("donut-chart", {
-      dataKey: z.string().min(1),
-      categoryKey: z.string().min(1),
-      valueKey: z.string().min(1),
-    }),
-    leafSchema("area-chart", {
-      dataKey: z.string().min(1),
-      xKey: z.string().min(1).optional(),
-      yKey: z.string().min(1).optional(),
-      label: z.string().min(1).optional(),
-      color: z.string().min(1).optional(),
-    }),
-    leafSchema("radar-chart", {
-      dataKey: z.string().min(1),
-      subjectKey: z.string().min(1).optional(),
-      valueKey: z.string().min(1).optional(),
-      label: z.string().min(1).optional(),
-      color: z.string().min(1).optional(),
-    }),
-    leafSchema("scatter-chart", {
-      dataKey: z.string().min(1),
-      xKey: z.string().min(1).optional(),
-      yKey: z.string().min(1).optional(),
-      label: z.string().min(1).optional(),
-      color: z.string().min(1).optional(),
-    }),
-    leafSchema("heatmap", {
-      dataKey: z.string().min(1),
-      xKey: z.string().min(1).optional(),
-      yKey: z.string().min(1).optional(),
-      valueKey: z.string().min(1).optional(),
-      caption: z.string().min(1).optional(),
-    }),
-    leafSchema("log", {
-      lines: z.array(z.string()).optional(),
-      dataKey: z.string().min(1).optional(),
-    }),
     leafSchema("prose", {
       content: z.string().min(1),
       tone: z.enum(["default", "muted"]).optional(),
       size: ProseSizeSchema.optional(),
     }),
-    leafSchema("heading", {
-      text: z.string().min(1),
-      level: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)]).optional(),
-      align: TextAlignSchema.optional(),
-    }),
-    leafSchema("text", {
-      text: z.string().min(1),
-      tone: z.enum(["default", "muted"]).optional(),
-      size: z.enum(["sm", "base", "lg"]).optional(),
-      align: TextAlignSchema.optional(),
-    }),
-    containerSchema(
-      "card",
-      {
-        title: z.string().min(1).optional(),
-        description: z.string().min(1).optional(),
-        size: z.enum(["default", "sm"]).optional(),
-        tone: ToneSchema.optional(),
-      },
-      childNodes,
-    ),
-    leafSchema("metric", {
-      label: z.string().min(1),
-      value: z.union([z.string(), z.number()]),
-      delta: z.string().min(1).optional(),
-      trend: TrendSchema.optional(),
-    }),
-    leafSchema("stat-card", {
-      label: z.string().min(1),
-      value: z.union([z.string(), z.number()]),
-      delta: z.string().min(1).optional(),
-      trend: TrendSchema.optional(),
-      caption: z.string().min(1).optional(),
-      tone: ToneSchema.optional(),
-    }),
-    leafSchema("badge", {
-      label: z.string().min(1),
-      variant: BadgeVariantSchema.optional(),
-    }),
-    leafSchema("button", {
-      label: z.string().min(1),
-      href: z.string().min(1).optional(),
-      variant: ButtonVariantSchema.optional(),
-      size: ButtonSizeSchema.optional(),
-    }),
-    optionalPropsSchema("separator", {}),
     planLeaf("table", TablePropsSchema),
-    leafSchema("data-table", {
-      dataKey: z.string().min(1),
-      columns: z.array(ColumnSchema).min(1).optional(),
-      caption: z.string().min(1).optional(),
-    }),
-    leafSchema("comparison-table", {
-      dataKey: z.string().min(1),
-      columns: z.array(ColumnSchema).min(1).optional(),
-      statusKey: z.string().min(1).optional(),
-      caption: z.string().min(1).optional(),
-    }),
-    leafSchema("chart", {
-      dataKey: z.string().min(1),
-      xKey: z.string().min(1),
-      yKey: z.string().min(1),
-      kind: ChartKindSchema.optional(),
-      label: z.string().min(1).optional(),
-      color: z.string().min(1).optional(),
-    }),
     leafSchema("mermaid", {
       code: z.string().min(1),
       caption: z.string().min(1),
@@ -1525,20 +1134,10 @@ export const ArtifactNodeSchema: z.ZodType<ArtifactNode> = z.lazy(() => {
       caption: z.string().min(1).optional(),
       height: DiagramHeightSchema.optional(),
     }),
-    leafSchema("flow", {
-      title: z.string().min(1).optional(),
-      caption: z.string().min(1).optional(),
-      items: z.array(FlowItemSchema).min(2),
-    }),
     planLeaf("timeline", TimelinePropsSchema),
-    planLeaf("code-block", CodeBlockPropsSchema),
     planLeaf("call-stack", CallStackPropsSchema),
-    planLeaf("sequence-diagram", SequenceDiagramPropsSchema),
-    planLeaf("box-diagram", BoxDiagramPropsSchema),
     planLeaf("wireframe", WireframePropsSchema),
     planLeaf("decision", DecisionPropsSchema),
-    planLeaf("change-stats", ChangeStatsPropsSchema),
-    planLeaf("quotes", QuotesPropsSchema),
     planLeaf("code", CodeBlockPropsSchema),
     planLeaf("sequence", SequencePropsSchema),
     planLeaf("callout", CalloutPropsSchema),
@@ -1588,56 +1187,6 @@ export const ArtifactNodeSchema: z.ZodType<ArtifactNode> = z.lazy(() => {
     z
       .object({ type: z.literal("mockup"), props: MockupPropsSchema, children: requiredChildNodes, metadata: metadataSchema })
       .strict(),
-    leafSchema("status-grid", {
-      dataKey: z.string().min(1),
-      titleKey: z.string().min(1).optional(),
-      statusKey: z.string().min(1),
-      descriptionKey: z.string().min(1).optional(),
-      metaKey: z.string().min(1).optional(),
-      columns: GridColumnsSchema.optional(),
-      caption: z.string().min(1).optional(),
-    }),
-    containerSchema(
-      "grid",
-      {
-        columns: GridColumnsSchema.optional(),
-      },
-      childNodes,
-    ),
-    containerSchema(
-      "section",
-      {
-        title: z.string().min(1).optional(),
-        description: z.string().min(1).optional(),
-      },
-      childNodes,
-    ),
-    leafSchema("tabs", {
-      defaultValue: z.string().min(1).optional(),
-      items: z
-        .array(
-          z
-            .object({
-              value: z.string().min(1),
-              label: z.string().min(1),
-              nodes: requiredChildNodes,
-            })
-            .strict(),
-        )
-        .min(1),
-    }),
-    leafSchema("accordion", {
-      items: z
-        .array(
-          z
-            .object({
-              title: z.string().min(1),
-              nodes: requiredChildNodes,
-            })
-            .strict(),
-        )
-        .min(1),
-    }),
     ExecutionTraceNodeSchema,
   ])
 })
@@ -1665,17 +1214,6 @@ const VisualArtifactSpecShapeSchema = z
     const visit = (nodes: ArtifactNode[], path: (string | number)[]) => {
       nodes.forEach((node, index) => {
         const nodePath = [...path, index]
-
-        if (node.type === "diff") {
-          const { before, after, content } = node.props
-          if (!content && (before === undefined || after === undefined)) {
-            context.addIssue({
-              code: "custom",
-              message: "diff requires either props.content or both props.before and props.after",
-              path: [...nodePath, "props"],
-            })
-          }
-        }
 
         const props = "props" in node && node.props
           ? node.props as Record<string, unknown>
@@ -1727,14 +1265,6 @@ const VisualArtifactSpecShapeSchema = z
           })
         }
 
-        if (node.type === "button" && node.props.href && !hrefIsAllowed(node.props.href)) {
-          context.addIssue({
-            code: "custom",
-            message: "button href uses a disallowed URL scheme; use http, https, mailto, tel, or a relative path",
-            path: [...nodePath, "props", "href"],
-          })
-        }
-
         if (node.type === "columns") {
           const allowed: readonly string[] = COLUMNS_CHILD_TYPES
           node.children.forEach((child, childIndex) => {
@@ -1748,17 +1278,6 @@ const VisualArtifactSpecShapeSchema = z
           })
         }
 
-        if (node.type === "tabs") {
-          node.props.items.forEach((item, itemIndex) => {
-            visit(item.nodes, [...nodePath, "props", "items", itemIndex, "nodes"])
-          })
-        }
-
-        if (node.type === "accordion") {
-          node.props.items.forEach((item, itemIndex) => {
-            visit(item.nodes, [...nodePath, "props", "items", itemIndex, "nodes"])
-          })
-        }
       })
     }
 

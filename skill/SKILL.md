@@ -60,7 +60,7 @@ Use `visual-artifact contract` to print the full contract, `visual-artifact cont
 
 Rules:
 
-- Always include exactly one `artifactType` and 2–5 concise lowercase kebab-case `topics` for discovery and search. Runtime validation keeps these optional only for legacy artifacts.
+- Always include exactly one `artifactType` and 2–5 concise lowercase kebab-case `topics` for discovery and search. Runtime validation keeps these optional for unclassified artifacts.
 - Follow `visual-artifact contract` for root spec, node constraints, and resource limits.
 - Data-backed nodes need `data.<dataKey>` arrays.
 - Keep data values well-formed. The shared executable schema validates the same contract in the CLI and renderer.
@@ -195,21 +195,21 @@ Use only when the content needs them. They are not for layout.
 
 | Node | Use when |
 |---|---|
-| `claim-tree` + `claim` | The page is an implementation plan: one claim per sentence, one exhibit each. |
+| `claim-tree` + `claim` | A plain implementation outline: one sentence and exhibit per claim. No claim-specific commenting model. |
 | `call-stack` | A plan sketch of what calls what and what changes. |
 | `execution-trace` | Verified API boundaries and types (see Code reviews). |
 | `state-machine` | UI or lifecycle states, with a screen per state. |
 | `mockup` + `wireframe` | What the user or terminal will see. |
-| `file-tree` | Where files live. |
+| `file-tree` | Where files live. Keep it for repository orientation, as in `agents/visual-artifact-cli-implementation`. Prefer `code` for a walkthrough. |
 | `links` | A plain row of underlined source links. |
 | `quote` | One pull-quote with a source line. |
 | `image` | A screenshot or asset. |
 | `mermaid` | ERD, class or other diagram types `map` and `sequence` cannot draw. Never use it to avoid the `map` or `steps` limits; split instead. |
 | `svg-diagram` | Full control when nothing else can. Last resort, and never a way around the size limits. |
 
-## Do not use (legacy)
+## Removed nodes (contract 3.0.0)
 
-These still render old artifacts, but the contract no longer lists them. Do not choose them for a new artifact.
+Removed node types do not parse or render. The table below is a writing guide, not automatic conversion. Use only the 31 surviving types returned by `visual-artifact contract`.
 
 | Do not use | Use instead |
 |---|---|
@@ -230,7 +230,7 @@ These still render old artifacts, but the contract no longer lists them. Do not 
 | `quotes` | `quote` or `ledger` with `meta` |
 | `button` | `links` |
 
-The CLI warns when a new spec uses a legacy type, and names the replacement.
+The CLI rejects removed types. Older bundles containing them must be rewritten before opening with this runtime. There is no migration command.
 
 ## Shape recipes
 

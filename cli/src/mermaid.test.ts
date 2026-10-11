@@ -10,7 +10,7 @@ function specWith(nodes: unknown[]): { nodes: unknown[] } {
 describe("validateMermaidNodes", () => {
   test("passes when there are no mermaid nodes", async () => {
     await validateMermaidNodes(
-      specWith([{ type: "text", props: { text: "hi" } }]),
+      specWith([{ type: "prose", props: { content: "hi" } }]),
     )
   })
 
@@ -46,26 +46,17 @@ describe("validateMermaidNodes", () => {
     )
   })
 
-  test("reports the path of a mermaid node nested inside tabs", async () => {
+  test("reports the path of a mermaid node nested inside a chapter", async () => {
     const spec = specWith([
       {
-        type: "tabs",
-        props: {
-          items: [
-            {
-              value: "a",
-              label: "A",
-              nodes: [
-                { type: "mermaid", props: { caption: "Nested broken", code: "flowchart TD\n  A -- B" } },
-              ],
-            },
-          ],
-        },
+        type: "chapter", props: { title: "Nested" }, children: [
+          { type: "mermaid", props: { caption: "Nested broken", code: "flowchart TD\n  A -- B" } },
+        ],
       },
     ])
 
     await expect(validateMermaidNodes(spec)).rejects.toThrow(
-      /nodes\[0\]\.props\.items\[0\]\.children\[0\]<mermaid>/,
+      /nodes\[0\]\.children\[0\]<mermaid>/,
     )
   })
 

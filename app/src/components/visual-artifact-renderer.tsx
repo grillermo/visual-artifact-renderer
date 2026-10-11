@@ -15,7 +15,6 @@ import { DecisionAnswersProvider } from "@/components/plan/decision-answers"
 import { ContentsDisclosure, RailLayout } from "@/components/page-rail"
 import { collectChapters } from "@/lib/artifacts/chapter-ids"
 import { ChapterRegistryProvider } from "@/components/scroll-active-provider"
-import { isLegacyOnlySpec } from "@/lib/artifacts/spec-shape"
 import { specHasPlanNodes } from "@/lib/plan/plan-spec"
 
 export function VisualArtifactRenderer({
@@ -47,8 +46,6 @@ function VisualArtifactRendererContent({
   const context: ArtifactRenderContext = { project, slug, data: spec.data }
   const ctx = useAnnotationContext()
   const aiColabCtx = useAIColabContext()
-
-  if (isLegacyOnlySpec(spec)) return <LegacyShell spec={spec} context={{ ...context, legacyShell: true }} ctx={ctx} aiColabCtx={aiColabCtx} />
 
   return (
     <div className="va-artifact-frame" data-panel-open={ctx.isCommentMode || aiColabCtx.isAIColabMode ? "true" : undefined}>
@@ -82,54 +79,6 @@ function VisualArtifactRendererContent({
           {renderNodes(spec.nodes, context)}
         </div>
       </RailLayout>
-      </main>
-
-      <AnnotationPanel />
-      <NodePickHUD />
-      <AIColabPanel />
-      <AIColabHUD />
-    </div>
-  )
-}
-
-/** Pre-redesign page shell (f69f7b2) for specs with no editorial nodes: wide page, framed hero, no rail. */
-function LegacyShell({
-  spec,
-  context,
-  ctx,
-  aiColabCtx,
-}: {
-  spec: VisualArtifactSpec
-  context: ArtifactRenderContext
-  ctx: ReturnType<typeof useAnnotationContext>
-  aiColabCtx: ReturnType<typeof useAIColabContext>
-}) {
-  return (
-    <div className="va-artifact-frame" data-panel-open={ctx.isCommentMode || aiColabCtx.isAIColabMode ? "true" : undefined}>
-      <main className="mx-auto w-full max-w-7xl space-y-10 px-5 py-10 sm:px-8 lg:py-14">
-      <header className="overflow-hidden rounded-[var(--radius-2xl)] border-[1.5px] bg-card/95 shadow-[var(--shadow-card)] p-5 sm:p-7 lg:p-9">
-        <div className="space-y-4">
-          <div className="flex flex-wrap items-center gap-3 font-mono text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
-            <span className="flex items-center gap-3 before:h-px before:w-7 before:bg-clay">Visual Artifact</span>
-            {spec.createdAt && (
-              <>
-                <span aria-hidden="true" className="text-muted-foreground/40">·</span>
-                <time dateTime={spec.createdAt}>{formatCreatedAt(spec.createdAt)}</time>
-              </>
-            )}
-          </div>
-          <h1 className="max-w-5xl break-words font-serif text-4xl font-medium leading-[1.03] tracking-[-0.04em] text-foreground sm:text-6xl">
-            {spec.title}
-          </h1>
-          {spec.description && (
-            <p className="max-w-3xl break-words text-lg leading-8 text-muted-foreground">{spec.description}</p>
-          )}
-        </div>
-      </header>
-
-      <div className={cn("space-y-9", spec.layout?.type === "grid" && gridClass(spec.layout.columns ?? 2))}>
-        {renderNodes(spec.nodes, context)}
-      </div>
       </main>
 
       <AnnotationPanel />

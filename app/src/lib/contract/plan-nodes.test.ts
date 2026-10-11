@@ -99,7 +99,7 @@ describe("sequence steps", () => {
 
   it("flags thin lanes when there are 4+ participants", () => {
     const messages = issues({
-      type: "sequence-diagram",
+      type: "sequence",
       props: {
         caption: "c",
         participants: [{ id: "a" }, { id: "b" }, { id: "c" }, { id: "d" }],
@@ -122,12 +122,10 @@ describe("box edges and machine events", () => {
     ])
   })
 
-  it("requires a dashed legend", () => {
-    const messages = issues({
-      type: "box-diagram",
-      props: { nodes: [{ id: "a", label: "A" }, { id: "b", label: "B" }], edges: ["a --> b"], grid: ["| a | b |"] },
-    })
-    assert.ok(messages.some((m) => /set "dashed"/.test(m)))
+  it("rejects the removed box-diagram node", () => {
+    assert.equal(safeParseVisualArtifactSpec({ title: "Removed", nodes: [{
+      type: "box-diagram", props: { nodes: [{ id: "a", label: "A" }, { id: "b", label: "B" }], edges: ["a --> b"], grid: ["| a | b |"] },
+    }] }).success, false)
   })
 
   it("suggests kebab-case event ids", () => {
@@ -144,7 +142,7 @@ describe("box edges and machine events", () => {
     const messages = issues({
       type: "state-machine",
       props: { ...base, traces: [{ name: "t", events: ["go", "go"] }] },
-      children: [{ type: "text", props: { text: "x" }, metadata: { id: "s-a" } }],
+      children: [{ type: "prose", props: { content: "x" }, metadata: { id: "s-a" } }],
     })
     assert.ok(messages.some((m) => /state "c" is unreachable/.test(m)))
     assert.ok(messages.some((m) => /trace t: step 2 "go" is not a legal event from "b"/.test(m)))
@@ -154,7 +152,7 @@ describe("box edges and machine events", () => {
 })
 
 describe("plan structure lints", () => {
-  const exhibit = { type: "text", props: { text: "x" } }
+  const exhibit = { type: "prose", props: { content: "x" } }
 
   it("accepts a well-formed claim tree", () => {
     assert.deepEqual(
@@ -214,7 +212,7 @@ describe("plan structure lints", () => {
 
   it("checks code-block annotations and file-tree notes", () => {
     assert.ok(
-      issues({ type: "code-block", props: { code: "a\nb", startLine: 10, annotations: [{ line: 3, title: "x" }] } }).some((m) =>
+      issues({ type: "code", props: { code: "a\nb", startLine: 10, annotations: [{ line: 3, title: "x" }] } }).some((m) =>
         /line 3 is outside 10-11/.test(m),
       ),
     )

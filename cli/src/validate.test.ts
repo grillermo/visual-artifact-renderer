@@ -4,6 +4,7 @@ import { resolve, join, dirname } from "node:path"
 import { tmpdir } from "node:os"
 
 import {
+  ARTIFACT_NODE_TYPES,
   ArtifactResourceError,
   ArtifactValidationError,
   RAW_ARTIFACT_MAX_BYTES,
@@ -53,266 +54,55 @@ function specWith(node: unknown): unknown {
 
 describe("validateSpec shared schema parity", () => {
   test("accepts valid minimal specs", () => {
-    const result = validateSpec(specWith({ type: "text", props: { text: "Hi" } }))
-    expect(result.slug).toBe("validation-regression")
+    expect(validateSpec(specWith({ type: "prose", props: { content: "Hi" } })).slug).toBe("validation-regression")
   })
-
   test("rejects slugs longer than 80 chars", () => {
-    const spec = specWith({ type: "text", props: { text: "Hi" } })
-    ;(spec as Record<string, unknown>).slug = "a".repeat(81)
-
-    expect(() => validateSpec(spec)).toThrow(ValidationError)
-    expect(() => validateSpec(spec)).toThrow("slug")
+    const spec = { title: "Hi", slug: "a".repeat(81), nodes: [{ type: "prose", props: { content: "Hi" } }] }
+    expect(() => validateSpec(spec)).toThrow(/slug/)
   })
-
-  test("rejects invalid stepper statuses", () => {
-    expect(() =>
-      validateSpec(
-        specWith({
-          type: "stepper",
-          props: { items: [{ title: "Deploy", status: "todo" }] },
-        }),
-      ),
-    ).toThrow(ValidationError)
+  test("rejects removed node types rather than warning", () => {
+    for (const type of ["button", "stepper", "tabs", "flow", "code-block", "pie-chart"]) {
+      expect(() => validateSpec(specWith({ type, props: {} }))).toThrow(ValidationError)
+    }
   })
-
-  test("accepts valid stepper statuses", () => {
-    const result = validateSpec(
-      specWith({
-        type: "stepper",
-        props: { items: [{ title: "Deploy", status: "pending" }] },
-      }),
-    )
-    expect(result.slug).toBe("validation-regression")
+  test("validates checklist states and nested extra properties", () => {
+    expect(validateSpec(specWith({ type: "checklist", props: { items: [{ text: "Deploy", state: "todo" }] } })).nodes).toHaveLength(1)
+    expect(() => validateSpec(specWith({ type: "checklist", props: { items: [{ text: "Deploy", state: "unknown" }] } }))).toThrow(ValidationError)
+    expect(() => validateSpec(specWith({ type: "checklist", props: { items: [{ text: "Deploy", state: "todo", unexpected: "nope" }] } }))).toThrow(/unexpected/)
   })
-
-  test("rejects malformed nested object-array items", () => {
-    expect(() =>
-      validateSpec(
-        specWith({
-          type: "stepper",
-          props: { items: [{ title: "Deploy", status: "pending", unexpected: "nope" }] },
-        }),
-      ),
-    ).toThrow(/unexpected/)
+  test("validates file-tree item types", () => {
+    expect(() => validateSpec(specWith({ type: "file-tree", props: { items: [{ name: "src", type: "folder" }] } }))).toThrow(/file|directory/)
+    expect(validateSpec(specWith({ type: "file-tree", props: { items: [{ name: "README.md" }] } })).nodes).toHaveLength(1)
   })
-
-  test("rejects file-tree item types outside the enum", () => {
-    expect(() =>
-      validateSpec(
-        specWith({
-          type: "file-tree",
-          props: { items: [{ name: "src", type: "folder" }] },
-        }),
-      ),
-    ).toThrow(/file|directory/)
+  test("rejects steps with fewer than two items", () => {
+    expect(() => validateSpec(specWith({ type: "steps", props: { items: [{ title: "Only one" }] } }))).toThrow(/>=2/)
   })
-
-  test("accepts valid minimal file-tree items", () => {
-    const result = validateSpec(
-      specWith({
-        type: "file-tree",
-        props: { items: [{ name: "README.md" }] },
-      }),
-    )
-    expect(result.nodes).toHaveLength(1)
+  test("validates table columns", () => {
+    expect(() => validateSpec(specWith({ type: "table", props: { dataKey: "rows", columns: [] } }))).toThrow(/>=1/)
+    expect(() => validateSpec(specWith({ type: "table", props: { dataKey: "rows", columns: [{ key: "name", extra: "nope" }] } }))).toThrow(ValidationError)
   })
-
-  test("rejects flow diagrams with too few items", () => {
-    expect(() =>
-      validateSpec(
-        specWith({
-          type: "flow",
-          props: { items: [{ title: "Only one" }] },
-        }),
-      ),
-    ).toThrow(/>=2/)
+  test("rejects extra properties on nested children", () => {
+    expect(() => validateSpec(specWith({ type: "chapter", props: { title: "One" }, children: [{ type: "prose", props: { content: "Hi", extra: "nope" } }] }))).toThrow(/extra/)
   })
-
-  test("rejects empty column arrays", () => {
-    expect(() =>
-      validateSpec(
-        specWith({
-          type: "table",
-          props: { dataKey: "rows", columns: [] },
-        }),
-      ),
-    ).toThrow(/>=1/)
-  })
-
-  test("rejects extra keys in column objects", () => {
-    expect(() =>
-      validateSpec(
-        specWith({
-          type: "table",
-          props: { dataKey: "rows", columns: [{ key: "name", extra: "nope" }] },
-        }),
-      ),
-    ).toThrow(ValidationError)
-  })
-
-  test("rejects extra keys in tab items", () => {
-    expect(() =>
-      validateSpec(
-        specWith({
-          type: "tabs",
-          props: {
-            items: [
-              {
-                value: "one",
-                label: "One",
-                nodes: [{ type: "text", props: { text: "Hi" } }],
-                extra: "nope",
-              },
-            ],
-          },
-        }),
-      ),
-    ).toThrow(/extra/)
-  })
-
   test("rejects file URLs in image src", () => {
-    expect(() =>
-      validateSpec(
-        specWith({
-          type: "image",
-          props: { src: "file:///tmp/secret.png", alt: "Secret" },
-        }),
-      ),
-    ).toThrow(/file:\/\//)
+    expect(() => validateSpec(specWith({ type: "image", props: { src: "file:///tmp/secret.png", alt: "Secret" } }))).toThrow(/file:\/\//)
   })
-
-  test("rejects file URLs in button href", () => {
-    expect(() =>
-      validateSpec(
-        specWith({
-          type: "button",
-          props: { label: "Open", href: "file:///tmp/secret" },
-        }),
-      ),
-    ).toThrow(/file|disallowed URL scheme/)
+  test("links reject local and executable URLs", () => {
+    for (const href of ["file:///tmp/secret", "javascript:alert(1)", " \njava\tscript:alert(1)", "data:text/html,<script>alert(1)</script>", "foo:bar"]) {
+      expect(() => validateSpec(specWith({ type: "links", props: { items: [{ label: "Open", href }] } }))).toThrow(ValidationError)
+    }
+    for (const href of ["https://example.com", "./relative/path", "#section", "mailto:test@example.com"]) {
+      expect(validateSpec(specWith({ type: "links", props: { items: [{ label: "Open", href }] } })).nodes[0].type).toBe("links")
+    }
   })
-
-  test("rejects javascript URLs in button href", () => {
-    expect(() =>
-      validateSpec(
-        specWith({
-          type: "button",
-          props: { label: "Click", href: "javascript:alert(1)" },
-        }),
-      ),
-    ).toThrow(/disallowed URL scheme/)
-  })
-
-  test("rejects whitespace-obfuscated javascript URLs in button href", () => {
-    expect(() =>
-      validateSpec(
-        specWith({
-          type: "button",
-          props: { label: "Click", href: " \njava\tscript:alert(1)" },
-        }),
-      ),
-    ).toThrow(/disallowed URL scheme/)
-  })
-
-  test("rejects data URLs in button href", () => {
-    expect(() =>
-      validateSpec(
-        specWith({
-          type: "button",
-          props: { label: "Click", href: "data:text/html,<script>alert(1)</script>" },
-        }),
-      ),
-    ).toThrow(/disallowed URL scheme/)
-  })
-
-  test("accepts relative paths in button href", () => {
-    const result = validateSpec(
-      specWith({
-        type: "button",
-        props: { label: "Open", href: "./relative/path" },
-      }),
-    )
-    expect(result.nodes[0].type).toBe("button")
-  })
-
-  test("accepts hash links in button href", () => {
-    const result = validateSpec(
-      specWith({
-        type: "button",
-        props: { label: "Open", href: "#section" },
-      }),
-    )
-    expect(result.nodes[0].type).toBe("button")
-  })
-
-  test("accepts https URLs in button href", () => {
-    const result = validateSpec(
-      specWith({
-        type: "button",
-        props: { label: "Open", href: "https://example.com" },
-      }),
-    )
-    expect(result.nodes[0].type).toBe("button")
-  })
-
-  test("accepts mailto URLs in button href", () => {
-    const result = validateSpec(
-      specWith({
-        type: "button",
-        props: { label: "Email", href: "mailto:test@example.com" },
-      }),
-    )
-    expect(result.nodes[0].type).toBe("button")
-  })
-
-  test("rejects unknown schemes in button href", () => {
-    expect(() =>
-      validateSpec(
-        specWith({
-          type: "button",
-          props: { label: "Open", href: "foo:bar" },
-        }),
-      ),
-    ).toThrow(/disallowed URL scheme/)
-  })
-
   test("requires array-backed data for every dataKey node", () => {
-    expect(() =>
-      validateSpec(
-        specWith({
-          type: "pie-chart",
-          props: { dataKey: "shares", categoryKey: "name", valueKey: "value" },
-        }),
-      ),
-    ).toThrow(/data\.shares must be an array/)
+    expect(() => validateSpec(specWith({ type: "table", props: { dataKey: "shares" } }))).toThrow(/data\.shares must be an array/)
   })
-
   test("requires dataset rows to be objects", () => {
-    expect(() =>
-      validateSpec({
-        slug: "invalid-rows",
-        title: "Invalid rows",
-        data: { shares: [1] },
-        nodes: [
-          {
-            type: "pie-chart",
-            props: { dataKey: "shares", categoryKey: "name", valueKey: "value" },
-          },
-        ],
-      }),
-    ).toThrow(/data\.shares\[0\] must be an object/)
+    expect(() => validateSpec({ slug: "invalid-rows", title: "Invalid rows", data: { shares: [1] }, nodes: [{ type: "table", props: { dataKey: "shares" } }] })).toThrow(/data\.shares\[0\] must be an object/)
   })
-
   test("rejects non-integer diagram heights", () => {
-    expect(() =>
-      validateSpec(
-        specWith({
-          type: "mermaid",
-          props: { caption: "Flowchart", code: "flowchart LR\n  A --> B", height: 240.5 },
-        }),
-      ),
-    ).toThrow(ValidationError)
+    expect(() => validateSpec(specWith({ type: "mermaid", props: { caption: "Flowchart", code: "flowchart LR\n  A --> B", height: 240.5 } }))).toThrow(ValidationError)
   })
 })
 
@@ -349,7 +139,7 @@ describe("audit regression fixtures", () => {
   test("empty diff props fails with path", async () => {
     const spec = await loadFixture("invalid", "diff-empty.json")
     expect(() => parseVisualArtifactSpec(spec)).toThrow(ArtifactValidationError)
-    expect(() => parseVisualArtifactSpec(spec)).toThrow(/diff/)
+    expect(() => parseVisualArtifactSpec(spec)).toThrow(/code/)
   })
 })
 
@@ -408,7 +198,7 @@ describe("resource envelope", () => {
     expect(preflight.fileTreeMaxDepth).toBe(12)
   })
 
-  test("representative compatibility fixture passes", async () => {
+  test("representative major-three fixture passes", async () => {
     const spec = await loadFixture("valid", "representative.json")
     const result = parseVisualArtifactSpec(spec)
     expect(result.nodes.length).toBeGreaterThan(0)
@@ -420,7 +210,7 @@ describe("resource envelope", () => {
       title: "Classified artifact",
       artifactType: "explainer",
       topics: ["runtime", "typescript"],
-      nodes: [{ type: "text", props: { text: "Content" } }],
+      nodes: [{ type: "prose", props: { content: "Content" } }],
     })
     expect(result.artifactType).toBe("explainer")
     expect(result.topics).toEqual(["runtime", "typescript"])
@@ -431,14 +221,14 @@ describe("resource envelope", () => {
       slug: "unknown-classification",
       title: "Unknown classification",
       artifactType: "memo",
-      nodes: [{ type: "text", props: { text: "Content" } }],
+      nodes: [{ type: "prose", props: { content: "Content" } }],
     })).toThrow(ArtifactValidationError)
   })
 
   test("very deep input is rejected before recursive Zod parsing", () => {
-    let node: Record<string, unknown> = { type: "text", props: { text: "leaf" } }
+    let node: Record<string, unknown> = { type: "prose", props: { content: "leaf" } }
     for (let depth = 0; depth < 10_000; depth++) {
-      node = { type: "card", children: [node] }
+      node = { type: "chapter", props: { title: "Depth" }, children: [node] }
     }
     const result = VisualArtifactSpecSchema.safeParse({
       slug: "very-deep",
@@ -452,15 +242,15 @@ describe("resource envelope", () => {
     const huge = {
       slug: "huge",
       title: "Huge",
-      nodes: [{ type: "text", props: { text: "x".repeat(RAW_ARTIFACT_MAX_BYTES + 1000) } }],
+      nodes: [{ type: "prose", props: { content: "x".repeat(RAW_ARTIFACT_MAX_BYTES + 1000) } }],
     }
     const raw = JSON.stringify(huge)
     expect(() => parseRawArtifactJson(raw)).toThrow(/bytes/)
   })
 })
 
-describe("saved artifact compatibility", () => {
-  test("all parseable saved artifact specs validate when present", async () => {
+describe("saved major-three artifacts", () => {
+  test("saved bundles with removed nodes are rejected; supported bundles validate", async () => {
     const files = await findSavedJsonFiles(SAVED_ARTIFACTS_DIR)
     if (files.length === 0) {
       // Clean clones ignore the runtime artifacts/ directory. Fall back to the
@@ -489,7 +279,18 @@ describe("saved artifact compatibility", () => {
         continue
       }
       total++
-      expect(VisualArtifactSpecSchema.safeParse(parsed).success).toBe(true)
+      const allowed = new Set<string>(ARTIFACT_NODE_TYPES)
+      const usesRemovedNode = (nodes: unknown[]): boolean => nodes.some((node) => {
+        if (!node || typeof node !== "object") return false
+        const n = node as { type?: string; children?: unknown[] }
+        return !allowed.has(n.type ?? "") || (Array.isArray(n.children) && usesRemovedNode(n.children))
+      })
+      const hasRemoved = usesRemovedNode((parsed as { nodes: unknown[] }).nodes)
+      const result = VisualArtifactSpecSchema.safeParse(parsed)
+      expect(result.success).toBe(!hasRemoved)
+      if (hasRemoved && !result.success) {
+        expect(result.error.issues.some((issue) => issue.path.at(-1) === "type")).toBe(true)
+      }
     }
     expect(total).toBeGreaterThanOrEqual(2)
   })

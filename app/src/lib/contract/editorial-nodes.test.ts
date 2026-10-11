@@ -3,13 +3,17 @@ import { strict as assert } from "node:assert"
 
 import {
   ARTIFACT_NODE_TYPES,
-  LEGACY_NODE_TYPES,
   artifactComponentManifest,
   createArtifactContract,
-  findLegacyNodeWarnings,
   safeParseVisualArtifactSpec,
   ArtifactNodeSchema,
 } from "./artifact-manifest"
+
+const REMOVED_NODE_TYPES = [
+  "text", "heading", "section", "card", "grid", "tabs", "accordion", "stat-card", "metric", "badge", "button", "separator",
+  "alert", "status-grid", "comparison-table", "data-table", "definition-list", "flow", "stepper", "box-diagram", "sequence-diagram",
+  "code-block", "diff", "log", "chart", "area-chart", "radar-chart", "scatter-chart", "pie-chart", "donut-chart", "heatmap", "change-stats", "quotes",
+]
 
 function spec(nodes: unknown[], data?: Record<string, unknown>) {
   return { slug: "t", title: "T", nodes, ...(data ? { data } : {}) }
@@ -67,20 +71,13 @@ describe("other hard limits", () => {
   })
 })
 
-describe("legacy and aliases", () => {
-  it("still parses legacy node types", () => {
-    const result = safeParseVisualArtifactSpec(
-      spec(
-        [
-          { type: "section", props: { title: "S" }, children: [{ type: "text", props: { text: "hi" } }] },
-          { type: "stat-card", props: { label: "L", value: 1 } },
-          { type: "status-grid", props: { dataKey: "d", statusKey: "s" } },
-          { type: "flow", props: { items: [{ title: "a" }, { title: "b" }] } },
-        ],
-        { d: [{ s: "ok" }] },
-      ),
-    )
-    assert.equal(result.success, true, messages(result))
+describe("major-three node surface", () => {
+  it("rejects every removed type, including inside surviving containers", () => {
+    for (const type of REMOVED_NODE_TYPES) {
+      assert.equal(ArtifactNodeSchema.safeParse({ type, props: {} }).success, false, type)
+      const nested = { type: "chapter", props: { title: "Nested" }, children: [{ type, props: {} }] }
+      assert.equal(safeParseVisualArtifactSpec(spec([nested])).success, false, `nested ${type}`)
+    }
   })
 
   it("parses the old table and timeline props", () => {
@@ -109,31 +106,18 @@ describe("legacy and aliases", () => {
     assert.equal(result.success, true, messages(result))
   })
 
-  it("parses code and sequence aliases with the same props as the old names", () => {
+  it("parses canonical code and sequence", () => {
     const code = { title: "T", language: "bash", code: "ls" }
     const seq = { caption: "c", participants: [{ id: "a" }, { id: "b" }], steps: ["a -> b : x"] }
     const result = safeParseVisualArtifactSpec(
       spec([
         { type: "code", props: code },
-        { type: "code-block", props: code },
         { type: "sequence", props: seq },
-        { type: "sequence-diagram", props: seq },
       ]),
     )
     assert.equal(result.success, true, messages(result))
   })
 
-  it("warns on legacy types once each, recursing into children and tabs", () => {
-    const warnings = findLegacyNodeWarnings([
-      { type: "grid", children: [{ type: "stat-card" }, { type: "stat-card" }] },
-      { type: "tabs", props: { items: [{ nodes: [{ type: "badge" }] }] } },
-      { type: "ledger" },
-    ])
-    assert.equal(warnings.length, 4)
-    assert.match(warnings.join("\n"), /grid is legacy; use columns/)
-    assert.match(warnings.join("\n"), /stat-card is legacy; use figures/)
-    assert.match(warnings.join("\n"), /badge is legacy/)
-  })
 })
 
 describe("ledger", () => {
@@ -194,19 +178,19 @@ describe("story", () => {
 describe("contract", () => {
   const contract = createArtifactContract()
 
-  it("is version 2.0.0 with the core and specialised nodes only", () => {
-    assert.equal(contract.version, "2.0.0")
+  it("is version 3.0.0 with the surviving nodes only", () => {
+    assert.equal(contract.version, "3.0.0")
+    assert.equal("legacy" in contract, false)
     assert.deepEqual([...contract.nodeTypes].sort(), [...ARTIFACT_NODE_TYPES].sort())
-    for (const legacy of LEGACY_NODE_TYPES) {
+    for (const legacy of REMOVED_NODE_TYPES) {
       assert.equal(contract.nodes[legacy], undefined, legacy)
-      assert.ok(contract.legacy[legacy], `${legacy} hint`)
       assert.ok(!contract.nodeTypes.includes(legacy))
     }
     for (const core of ["chapter", "ledger", "map", "story", "steps", "compare"]) assert.ok(contract.nodes[core], core)
   })
 
   it("keeps legacy out of pattern examples and uses the new nodes", () => {
-    const legacy = new Set<string>(LEGACY_NODE_TYPES)
+    const legacy = new Set<string>(REMOVED_NODE_TYPES)
     const walk = (nodes: { type: string; children?: unknown[] }[]) => {
       for (const node of nodes) {
         assert.ok(!legacy.has(node.type), `pattern uses legacy ${node.type}`)
@@ -224,11 +208,12 @@ describe("contract", () => {
     }
   })
 
-  it("every manifest example parses and legacy entries point at advertised types", () => {
+  it("every manifest example parses and uses an advertised type", () => {
     for (const entry of artifactComponentManifest) {
       const result = ArtifactNodeSchema.safeParse(entry.example)
       assert.equal(result.success, true, `${entry.type}: ${result.success ? "" : result.error.message}`)
-      if (entry.legacy) assert.ok((ARTIFACT_NODE_TYPES as readonly string[]).includes(entry.legacy.replacedBy), entry.type)
+      assert.ok((ARTIFACT_NODE_TYPES as readonly string[]).includes(entry.type), entry.type)
+      assert.equal("legacy" in entry, false)
     }
   })
 })

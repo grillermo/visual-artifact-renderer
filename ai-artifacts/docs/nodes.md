@@ -1,5 +1,5 @@
 ---
-description: "Node reference for the 31 artifact node types in contract version 2.0.0, with legacy replacements."
+description: "Node reference for the 31 surviving artifact node types in contract version 3.0.0."
 ---
 
 # Node reference
@@ -46,7 +46,7 @@ Children: nodes
 
 ### `prose`
 
-Markdown text for prose, lists, links, and long-form narrative. Use this instead of 'text' when you need multiple paragraphs or basic markdown formatting.
+Markdown paragraphs, lists, links and long-form narrative.
 
 | Prop | Type |
 |---|---|
@@ -433,7 +433,7 @@ A diagram that assembles as the reader scrolls: a map (up to 8 nodes) plus 2-7 b
 
 ### `sequence`
 
-Lifeline sequence diagram, at most 10 steps (split bigger ones). Same terse steps as sequence-diagram: 'a -> b : text', 'a --> b', 'a -x-> b', 'note over a, b: text', '--- label ---'. key lists 0-based step indices to emphasise. caption is required.
+Lifeline sequence diagram, at most 10 steps (split bigger ones). Terse steps: 'a -> b : text', 'a --> b', 'a -x-> b', 'note over a, b: text', '--- label ---'. key lists 0-based step indices to emphasise. caption is required.
 
 | Prop | Type |
 |---|---|
@@ -591,7 +591,7 @@ A question for the reader; options render as rows (radio ring, label, consequenc
 
 ### `code`
 
-Syntax-highlighted code (props identical to code-block; code-block, diff and log are aliases or legacy). Flat surface, title above as mono caps. Use for commands, config, env contracts. Set diff: true for +/- lines.
+Syntax-highlighted code on a flat surface, with title above. Use for commands, config and env contracts. Set diff: true for +/- lines.
 
 | Prop | Type |
 |---|---|
@@ -729,9 +729,9 @@ Children: nodes
       },
       "children": [
         {
-          "type": "text",
+          "type": "prose",
           "props": {
-            "text": "Exhibit goes first."
+            "content": "Exhibit goes first."
           }
         }
       ]
@@ -742,7 +742,7 @@ Children: nodes
 
 ### `claim`
 
-One numbered plan claim inside a claim-tree or claim (max 3 levels). Children order: one exhibit, then at most one decision or alert, then child claims. aux "shared" renders ✱, "scope" renders –. ref links to a call-stack row id.
+One numbered plan claim inside a claim-tree or claim (max 3 levels). Children order: one exhibit, then at most one decision or callout, then child claims. aux "shared" renders ✱, "scope" renders –. ref links to a call-stack row id.
 
 | Prop | Type |
 |---|---|
@@ -761,9 +761,9 @@ Children: nodes
   },
   "children": [
     {
-      "type": "text",
+      "type": "prose",
       "props": {
-        "text": "Exhibit."
+        "content": "Exhibit."
       }
     }
   ]
@@ -848,7 +848,7 @@ Children: nodes
 
 ### `mockup`
 
-Framed UI mockup built from child nodes (wireframe, text, badge, button, code-block…). Pins point at a child metadata.id or at x/y fractions. No claims, decisions, mockups or state-machines inside.
+Framed UI mockup built from wireframe, prose or code nodes. Pins point at a child metadata.id or at x/y fractions. No claims, decisions, mockups or state-machines inside.
 
 | Prop | Type |
 |---|---|
@@ -1144,9 +1144,9 @@ Full-screen interactive SVG/HTML architecture diagram embedded in a sandboxed if
 }
 ```
 
-## Legacy types: do not use
+## Removed types: rewrite before opening
 
-These types still parse so stored artifacts keep rendering. Do not write new ones.
+Contract 3.0.0 rejects every type below, including inside children. Older bundles containing removed types must be rewritten. There is no migration command. The table is writing advice, not a compatibility API.
 
 | Legacy type | Use instead |
 |---|---|
@@ -1173,8 +1173,8 @@ These types still parse so stored artifacts keep rendering. Do not write new one
 | `comparison-table` | use table: Use table with statusKey (and onlyDiffs). |
 | `chart` | use trend: Use trend: bare line or bar with direct labels. |
 | `flow` | use steps: Use steps: a step line with 1-2 key steps. |
-| `code-block` | use code: Alias: same props as code; prefer the new name. |
-| `sequence-diagram` | use sequence: Alias: same props as sequence; prefer the new name. |
+| `code-block` | use code: Syntax-highlighted code and annotated snippets. |
+| `sequence-diagram` | use sequence: A bounded lifeline diagram. |
 | `box-diagram` | use map: Use map: 2-6 nodes, label-safe edges. Split bigger diagrams. |
 | `change-stats` | use figures: Use figures. |
 | `quotes` | use quote: Use quote for one pull-quote, or ledger rows with meta for a list. |
@@ -1186,6 +1186,7 @@ These types still parse so stored artifacts keep rendering. Do not write new one
 
 ## Notes
 
-- `dataKey` variants (`ledger`, `table`, `timeline`, `figures`) read rows from the top-level `data` object, so tabular content stays out of the node tree.
+- `claim-tree` and `claim` are plain plan outlines without claim-specific commenting. Use the page-wide feedback sidebar.
+- `dataKey` variants (`ledger`, `table`, `timeline`, `trend`) read rows from the top-level `data` object, so tabular content stays out of the node tree.
 - `decision` ids are unique per page.
 - Limits come from `contract.limits`.

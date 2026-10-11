@@ -10,7 +10,7 @@ import type { ArtifactNode } from "@/lib/contract/artifact-schema"
 let container: HTMLDivElement
 let root: Root
 
-async function render(nodes: ArtifactNode[], data?: Record<string, unknown>, legacyShell?: boolean) {
+async function render(nodes: ArtifactNode[], data?: Record<string, unknown>) {
   const { componentRegistry } = await import("@/components/component-registry")
   const renderNodes: RenderNodes = (list, context, prefix = "nodes") =>
     list?.map((node, index) => {
@@ -19,7 +19,7 @@ async function render(nodes: ArtifactNode[], data?: Record<string, unknown>, leg
       const children = "children" in node && node.children ? renderNodes(node.children, context, `${path}.children`) : undefined
       return <div key={path}>{Component({ node, context, children, renderNodes, nodePath: path })}</div>
     })
-  const context = { project: "p", slug: "t", data, legacyShell } as ArtifactRenderContext
+  const context = { project: "p", slug: "t", data } as ArtifactRenderContext
   await act(async () => {
     root.render(<>{renderNodes(nodes, context)}</>)
   })
@@ -80,23 +80,14 @@ describe("row adapters (DOM)", () => {
     assert.deepEqual(groups.map((g) => g.getAttribute("data-signal")), ["risk", "wait"])
   })
 
-  it("table: legacyShell gives the framed TableBlock, editorial gives bare [data-table]", async () => {
+  it("table stays bare and retains hover transitions with reduced-motion support", async () => {
     const data = { t: [{ name: "a", v: "1" }, { name: "b", v: "2" }] }
-    await render([node("table", { dataKey: "t" })], data, true)
-    assert.equal(container.querySelector("[data-table]"), null)
-    assert.match(container.innerHTML, /rounded/)
     await render([node("table", { dataKey: "t" })], data)
     assert.ok(container.querySelector("[data-table]"))
-  })
-
-  it("legacy status-grid keeps its pre-redesign coloured card grid (no ledger)", async () => {
-    await render(
-      [node("status-grid", { dataKey: "g", statusKey: "state", descriptionKey: "notes" })],
-      { g: [{ title: "Fine", state: "ok", notes: "n" }, { title: "Broken", state: "failed", notes: "n" }] },
-    )
-    assert.equal(container.querySelectorAll("[data-ledger-group]").length, 0)
-    assert.match(container.textContent!, /Broken/)
-    assert.match(container.innerHTML, /rounded-2xl/)
+    const row = container.querySelector("tbody tr")!
+    assert.match(row.className, /transition-colors/)
+    assert.match(row.className, /hover:bg-muted\/55/)
+    assert.match(row.className, /motion-reduce:transition-none/)
   })
 
   it("checklist labels every state for screen readers", async () => {
@@ -139,12 +130,12 @@ describe("row adapters (DOM)", () => {
     assert.match(container.querySelector("summary svg")!.getAttribute("class")!, /motion-reduce:transition-none/)
   })
 
-  it("figures use an explicit N-column grid", async () => {
+  it("figures wrap with a minimum readable item width", async () => {
     await render([node("figures", { items: [{ value: 1, label: "A" }, { value: 2, label: "B" }, { value: 3, label: "C" }] })])
     const dl = container.querySelector("[data-figures]") as HTMLElement
-    assert.equal(dl.style.getPropertyValue("--figure-cols"), "3")
-    assert.match(dl.className, /grid-cols-2/)
-    assert.ok(!/flex-wrap/.test(dl.className))
+    assert.match(dl.className, /flex-wrap/)
+    assert.equal(dl.children.length, 3)
+    assert.match(dl.children[0].className, /basis-\[var\(--va-figure-min-width\)\]/)
   })
 
   it("mobile table records use sentence-case inline labels and mark highlighted rows", async () => {

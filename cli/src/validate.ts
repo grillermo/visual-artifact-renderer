@@ -1,7 +1,6 @@
 import type { z } from "zod"
 
 import {
-  findLegacyNodeWarnings,
   parseVisualArtifactSpec,
   safeParseVisualArtifactSpec,
   type VisualArtifactSpec,
@@ -63,11 +62,3 @@ export function validateSpec(spec: unknown): VisualArtifactSpec {
  * Throwing wrapper used by callers that already want an exception.
  */
 export { parseVisualArtifactSpec }
-
-/**
- * Warn, never reject: agents running older skill text may still emit legacy
- * node types, and stored artifacts keep rendering. One message per legacy type.
- */
-export function legacyNodeWarnings(spec: VisualArtifactSpec): string[] {
-  return findLegacyNodeWarnings(spec.nodes)
-}

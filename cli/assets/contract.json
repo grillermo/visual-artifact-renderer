@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0",
+  "version": "3.0.0",
   "limits": {
     "rawArtifactMaxBytes": 2097152,
     "topLevelNodes": 30,
@@ -175,7 +175,7 @@
       }
     },
     "prose": {
-      "description": "Markdown text for prose, lists, links, and long-form narrative. Use this instead of 'text' when you need multiple paragraphs or basic markdown formatting.",
+      "description": "Markdown paragraphs, lists, links and long-form narrative.",
       "props": {
         "content": "string",
         "tone": "default | muted?"
@@ -383,9 +383,9 @@
             },
             "children": [
               {
-                "type": "text",
+                "type": "prose",
                 "props": {
-                  "text": "Exhibit goes first."
+                  "content": "Exhibit goes first."
                 }
               }
             ]
@@ -394,7 +394,7 @@
       }
     },
     "claim": {
-      "description": "One numbered plan claim inside a claim-tree or claim (max 3 levels). Children order: one exhibit, then at most one decision or alert, then child claims. aux \"shared\" renders ✱, \"scope\" renders –. ref links to a call-stack row id.",
+      "description": "One numbered plan claim inside a claim-tree or claim (max 3 levels). Children order: one exhibit, then at most one decision or callout, then child claims. aux \"shared\" renders ✱, \"scope\" renders –. ref links to a call-stack row id.",
       "props": {
         "text": "string ≤280",
         "aux": "\"shared\" | \"scope\"?",
@@ -412,9 +412,9 @@
         },
         "children": [
           {
-            "type": "text",
+            "type": "prose",
             "props": {
-              "text": "Exhibit."
+              "content": "Exhibit."
             }
           }
         ]
@@ -493,7 +493,7 @@
       }
     },
     "mockup": {
-      "description": "Framed UI mockup built from child nodes (wireframe, text, badge, button, code-block…). Pins point at a child metadata.id or at x/y fractions. No claims, decisions, mockups or state-machines inside.",
+      "description": "Framed UI mockup built from wireframe, prose or code nodes. Pins point at a child metadata.id or at x/y fractions. No claims, decisions, mockups or state-machines inside.",
       "props": {
         "frame": "\"none\" | \"browser\" | \"phone\" | \"desktop\" | \"terminal\"",
         "width": "number? 280-1440",
@@ -1099,7 +1099,7 @@
       }
     },
     "code": {
-      "description": "Syntax-highlighted code (props identical to code-block; code-block, diff and log are aliases or legacy). Flat surface, title above as mono caps. Use for commands, config, env contracts. Set diff: true for +/- lines.",
+      "description": "Syntax-highlighted code on a flat surface, with title above. Use for commands, config and env contracts. Set diff: true for +/- lines.",
       "props": {
         "title": "string?",
         "language": "string?",
@@ -1211,41 +1211,6 @@
     "table",
     "trend"
   ],
-  "legacy": {
-    "alert": "use callout: Use callout (tone: note, risk, new, wait).",
-    "definition-list": "use ledger: Term on the left, text on the right is a ledger row.",
-    "diff": "use code: Use code with diff: true and lines starting '+ ', '- ', '  '.",
-    "donut-chart": "use figures: Donut charts mislead. Use figures or table.",
-    "area-chart": "use trend: Use trend.",
-    "radar-chart": "use table: Radar charts mislead. Use table or compare.",
-    "scatter-chart": "use trend: Use trend, or table when exact values matter.",
-    "heatmap": "use table: Use table with highlightKey.",
-    "log": "use code: Use code with language 'log'.",
-    "pie-chart": "use figures: Pie charts mislead. Use figures or table.",
-    "stepper": "use steps: Use steps (or checklist for status).",
-    "heading": "use chapter: Use chapter (kicker, title, deck, takeaway) instead of free headings.",
-    "text": "use prose: Use prose for paragraphs; chapter carries the headings.",
-    "card": "use columns: No boxes. Use columns for text side by side, or chapter + prose.",
-    "metric": "use figures: Use figures.",
-    "stat-card": "use figures: Use figures: an inline band of at most 4 numbers, no tiles.",
-    "badge": "use ledger: Status is a dot plus a word inside ledger or checklist rows.",
-    "button": "use links: Use links for a plain row of underlined links.",
-    "separator": "use chapter: Chapters draw their own rule.",
-    "data-table": "use table: Use table with dense: true.",
-    "comparison-table": "use table: Use table with statusKey (and onlyDiffs).",
-    "chart": "use trend: Use trend: bare line or bar with direct labels.",
-    "flow": "use steps: Use steps: a step line with 1-2 key steps.",
-    "code-block": "use code: Alias: same props as code; prefer the new name.",
-    "sequence-diagram": "use sequence: Alias: same props as sequence; prefer the new name.",
-    "box-diagram": "use map: Use map: 2-6 nodes, label-safe edges. Split bigger diagrams.",
-    "change-stats": "use figures: Use figures.",
-    "quotes": "use quote: Use quote for one pull-quote, or ledger rows with meta for a list.",
-    "status-grid": "use ledger: Use ledger: groups by status, risk first; data-backed via groupKey.",
-    "grid": "use columns: Grids of cards are the anti-pattern. Use columns for text, figures for numbers.",
-    "section": "use chapter: Use chapter: it adds a kicker, deck and takeaway.",
-    "tabs": "use compare: Tabs hide content. Use compare or ledger groups.",
-    "accordion": "use details: Use details for one quiet 'more detail' disclosure."
-  },
   "patternExamples": {
     "weekly-report": {
       "description": "Weekly report: one chapter per theme (kicker, deck, one main exhibit, plus at most one supporting prose, details or callout, takeaway), then open loops as a ledger grouped by what can break and what waits on someone.",
@@ -1462,7 +1427,7 @@
                   {
                     "text": "Migrate stored artifacts",
                     "state": "dropped",
-                    "note": "Old specs keep parsing."
+                    "note": "Major 3 rejects removed nodes; no migration command."
                   }
                 ]
               }

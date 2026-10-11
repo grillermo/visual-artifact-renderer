@@ -361,7 +361,7 @@ describe("create: source read containment", () => {
     expect(log._logs.join("\n")).toContain("source facts conflict at facts.excerpt")
   })
 
-  test("resolves file-tree sources nested in tabs and accordions", async () => {
+  test("resolves file-tree sources nested in chapters and details", async () => {
     const project = join(dir, "project")
     await mkdir(project, { recursive: true })
     await writeFile(join(project, "tab.txt"), "tab content", "utf8")
@@ -371,39 +371,14 @@ describe("create: source read containment", () => {
       title: "Nested sources",
       nodes: [
         {
-          type: "tabs",
-          props: {
-            items: [
-              {
-                value: "one",
-                label: "One",
-                nodes: [
-                  {
-                    type: "file-tree",
-                    props: { items: [{ name: "tab.txt", type: "file", src: "tab.txt" }] },
-                  },
-                ],
-              },
-            ],
-          },
+          type: "chapter", props: { title: "One" }, children: [
+            { type: "file-tree", props: { items: [{ name: "tab.txt", type: "file", src: "tab.txt" }] } },
+          ],
         },
         {
-          type: "accordion",
-          props: {
-            items: [
-              {
-                title: "One",
-                nodes: [
-                  {
-                    type: "file-tree",
-                    props: {
-                      items: [{ name: "accordion.txt", type: "file", src: "accordion.txt" }],
-                    },
-                  },
-                ],
-              },
-            ],
-          },
+          type: "details", props: { summary: "One" }, children: [
+            { type: "file-tree", props: { items: [{ name: "accordion.txt", type: "file", src: "accordion.txt" }] } },
+          ],
         },
       ],
     })
@@ -416,12 +391,12 @@ describe("create: source read containment", () => {
     const result = JSON.parse(outLine!.slice("output: ".length))
     expect(result.safety.diskSources.count).toBe(2)
     const written = JSON.parse(await readFile(result.path, "utf8"))
-    expect(written.nodes[0].props.items[0].nodes[0].props.items[0]).toEqual({
+    expect(written.nodes[0].children[0].props.items[0]).toEqual({
       name: "tab.txt",
       type: "file",
       content: "tab content",
     })
-    expect(written.nodes[1].props.items[0].nodes[0].props.items[0]).toEqual({
+    expect(written.nodes[1].children[0].props.items[0]).toEqual({
       name: "accordion.txt",
       type: "file",
       content: "accordion content",

@@ -1,6 +1,5 @@
 "use client"
 
-import { renderTable } from "@/components/adapters/data-adapters"
 import { cn } from "@/lib/utils"
 import { formatCell, getRows, MissingData, toTitle } from "@/lib/artifacts/data"
 import { SignalChip } from "@/lib/artifacts/status"
@@ -63,7 +62,7 @@ export function TableView({ data, dataKey, columns, caption, dense, statusKey, h
           {data.map((row, index) => {
             const highlighted = highlightKey ? row[highlightKey] === true : false
             return (
-              <tr key={index} data-highlight={highlighted || undefined} className="border-t border-rule first:border-t-0">
+              <tr key={index} data-highlight={highlighted || undefined} className="border-t border-rule first:border-t-0 transition-colors duration-[var(--va-annotation-fast)] odd:bg-muted/15 [@media(hover:hover)]:hover:bg-muted/55 focus-within:bg-muted/55 motion-reduce:transition-none">
                 {cols.map((column, columnIndex) => (
                   <td
                     key={column.key}
@@ -112,6 +111,5 @@ export function TableView({ data, dataKey, columns, caption, dense, statusKey, h
 
 export function renderEditorialTable(args: AdapterArgs<"table">) {
   const { node, context } = args
-  if (context.legacyShell) return renderTable(args)
   return <TableView {...node.props} data={getRows(context.data, node.props.dataKey)} />
 }

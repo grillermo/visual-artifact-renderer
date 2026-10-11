@@ -21,58 +21,35 @@ const baseSpec = VisualArtifactSpecSchema.parse({
   },
   nodes: [
     {
-      type: "text",
-      props: { text: "The formatter converts JSON specs to compact Markdown.", size: "lg" },
+      type: "prose",
+      props: { content: "The formatter converts JSON specs to compact Markdown.", size: "lead" },
       metadata: { id: "thesis" },
     },
     {
-      type: "grid",
-      props: { columns: 2 },
+      type: "chapter",
+      props: { title: "Reading" },
       children: [
-        { type: "text", props: { text: "Child 0" }, metadata: { id: "child-0" } },
+        { type: "prose", props: { content: "Child 0" }, metadata: { id: "child-0" } },
         {
-          type: "card",
-          children: [{ type: "text", props: { text: "Nested child 0" }, metadata: { id: "nested-0" } }],
+          type: "details",
+          props: { summary: "Nested" },
+          children: [{ type: "prose", props: { content: "Nested child 0" }, metadata: { id: "nested-0" } }],
         },
       ],
     },
     {
-      type: "tabs",
-      props: {
-        defaultValue: "a",
-        items: [
-          {
-            value: "a",
-            label: "Tab A",
-            nodes: [{ type: "text", props: { text: "Tab A node" }, metadata: { id: "tab-a" } }],
-          },
-          {
-            value: "b",
-            label: "Tab B",
-            nodes: [{ type: "text", props: { text: "Tab B node" } }],
-          },
-        ],
-      },
+      type: "columns",
+      children: [
+        { type: "prose", props: { content: "Column A node" }, metadata: { id: "column-a" } },
+        { type: "prose", props: { content: "Column B node" } },
+      ],
     },
     {
-      type: "accordion",
-      props: {
-        items: [
-          {
-            title: "Item 1",
-            nodes: [
-              {
-                type: "text",
-                props: { text: "Accordion item 1 node" },
-                metadata: { id: "acc-1" },
-              },
-            ],
-          },
-        ],
-      },
+      type: "details", props: { summary: "Item 1" },
+      children: [{ type: "prose", props: { content: "Details item 1 node" }, metadata: { id: "detail-1" } }],
     },
     {
-      type: "code-block",
+      type: "code",
       props: {
         language: "ts",
         title: "Long code",
@@ -167,37 +144,37 @@ describe("formatArtifactForAI", () => {
       },
     ]
     const output = formatArtifactForAI(baseSpec, { comments })
-    assert.match(output, /1\. \(lines 61-69\) Feedback on: "Nested child 0"/)
+    assert.match(output, /1\. \(lines 64-72\) Feedback on: "Nested child 0"/)
   })
 
-  it("uses the correct line ranges for tabs", () => {
+  it("uses the correct line ranges for columns", () => {
     const comments: AIColabComment[] = [
       {
         id: "c1",
-        target: { kind: "node", nodePath: "nodes.2.props.items.0.nodes.0" },
+        target: { kind: "node", nodePath: "nodes.2.children.0" },
         body: "Tab A comment.",
       },
       {
         id: "c2",
-        target: { kind: "node", nodePath: "nodes.2.props.items.1.nodes.0" },
+        target: { kind: "node", nodePath: "nodes.2.children.1" },
         body: "Tab B comment.",
       },
     ]
     const output = formatArtifactForAI(baseSpec, { comments })
-    assert.match(output, /1\. \(lines 83-91\) Feedback on: "Tab A node"/)
-    assert.match(output, /2\. \(lines 98-103\) Feedback on: "Tab B node"/)
+    assert.match(output, /1\. \(lines 80-88\) Feedback on: "Column A node"/)
+    assert.match(output, /2\. \(lines 89-94\) Feedback on: "Column B node"/)
   })
 
-  it("uses the correct line ranges for accordion items", () => {
+  it("uses the correct line ranges for details children", () => {
     const comments: AIColabComment[] = [
       {
         id: "c1",
-        target: { kind: "node", nodePath: "nodes.3.props.items.0.nodes.0" },
+        target: { kind: "node", nodePath: "nodes.3.children.0" },
         body: "Accordion item comment.",
       },
     ]
     const output = formatArtifactForAI(baseSpec, { comments })
-    assert.match(output, /1\. \(lines 116-124\) Feedback on: "Accordion item 1 node"/)
+    assert.match(output, /1\. \(lines 103-111\) Feedback on: "Details item 1 node"/)
   })
 
   it("prefixes every line of a multi-line comment body with |", () => {
@@ -261,7 +238,7 @@ describe("formatArtifactForAI", () => {
       title: 'Has "quotes"',
       layout: { type: "default" },
       nodes: [
-        { type: "text", props: { text: 'Also has "quotes"' }, metadata: { id: "text-1" } },
+        { type: "prose", props: { content: 'Also has "quotes"' }, metadata: { id: "text-1" } },
       ],
     }) satisfies VisualArtifactSpec
     const comments: AIColabComment[] = [
