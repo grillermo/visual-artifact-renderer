@@ -7,8 +7,8 @@ export type Hunk = { oldStart: number; oldLines: number; newStart: number; newLi
 export type DiffFile = { oldPath: string; newPath: string; hunks: Hunk[] }
 export type Token = { content: string; color?: string; fontStyle?: number }
 export const splitLines = (text: string) => text.replace(/\r\n/g, "\n").replace(/\n$/, "").split("\n")
-export function parseUnifiedDiff(content: string): DiffFile {
-  let oldPath = "", newPath = "", oldLine = 1, newLine = 1
+export function parseUnifiedDiff(content: string, startLine = 1): DiffFile {
+  let oldPath = "", newPath = "", oldLine = startLine, newLine = startLine
   const hunks: Hunk[] = []
   let hunk: Hunk | undefined
   for (const raw of splitLines(content)) {
@@ -21,7 +21,7 @@ export function parseUnifiedDiff(content: string): DiffFile {
     if (raw.startsWith("--- ")) { oldPath = raw.slice(4).split("\t")[0]; continue }
     if (raw.startsWith("+++ ")) { newPath = raw.slice(4).split("\t")[0]; continue }
     if (raw.startsWith("diff --git") || raw.startsWith("index ") || raw.startsWith("\\ No newline")) continue
-    if (!hunk) { hunk = { oldStart: 1, oldLines: 0, newStart: 1, newLines: 0, lines: [] }; hunks.push(hunk) }
+    if (!hunk) { hunk = { oldStart: startLine, oldLines: 0, newStart: startLine, newLines: 0, lines: [] }; hunks.push(hunk) }
     const type = raw.startsWith("+") ? "add" : raw.startsWith("-") ? "remove" : "context"
     hunk.lines.push({ type, value: /^[+ -]/.test(raw) ? raw.slice(1) : raw, oldLine: type === "add" ? undefined : oldLine++, newLine: type === "remove" ? undefined : newLine++ })
   }
@@ -70,11 +70,12 @@ export function pairLines(input: readonly DiffLine[]): SplitRow[] {
       if (row.type === "remove") old.push(row); else next.push(row)
     }
     const matches = new Map<number,number>(), used = new Set<number>()
+    let lastMatch = -1
     old.forEach((row,a) => {
       if (old.length === next.length) { matches.set(a,a); used.add(a); return }
       let best = -1, score = .4
-      next.forEach((candidate,b) => { const s = similarity(row.value,candidate.value); if (!used.has(b) && s >= score) { score=s; best=b } })
-      if (best >= 0) { matches.set(a,best); used.add(best) }
+      next.forEach((candidate,b) => { const s = similarity(row.value,candidate.value); if (b > lastMatch && !used.has(b) && s >= score) { score=s; best=b } })
+      if (best >= 0) { matches.set(a,best); used.add(best); lastMatch=best }
     })
     let cursor = 0
     old.forEach((row,a) => {

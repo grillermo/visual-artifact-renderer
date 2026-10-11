@@ -6,6 +6,12 @@ test("hunks carry actual old/new line numbers", () => {
   const rows = parseUnifiedDiff("@@ -40,2 +51,2 @@\n old\n-old()\n+new()").hunks[0].lines
   assert.deepEqual(rows.map(r=>[r.oldLine,r.newLine]), [[40,51],[41,undefined],[undefined,52]])
 })
+test("unequal reordered runs preserve every old and new line", () => {
+  const rows=pairLines(compareLines("const a = 1\nconst b = 2", "const b = 3\nconst a = 4\nother"))
+  assert.deepEqual(rows.flatMap(r=>r.new?[r.new.newLine]:[]),[1,2,3])
+  assert.deepEqual(rows.flatMap(r=>r.old?[r.old.oldLine]:[]),[1,2])
+  assert.equal(parseUnifiedDiff("-old\n+new",40).hunks[0].lines[1].newLine,40)
+})
 test("CRLF and trailing newline produce no phantom row", () => { assert.deepEqual(splitLines("a\r\nb\r\n"),["a","b"]); assert.equal(compareLines("a\n","b\n").length,2) })
 test("equal change runs pair by index", () => { const rows=pairLines(compareLines("a\nb","c\nd")); assert.equal(rows.length,2); assert.ok(rows.every(r=>r.paired)) })
 test("unequal runs pair similar lines and leave unrelated lines alone", () => {

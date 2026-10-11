@@ -38,7 +38,7 @@ export function Walkthrough({title,files,steps,caption}:WalkthroughProps) {
       return <li key={i} ref={el=>{refs.current[i]=el}} data-walkthrough-step={i} data-active={active===i||undefined}>
         <button type="button" className="va-walkthrough-step-title" onClick={()=>activate(i)} aria-current={active===i?"step":undefined}>{pin(i,active===i?"idea":step.tone)}<span className="text-row-title font-medium">{step.title}</span></button>
         {step.body && <Prose className="mt-2 text-small text-ink-muted [&>p]:my-0">{step.body}</Prose>}
-        {!wide && <div className="mt-4"><CodeView {...excerpt} file={source.path} language={source.language} activeRange={[first,last]} focusText={step.text} caption={`Lines ${excerpt.startLine}–${excerpt.startLine+excerpt.code.split("\n").length-1} of ${excerpt.total} (${source.path})`}/></div>}
+        {!wide && <div className="mt-4"><CodeView {...excerpt} file={source.path} language={source.language} activeRange={[first,last]} focusText={step.text} focusNumber={i+1} caption={`Lines ${excerpt.startLine}–${excerpt.startLine+excerpt.code.split("\n").length-1} of ${excerpt.total} (${source.path})`}/></div>}
       </li>
     })}</ol>
     {wide && <div ref={pane} className="va-walkthrough-pane" tabIndex={0} role="region" aria-label="Walkthrough source" onKeyDown={event=>{
@@ -46,7 +46,7 @@ export function Walkthrough({title,files,steps,caption}:WalkthroughProps) {
       if(["ArrowDown","j","ArrowUp","k"].includes(event.key)){event.preventDefault();activate(active+(["ArrowDown","j"].includes(event.key)?1:-1),true)}
     }}>
       <div className="va-walkthrough-pager"><span className="text-meta text-ink-muted" aria-live="polite">Step {active+1} of {steps.length}</span><button type="button" disabled={active===0} aria-label="Previous walkthrough step" onClick={()=>activate(active-1)}>‹</button><button type="button" disabled={active===steps.length-1} aria-label="Next walkthrough step" onClick={()=>activate(active+1)}>›</button></div>
-      <CodeView {...file} file={file.path} activeRange={[range[0],end]} focusText={step.text} annotations={steps.flatMap((other,i)=>i!==active&&(other.file??files[0].path)===file.path?[{line:Number(other.lines.split("-")[0]),title:`Step ${i+1}: ${other.title}`,tone:"info" as const,side:other.side}]:[])}/>
+      <CodeView {...file} file={file.path} activeRange={[range[0],end]} focusText={step.text} focusNumber={active+1} pinOnly routePins={steps.flatMap((other,i)=>i!==active&&(other.file??files[0].path)===file.path?[{line:Number(other.lines.split("-")[0]),title:`Step ${i+1}: ${other.title}`,n:i+1,tone:"info" as const,side:other.side}]:[])}/>
     </div>}
     </div>
     {!wide && files.map(file=><details key={file.path} className="mt-4 border-t border-rule py-3"><summary className="cursor-pointer text-small">Show full file: {file.path}</summary><CodeView {...file} file={file.path}/></details>)}
