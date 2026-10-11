@@ -436,8 +436,8 @@ export const artifactManifest = {
   },
   "claim": {
     type: "claim",
-    description: "One numbered plan claim inside a claim-tree or claim (max 3 levels). Children order: one exhibit, then at most one decision or callout, then child claims. aux \"shared\" renders ✱, \"scope\" renders –. ref links to a call-stack row id.",
-    props: { text: "string ≤280", aux: '"shared" | "scope"?', ref: "call-stack row id?", open: "boolean?" },
+    description: "One numbered plan claim inside a claim-tree or claim (max 3 levels). Children order: one exhibit, then at most one decision or callout, then child claims. aux \"shared\" renders ✱, \"scope\" renders –.",
+    props: { text: "string ≤280", aux: '"shared" | "scope"?', open: "boolean?" },
     children: "nodes",
     example: { type: "claim", props: { text: "A worker claims due messages once a minute." }, children: [{ type: "prose", props: { content: "Exhibit." } }] },
   },

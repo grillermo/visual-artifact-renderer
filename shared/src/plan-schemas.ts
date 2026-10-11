@@ -106,7 +106,7 @@ export const CallStackPropsSchema = z
   })
 export type CallStackProps = z.infer<typeof CallStackPropsSchema>
 
-/** Row ids declared by a call-stack's object rows (for claim.ref). */
+/** Row ids in historical call objects; used by migration tooling only. */
 export function callStackRowIds(props: { rows: readonly unknown[] }): string[] {
   return props.rows.flatMap((row) =>
     row && typeof row === "object" && typeof (row as { id?: unknown }).id === "string" ? [(row as { id: string }).id] : [],
@@ -464,7 +464,6 @@ export const ClaimPropsSchema = z
   .object({
     text: ShortLabel(280),
     aux: z.enum(["shared", "scope"]).optional(),
-    ref: PlanIdSchema.optional(),
     open: z.boolean().optional(),
   })
   .strict()
@@ -516,19 +515,13 @@ function collectIds(nodes: readonly LooseNode[]): string[] {
 }
 
 export function lintPlanSpec(nodes: readonly LooseNode[], ctx: Ctx) {
-  const callRowIds = new Set<string>()
   const decisionPaths = new Map<string, string>()
   let decisionCount = 0
   let treeCount = 0
-  const claimRefs: { ref: string; path: (string | number)[] }[] = []
 
   walkPlanNodes(nodes, ({ node, path, parent, ancestors }) => {
     const props = (node.props ?? {}) as Record<string, unknown>
     const where = path.join(".")
-
-    if (node.type === "call-stack" && Array.isArray(props.rows)) {
-      for (const id of callStackRowIds(props as { rows: unknown[] })) callRowIds.add(id)
-    }
 
     if (node.type === "decision" && typeof props.id === "string") {
       decisionCount++
@@ -568,7 +561,6 @@ export function lintPlanSpec(nodes: readonly LooseNode[], ctx: Ctx) {
           }
         }
       }
-      if (typeof props.ref === "string") claimRefs.push({ ref: props.ref, path: [...path, "props", "ref"] })
     }
 
     if (node.type === "wireframe") {
@@ -630,9 +622,6 @@ export function lintPlanSpec(nodes: readonly LooseNode[], ctx: Ctx) {
     }
   })
 
-  for (const { ref, path } of claimRefs) {
-    if (!callRowIds.has(ref)) report(ctx, path, `claim ref "${ref}" matches no call-stack row id`)
-  }
 }
 
 // ---------------------------------------------------------------------------

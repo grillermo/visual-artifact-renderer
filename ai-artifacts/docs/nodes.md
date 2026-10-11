@@ -735,13 +735,12 @@ Children: nodes
 
 ### `claim`
 
-One numbered plan claim inside a claim-tree or claim (max 3 levels). Children order: one exhibit, then at most one decision or callout, then child claims. aux "shared" renders ✱, "scope" renders –. ref links to a call-stack row id.
+One numbered plan claim inside a claim-tree or claim (max 3 levels). Children order: one exhibit, then at most one decision or callout, then child claims. aux "shared" renders ✱, "scope" renders –.
 
 | Prop | Type |
 |---|---|
 | `text` | string ≤280 |
 | `aux` | "shared" \| "scope"? |
-| `ref` | call-stack row id? |
 | `open` | boolean? |
 
 Children: nodes

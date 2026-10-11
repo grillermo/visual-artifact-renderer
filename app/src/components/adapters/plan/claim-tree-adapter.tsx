@@ -194,15 +194,6 @@ function Claim({ node, children, nodePath }: AdapterArgs<"claim">) {
             </span>
           )}
         </button>
-        {node.props.ref && (
-          <a
-            href={`#cs-row-${node.props.ref}`}
-            className="hidden shrink-0 rounded px-1.5 py-1 font-mono text-xs text-muted-foreground hover:bg-muted hover:text-foreground sm:inline"
-            aria-label={`Claim ${label} in call stack`}
-          >
-            ↗ call stack
-          </a>
-        )}
       </div>
       <div id={`${anchor}-body`} hidden={!open} className="space-y-3 pb-3 pl-3 pr-2 sm:pl-9 sm:pr-3">
         {children as ReactNode}

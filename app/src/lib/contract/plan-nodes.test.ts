@@ -202,12 +202,12 @@ describe("plan structure lints", () => {
     assert.ok(messages.some((m) => /needs a mockup with frame "terminal"/.test(m)))
   })
 
-  it("checks claim refs against call-stack row ids", () => {
+  it("rejects obsolete claim refs to removed call-stack rows", () => {
     const messages = issues({
       type: "claim-tree",
       children: [{ type: "claim", props: { text: "x", ref: "missing" }, children: [exhibit] }],
     })
-    assert.ok(messages.some((m) => /claim ref "missing"/.test(m)))
+    assert.ok(messages.some((m) => /Unrecognized key.*ref/.test(m)))
   })
 
   it("checks code-block annotations and file-tree notes", () => {
