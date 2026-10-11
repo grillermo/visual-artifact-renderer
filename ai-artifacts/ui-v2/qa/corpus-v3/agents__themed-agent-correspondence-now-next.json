@@ -1,0 +1,441 @@
+{
+  "slug": "agents-themed-agent-correspondence-now-next",
+  "title": "Themed agent correspondence: now vs next",
+  "artifactType": "comparison",
+  "topics": [
+    "themed-agents",
+    "correspondence",
+    "named-agents",
+    "call-home"
+  ],
+  "nodes": [
+    {
+      "type": "callout",
+      "props": {
+        "tone": "note",
+        "body": "Keep exact replies, one slot, and empty-editor admission. Next: any named agent can message any named agent. Then optional call-home to Main Pi. Never inject into a Herdr pane.",
+        "title": "Build named colleagues, not a mesh of tabs"
+      }
+    },
+    {
+      "type": "figures",
+      "props": {
+        "items": [
+          {
+            "value": "Jack, Shanon",
+            "label": "Named inboxes now",
+            "note": "Address is identity. A pane is not.",
+            "signal": "new"
+          },
+          {
+            "value": 3,
+            "label": "Live paths",
+            "note": "Hash-address, exact reply, team_delegate",
+            "signal": "new"
+          },
+          {
+            "value": "1 slot",
+            "label": "Hard limits",
+            "note": "Idle, empty editor, forks lose authority",
+            "signal": "wait"
+          },
+          {
+            "value": "2 yes, 1 no",
+            "label": "Next builds",
+            "note": "Peer send, call-home, never panes"
+          }
+        ]
+      }
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Now",
+        "deck": "Correspondence is named, exact, and capacity-limited. Herdr only places the process."
+      },
+      "children": [
+        {
+          "type": "mermaid",
+          "props": {
+            "height": 640,
+            "caption": "Current shape: You and Main Pi sit in the hub. Named agents reply into one exact request. Random panes are not inboxes.",
+            "code": "flowchart TB\n  subgraph people [Named identities]\n    you[You]\n    main[Main Pi]\n    jack[Jack]\n    shanon[Shanon]\n  end\n  subgraph layout [Not an inbox]\n    pane[Random Herdr pane]\n    fork[Forked or copied session]\n  end\n  you -->|\"#jack message\"| main\n  you -->|\"#shanon message\"| main\n  main -->|addressed request| jack\n  main -->|addressed request| shanon\n  jack -->|reply_to_sender exact slot| main\n  shanon -->|reply_to_sender exact slot| main\n  main -->|team_delegate named teammate| jack\n  main -->|team_delegate named teammate| shanon\n  jack -.->|blocked| pane\n  shanon -.->|blocked| pane\n  jack -.->|blocked| fork\n  shanon -.->|blocked| fork"
+          }
+        },
+        {
+          "type": "mermaid",
+          "props": {
+            "height": 560,
+            "caption": "One addressed request. The reply lock is the same message, same endpoint, and same process. When that slot is gone, there is no later inbox.",
+            "code": "sequenceDiagram\n  actor You\n  participant Main as Main Pi\n  participant Shanon\n  participant Jack\n  participant Pane as Other Herdr session\n  You->>Main: #shanon do the work\n  Main->>Shanon: exact addressed request\n  Note over Shanon: same message, endpoint, process\n  Shanon->>Main: reply_to_sender\n  Note over Main,Shanon: slot closes\n  You->>Pane: later, a different tab\n  Shanon-->>Pane: blocked, cannot inject a reply\n  You->>Shanon: ask for a named send\n  Shanon->>Jack: team_delegate by address"
+          }
+        },
+        {
+          "type": "ledger",
+          "props": {
+            "dataKey": "qa-currentPaths-1-1",
+            "titleKey": "path",
+            "bodyKey": "notes",
+            "groupKey": "status",
+            "signals": {
+              "pass": "done"
+            },
+            "metaKey": "layer",
+            "caption": "Green paths are the product. Red paths are the wall Shanon already hit."
+          }
+        },
+        {
+          "type": "ledger",
+          "props": {
+            "dataKey": "qa-currentPaths-2-1",
+            "titleKey": "path",
+            "bodyKey": "notes",
+            "groupKey": "status",
+            "signals": {
+              "warn": "wait"
+            },
+            "metaKey": "layer"
+          }
+        },
+        {
+          "type": "ledger",
+          "props": {
+            "dataKey": "qa-currentPaths-3-1",
+            "titleKey": "path",
+            "bodyKey": "notes",
+            "groupKey": "status",
+            "signals": {
+              "fail": "risk"
+            },
+            "metaKey": "layer"
+          }
+        },
+        {
+          "type": "table",
+          "props": {
+            "dataKey": "tools",
+            "columns": [
+              "tool",
+              "who",
+              "does",
+              "doesNot"
+            ],
+            "caption": "Each tool has one job. None of them select a Herdr pane as the destination."
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Next",
+        "deck": "Three possible builds, in order. The first two are named correspondence. The third is a refusal."
+      },
+      "children": [
+        {
+          "type": "checklist",
+          "props": {
+            "items": [
+              {
+                "text": "Any named agent to any named agent",
+                "state": "doing",
+                "note": "current · Shanon can send to Jack by address, and Jack can send back, without Main Pi as the only hub."
+              },
+              {
+                "text": "Optional call-home",
+                "state": "todo",
+                "note": "pending · An agent can post one named message to the Main Pi conversation that owns it."
+              },
+              {
+                "text": "Never arbitrary Herdr sessions",
+                "state": "todo",
+                "note": "pending · If you want a reply in another tab, send from that caller. Do not build pane injection."
+              }
+            ]
+          }
+        },
+        {
+          "type": "prose",
+          "props": {
+            "content": "### Build order"
+          }
+        },
+        {
+          "type": "steps",
+          "props": {
+            "items": [
+              {
+                "title": "Named peer send",
+                "body": "Any persistent named agent to any other by address",
+                "tag": "Build · ok",
+                "key": true
+              },
+              {
+                "title": "Call home",
+                "body": "Optional send to the owning Main Pi chat",
+                "tag": "Build later · running"
+              },
+              {
+                "title": "Pane injection",
+                "body": "w62:p13 and random JSONL files are not inboxes",
+                "tag": "Do not build · failed"
+              }
+            ],
+            "caption": "Peer named send first. Call-home second. Pane injection stays out."
+          }
+        },
+        {
+          "type": "mermaid",
+          "props": {
+            "height": 620,
+            "caption": "Intended next shape: a small named team. Optional call-home to Main Pi. No routes into panes.",
+            "code": "flowchart TB\n  subgraph team [Named team]\n    jack[Jack]\n    shanon[Shanon]\n    review[Future reviewer]\n  end\n  subgraph home [Owning conversation]\n    you[You]\n    main[Main Pi]\n  end\n  pane[Random Herdr pane]\n  jack <-->|address| shanon\n  shanon <-->|address| review\n  jack <-->|address| review\n  shanon -->|call home| main\n  jack -->|call home| main\n  you -->|hash address| main\n  main -->|addressed request| shanon\n  shanon -->|exact reply| main\n  shanon -.->|still blocked| pane\n  jack -.->|still blocked| pane"
+          }
+        },
+        {
+          "type": "table",
+          "props": {
+            "dataKey": "nowNext",
+            "columns": [
+              "item",
+              "now",
+              "next",
+              "verdict"
+            ],
+            "statusKey": "verdict",
+            "caption": "Keep the locks. Build the two named paths. Reject pane injection."
+          }
+        }
+      ]
+    },
+    {
+      "type": "details",
+      "props": {
+        "summary": "Admission rules worth keeping"
+      },
+      "children": [
+        {
+          "type": "prose",
+          "props": {
+            "content": "A target admits only when authenticated, idle, unblocked, and its editor is empty. Waiting requests recheck after native editor input, idle, UI-unblock, or cooperating unblock. They never overwrite a draft.\n\nThere is one external slot, not a queue. A receipt means durable acceptance, not successful work. `message_start` is processing. `agent_settled` releases the slot. A turn may settle without an addressed reply."
+          }
+        }
+      ]
+    },
+    {
+      "type": "details",
+      "props": {
+        "summary": "Why Herdr is the wrong bus"
+      },
+      "children": [
+        {
+          "type": "prose",
+          "props": {
+            "content": "Herdr owns workspaces, tabs, and panes. It can start a named agent in a shell pane and prompt that occupant. That is driving another process, not speaking as Shanon inside it.\n\nPane IDs change when a pane moves. Closed IDs are not reused. A session file can be forked, copied, or compacted. None of those are stable inboxes. Named agent address is."
+          }
+        }
+      ]
+    },
+    {
+      "type": "details",
+      "props": {
+        "summary": "Call-home is not pane injection"
+      },
+      "children": [
+        {
+          "type": "prose",
+          "props": {
+            "content": "Call-home still uses named correspondence: Shanon sends to the one Main Pi conversation that owns him. Same idle and empty-editor rules. Same one-slot default.\n\nIt is not \"post into whatever tab I was looking at.\" If that home conversation is busy or the editor has a draft, the send waits or fails visibly."
+          }
+        }
+      ]
+    }
+  ],
+  "data": {
+    "currentPaths": [
+      {
+        "path": "You address #jack or #shanon",
+        "status": "pass",
+        "notes": "Main Pi sends the exact text after one separator. No extra caller-model turn.",
+        "layer": "named address"
+      },
+      {
+        "path": "Exact reply_to_sender",
+        "status": "pass",
+        "notes": "Same message, same endpoint, same process. Final text can also be captured from that span.",
+        "layer": "inbound slot"
+      },
+      {
+        "path": "team_delegate to a named teammate",
+        "status": "pass",
+        "notes": "Plain text sends immediately. One reply joins the caller once, as information.",
+        "layer": "named teammate"
+      },
+      {
+        "path": "Second send while busy",
+        "status": "warn",
+        "notes": "One external slot. Busy rejects and keeps the caller draft.",
+        "layer": "capacity"
+      },
+      {
+        "path": "Reply after the slot closes",
+        "status": "fail",
+        "notes": "There is no inbox. A later independent reply cannot bind.",
+        "layer": "inbound slot"
+      },
+      {
+        "path": "Inject into another Herdr pane",
+        "status": "fail",
+        "notes": "Herdr is layout and launch. It is not a mailbox.",
+        "layer": "wrong identity"
+      },
+      {
+        "path": "Reply from a fork or copied session",
+        "status": "fail",
+        "notes": "Forks and copied session IDs do not inherit reply authority.",
+        "layer": "conversation identity"
+      },
+      {
+        "path": "Overwrite a nonempty editor",
+        "status": "fail",
+        "notes": "Admission needs idle, unblocked, empty editor. Drafts are preserved.",
+        "layer": "admission"
+      }
+    ],
+    "tools": [
+      {
+        "tool": "Leading #address",
+        "who": "You in Main Pi",
+        "does": "Send one exact request to a named agent",
+        "doesNot": "Open a free-running chat"
+      },
+      {
+        "tool": "reply_to_sender",
+        "who": "The addressed agent",
+        "does": "Close that one inbound request",
+        "doesNot": "Pick an arbitrary session later"
+      },
+      {
+        "tool": "team_delegate",
+        "who": "Main Pi or a themed agent",
+        "does": "Send to a named teammate",
+        "doesNot": "Target a pane ID or random JSONL"
+      },
+      {
+        "tool": "Team Replies",
+        "who": "You",
+        "does": "Search history and delivery problems",
+        "doesNot": "Act as an inbox"
+      },
+      {
+        "tool": "Herdr CLI",
+        "who": "An agent with that workflow on",
+        "does": "Prompt or inspect a pane occupant",
+        "doesNot": "Speak as that occupant"
+      }
+    ],
+    "nowNext": [
+      {
+        "item": "Who is an inbox",
+        "now": "A named persistent agent, plus the exact caller of one request",
+        "next": "Still named agents. Never panes or forks.",
+        "verdict": "pass"
+      },
+      {
+        "item": "reply_to_sender",
+        "now": "One exact inbound request: same message, endpoint, process",
+        "next": "Keep this lock. Do not loosen it.",
+        "verdict": "pass"
+      },
+      {
+        "item": "One slot, idle, empty editor",
+        "now": "Busy rejects. Drafts survive. No silent overwrite.",
+        "next": "Keep. A queue is later, only if Jack and Shanon collide.",
+        "verdict": "pass"
+      },
+      {
+        "item": "Forks and copied sessions",
+        "now": "No inherited reply authority",
+        "next": "Keep. Return to the original branch explicitly.",
+        "verdict": "pass"
+      },
+      {
+        "item": "Named agent to named agent",
+        "now": "team_delegate exists, but the live shape is still a hub through Main Pi",
+        "next": "Any persistent named agent can send to any other by address",
+        "verdict": "warn"
+      },
+      {
+        "item": "Call home",
+        "now": "An agent cannot independently post into its owning Main Pi chat",
+        "next": "Optional named send to that one home conversation",
+        "verdict": "warn"
+      },
+      {
+        "item": "Arbitrary Herdr session",
+        "now": "Blocked, and Shanon already hit this wall",
+        "next": "Leave it blocked. If you want a reply there, send from that caller.",
+        "verdict": "fail"
+      }
+    ],
+    "qa-currentPaths-1-1": [
+      {
+        "path": "You address #jack or #shanon",
+        "status": "pass",
+        "notes": "Main Pi sends the exact text after one separator. No extra caller-model turn.",
+        "layer": "named address"
+      },
+      {
+        "path": "Exact reply_to_sender",
+        "status": "pass",
+        "notes": "Same message, same endpoint, same process. Final text can also be captured from that span.",
+        "layer": "inbound slot"
+      },
+      {
+        "path": "team_delegate to a named teammate",
+        "status": "pass",
+        "notes": "Plain text sends immediately. One reply joins the caller once, as information.",
+        "layer": "named teammate"
+      }
+    ],
+    "qa-currentPaths-2-1": [
+      {
+        "path": "Second send while busy",
+        "status": "warn",
+        "notes": "One external slot. Busy rejects and keeps the caller draft.",
+        "layer": "capacity"
+      }
+    ],
+    "qa-currentPaths-3-1": [
+      {
+        "path": "Reply after the slot closes",
+        "status": "fail",
+        "notes": "There is no inbox. A later independent reply cannot bind.",
+        "layer": "inbound slot"
+      },
+      {
+        "path": "Inject into another Herdr pane",
+        "status": "fail",
+        "notes": "Herdr is layout and launch. It is not a mailbox.",
+        "layer": "wrong identity"
+      },
+      {
+        "path": "Reply from a fork or copied session",
+        "status": "fail",
+        "notes": "Forks and copied session IDs do not inherit reply authority.",
+        "layer": "conversation identity"
+      },
+      {
+        "path": "Overwrite a nonempty editor",
+        "status": "fail",
+        "notes": "Admission needs idle, unblocked, empty editor. Drafts are preserved.",
+        "layer": "admission"
+      }
+    ]
+  },
+  "description": "Current named-agent messaging, its hard limits, and the next three builds in order.",
+  "layout": {
+    "type": "default",
+    "columns": 1
+  }
+}

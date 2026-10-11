@@ -1,0 +1,492 @@
+{
+  "slug": "obsidian-vault-latticehq-multi-tenant-support-copilot",
+  "title": "LatticeHQ multi-tenant AI support copilot",
+  "description": "Detailed current-state architecture, request sequence, data ingestion, tenant controls, redaction behavior, feedback path, and known risk hotspots from the candidate exercise brief.",
+  "artifactType": "diagram",
+  "topics": [
+    "ai-support-copilot",
+    "multi-tenant-rag",
+    "tenant-isolation",
+    "system-architecture",
+    "ticket-deflection"
+  ],
+  "layout": {
+    "type": "default",
+    "columns": 1
+  },
+  "data": {
+    "stores": [
+      {
+        "store": "Vector index",
+        "inputs": "Confluence KB + public docs through scraping/indexing",
+        "retrievalRole": "Similarity search for candidate context",
+        "tenantRule": "No cross-tenant access, including embeddings/index",
+        "knownGap": "Isolation or partitioning mechanism is not shown"
+      },
+      {
+        "store": "Document store",
+        "inputs": "Confluence nightly; public docs daily",
+        "retrievalRole": "Fetch source content for ranked document IDs",
+        "tenantRule": "Tenant-eligible documents only",
+        "knownGap": "Authorization check and citation provenance are unspecified"
+      },
+      {
+        "store": "Ticket summary store",
+        "inputs": "Offline summaries of last 20 Zendesk tickets per tenant",
+        "retrievalRole": "Optional support-history context",
+        "tenantRule": "Per-tenant; prohibited in regulated redaction mode",
+        "knownGap": "Redaction enforcement point is unspecified"
+      },
+      {
+        "store": "Feedback DB",
+        "inputs": "Thumbs up/down + optional user note",
+        "retrievalRole": "None in the current release path",
+        "tenantRule": "Feedback must remain attributable to the correct tenant/session",
+        "knownGap": "Captured feedback is not used for evaluation or release gating"
+      }
+    ],
+    "controls": [
+      {
+        "control": "Request identity",
+        "currentSignal": "copilot-api authenticates and resolves the tenant",
+        "requiredBehavior": "Bind every request to the authenticated tenant",
+        "gap": "The brief does not show how the supplied tenant_id is validated against identity",
+        "status": "risk"
+      },
+      {
+        "control": "Retrieval scope",
+        "currentSignal": "Retriever queries index, documents, and optional ticket summaries",
+        "requiredBehavior": "Apply tenant scope before similarity search and every store read",
+        "gap": "Filtering or namespacing mechanism is not described",
+        "status": "risk"
+      },
+      {
+        "control": "Embedding/index isolation",
+        "currentSignal": "Architecture shows one logical Vector Index node",
+        "requiredBehavior": "No cross-tenant access even inside embeddings/index",
+        "gap": "Physical partitions, namespaces, ACLs, and tests are not shown",
+        "status": "fail"
+      },
+      {
+        "control": "Regulated-tenant redaction",
+        "currentSignal": "Redaction mode forbids ticket snippets",
+        "requiredBehavior": "Skip ticket-summary retrieval and prevent snippets entering prompts",
+        "gap": "Mode propagation and enforcement evidence are not shown",
+        "status": "warn"
+      },
+      {
+        "control": "Citation integrity",
+        "currentSignal": "Responses include citations",
+        "requiredBehavior": "Every citation must belong to the resolved tenant and retrieved context",
+        "gap": "A response once cited another tenant's KB article ID; root cause unknown",
+        "status": "fail"
+      },
+      {
+        "control": "Decision auditability",
+        "currentSignal": "Logs exist",
+        "requiredBehavior": "Trace tenant, query, retrieved IDs, scores, policy decisions, prompt size, model, citations, and outcome",
+        "gap": "Logs are unstructured and cannot explain why an answer was produced",
+        "status": "fail"
+      },
+      {
+        "control": "Evaluation gate",
+        "currentSignal": "Thumbs-down is stored",
+        "requiredBehavior": "Use feedback and offline evaluations before releases",
+        "gap": "No evaluation gating or feedback-driven release loop exists",
+        "status": "warn"
+      }
+    ],
+    "risks": [
+      {
+        "area": "Tenant leakage",
+        "status": "fail",
+        "detail": "Foreign-tenant KB article ID appeared in one citation; root cause remains unclear.",
+        "meta": "Trust / SOC2 / enterprise blocker"
+      },
+      {
+        "area": "Grounding and citations",
+        "status": "fail",
+        "detail": "Answers sound plausible while citations are often irrelevant.",
+        "meta": "Hallucination complaint guardrail <0.5%"
+      },
+      {
+        "area": "Burst latency",
+        "status": "warn",
+        "detail": "Observed p95 reaches 3–5s during bursts.",
+        "meta": "Pilot target p95 <1.2s"
+      },
+      {
+        "area": "Context and inference cost",
+        "status": "warn",
+        "detail": "Large contexts are suspected; token use is higher than expected.",
+        "meta": "Pilot ceiling < $12k/month"
+      },
+      {
+        "area": "Observability",
+        "status": "fail",
+        "detail": "Unstructured logs cannot reconstruct retrieval and generation decisions.",
+        "meta": "Cannot answer “why did we respond this way?”"
+      },
+      {
+        "area": "Feedback dead end",
+        "status": "warn",
+        "detail": "Thumbs-down is captured but does not influence evaluation or release gating.",
+        "meta": "Learning loop is open"
+      }
+    ],
+    "qa-risks-1-1": [
+      {
+        "area": "Tenant leakage",
+        "status": "fail",
+        "detail": "Foreign-tenant KB article ID appeared in one citation; root cause remains unclear.",
+        "meta": "Trust / SOC2 / enterprise blocker",
+        "qa-ledger-body": "Foreign-tenant KB article ID appeared in one citation; root cause remains unclear.\n\nTrust / SOC2 / enterprise blocker"
+      },
+      {
+        "area": "Grounding and citations",
+        "status": "fail",
+        "detail": "Answers sound plausible while citations are often irrelevant.",
+        "meta": "Hallucination complaint guardrail <0.5%",
+        "qa-ledger-body": "Answers sound plausible while citations are often irrelevant.\n\nHallucination complaint guardrail <0.5%"
+      }
+    ],
+    "qa-risks-2-1": [
+      {
+        "area": "Burst latency",
+        "status": "warn",
+        "detail": "Observed p95 reaches 3–5s during bursts.",
+        "meta": "Pilot target p95 <1.2s",
+        "qa-ledger-body": "Observed p95 reaches 3–5s during bursts.\n\nPilot target p95 <1.2s"
+      },
+      {
+        "area": "Context and inference cost",
+        "status": "warn",
+        "detail": "Large contexts are suspected; token use is higher than expected.",
+        "meta": "Pilot ceiling < $12k/month",
+        "qa-ledger-body": "Large contexts are suspected; token use is higher than expected.\n\nPilot ceiling < $12k/month"
+      }
+    ],
+    "qa-risks-3-1": [
+      {
+        "area": "Observability",
+        "status": "fail",
+        "detail": "Unstructured logs cannot reconstruct retrieval and generation decisions.",
+        "meta": "Cannot answer “why did we respond this way?”",
+        "qa-ledger-body": "Unstructured logs cannot reconstruct retrieval and generation decisions.\n\nCannot answer “why did we respond this way?”"
+      }
+    ],
+    "qa-risks-4-1": [
+      {
+        "area": "Feedback dead end",
+        "status": "warn",
+        "detail": "Thumbs-down is captured but does not influence evaluation or release gating.",
+        "meta": "Learning loop is open",
+        "qa-ledger-body": "Thumbs-down is captured but does not influence evaluation or release gating.\n\nLearning loop is open"
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "type": "callout",
+      "props": {
+        "tone": "risk",
+        "body": "The brief requires strict tenant isolation, but it does not show the index partitioning, authorization checks, redaction enforcement, or audit trail needed to prove it. Dashed risk links mark observed or unresolved failure points.",
+        "title": "Current-state model, not a claim of proven isolation"
+      }
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Pilot outcome envelope",
+        "deck": "The architecture must move ticket deflection without breaking trust, latency, or cost guardrails."
+      },
+      "children": [
+        {
+          "type": "figures",
+          "props": {
+            "items": [
+              {
+                "value": "8% → 18%",
+                "label": "Ticket deflection",
+                "note": "6-week pilot North Star",
+                "signal": "new"
+              },
+              {
+                "value": "< 0.5%",
+                "label": "Hallucination complaints",
+                "note": "of copilot sessions",
+                "signal": "wait"
+              },
+              {
+                "value": "p95 < 1.2s",
+                "label": "Serving latency",
+                "note": "observed bursts: 3–5s",
+                "signal": "wait"
+              },
+              {
+                "value": "< $12k/mo",
+                "label": "LLM + retrieval cost",
+                "note": "during pilot"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Focused architecture views",
+        "deck": "Read these four smaller diagrams first. The complete system topology remains below as a reference."
+      },
+      "children": [
+        {
+          "type": "mermaid",
+          "props": {
+            "height": 540,
+            "caption": "1 · Online answer path — from a question to a grounded response.",
+            "code": "flowchart LR\n  U[\"Customer or support agent\"] -->|\"question + tenant_id\"| API[\"copilot-api\"]\n  API --> AUTH[\"Auth + Tenant Resolver\"]\n  AUTH -->|\"resolved tenant + policy\"| RAG[\"RAG Orchestrator\"]\n  RAG --> RET[\"Retriever\"]\n  RET -->|\"tenant-scoped search\"| KB[\"Vector Index + Doc Store\"]\n  RET -.->|\"optional when policy allows\"| TIX[\"Ticket Summary Store\"]\n  KB -->|\"eligible context\"| RET\n  TIX -.->|\"allowed summaries\"| RET\n  RET -->|\"ranked context\"| RAG\n  RAG -->|\"question + bounded context\"| LLM[\"LLM Gateway\"]\n  LLM --> RSP[\"Answer + Citations\"]\n  RSP --> U"
+          }
+        },
+        {
+          "type": "mermaid",
+          "props": {
+            "height": 560,
+            "caption": "2 · Offline data ingestion — how each source reaches its serving store.",
+            "code": "flowchart LR\n  subgraph SOURCES[\"Source systems\"]\n    CONF[\"Confluence pages\"]\n    PUBLIC[\"Public docs site\"]\n    ZD[\"Zendesk tickets\"]\n  end\n\n  subgraph DOCPIPE[\"Document pipeline\"]\n    SCRAPE[\"Scrape + normalize\nConfluence nightly · public docs daily\"]\n    DOCS[(\"Doc Store\")]\n    EMBED[\"Create embeddings\"]\n    IDX[(\"Vector Index\")]\n    SCRAPE --> DOCS\n    DOCS --> EMBED\n    EMBED --> IDX\n  end\n\n  subgraph TICKETPIPE[\"Ticket pipeline\"]\n    SUM[\"Offline summarizer\nlast 20 tickets per tenant\"]\n    TIX[(\"Ticket Summary Store\")]\n    SUM --> TIX\n  end\n\n  CONF --> SCRAPE\n  PUBLIC --> SCRAPE\n  ZD --> SUM\n\n  RULE[\"Isolation requirement\nretain tenant ownership through ingestion, storage, and embedding\"]\n  RULE -.-> DOCS\n  RULE -.-> IDX\n  RULE -.-> TIX\n  GAP[\"Unresolved: partitioning / namespacing mechanism is not shown\"] -.-> IDX"
+          }
+        },
+        {
+          "type": "mermaid",
+          "props": {
+            "height": 620,
+            "caption": "3 · Tenant isolation and redaction — the policy decision before retrieval.",
+            "code": "flowchart TB\n  REQ[\"Request\nquestion + tenant_id claim\"] --> AUTH[\"Authenticate + resolve tenant\"]\n  AUTH --> CTX[\"Trusted tenant context\n+ redaction policy\"]\n  CTX --> MODE{\"Regulated tenant?\"}\n  MODE -->|\"Yes\"| KBONLY[\"Retrieve KB + public docs only\nno ticket snippets\"]\n  MODE -->|\"No\"| FULL[\"Retrieve KB + public docs\n+ optional tenant ticket summaries\"]\n  KBONLY --> SCOPE[\"Requirement: every lookup stays inside resolved tenant\"]\n  FULL --> SCOPE\n  SCOPE --> LLM[\"Generate answer\"]\n  LLM --> CITES[\"Return answer + citations\"]\n\n  INDEXGAP[\"Risk: index isolation mechanism unspecified\"] -.-> SCOPE\n  LEAK[\"Observed: foreign-tenant article ID cited once\"] -.-> CITES\n  AUDITGAP[\"Risk: citation validation and source audit trail unspecified\"] -.-> CITES"
+          }
+        },
+        {
+          "type": "mermaid",
+          "props": {
+            "height": 540,
+            "caption": "4 · Feedback and observability — both paths currently stop before they improve or explain the system.",
+            "code": "flowchart LR\n  USER[\"Customer or support agent\"] -->|\"thumbs up/down + note\"| FAPI[\"Feedback API\"]\n  FAPI --> FDB[(\"Feedback DB\")]\n  FDB --> STOP[\"Current dead end\nfeedback stored but unused\"]\n  FDB -.->|\"missing path\"| EVAL[\"Labelled evaluation set\nnot present\"]\n  EVAL -.-> GATE[\"Release gate\nnot present\"]\n\n  SERVE[\"API · RAG · Retriever · LLM\"] --> LOGS[\"Existing unstructured logs\"]\n  LOGS --> WHY[\"Cannot reconstruct\nwhy an answer was produced\"]\n  LOGS -.->|\"missing path\"| TRACE[\"Per-answer decision trace\nnot present\"]"
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Complete system topology",
+        "deck": "Retained as the full reference view. Use zoom and pan for detail after reading the focused diagrams."
+      },
+      "children": [
+        {
+          "type": "mermaid",
+          "props": {
+            "height": 1180,
+            "caption": "Detailed current-state component map. Solid arrows are runtime or ingestion flows; dashed arrows expose risk and missing-loop relationships.",
+            "code": "flowchart TB\n  subgraph CH[\"Channels · outside service trust boundary\"]\n    CUSTOMER[\"Self-serve customer<br/>in-app widget\"]\n    AGENT[\"Support agent<br/>agent console\"]\n  end\n\n  subgraph ONLINE[\"Online serving · authenticated tenant context must govern every read\"]\n    API[\"copilot-api<br/>request entry + response\"]\n    AUTH[\"Auth + Tenant Resolver<br/>authenticate + resolve tenant\"]\n    RAG[\"RAG Orchestrator<br/>retrieval policy + prompt assembly\"]\n    MODE{\"Redaction mode<br/>regulated tenant?\"}\n    RET[\"Retriever<br/>rank tenant-eligible context\"]\n    LLM[\"LLM Gateway<br/>generate grounded answer\"]\n    RSP[\"Response + Citations<br/>return answer and source IDs\"]\n\n    API -->|\"authenticated request\"| AUTH\n    AUTH -->|\"resolved tenant + policy\"| RAG\n    RAG -->|\"retrieval request\"| MODE\n    MODE -->|\"No · KB + optional tickets\"| RET\n    MODE -->|\"Yes · KB only; no ticket snippets\"| RET\n    RET -->|\"ranked context\"| RAG\n    RAG -->|\"question + selected context\"| LLM\n    LLM -->|\"generated answer + citations\"| RSP\n    RSP --> API\n  end\n\n  CUSTOMER -->|\"question + tenant_id claim\"| API\n  AGENT -->|\"question + tenant_id claim\"| API\n  API -->|\"answer + citations\"| CUSTOMER\n  API -->|\"answer + citations\"| AGENT\n\n  subgraph SERVINGDATA[\"Serving data plane · isolation expected but implementation unspecified\"]\n    IDX[(\"Vector Index<br/>embeddings + similarity search\")]\n    DOCS[(\"Doc Store<br/>KB + public source content\")]\n    TIX[(\"Ticket Summary Store<br/>last 20 per tenant\")]\n  end\n\n  RET -->|\"tenant-scoped vector query required\"| IDX\n  RET -->|\"fetch tenant-eligible documents\"| DOCS\n  RET -.->|\"optional; forbidden in redaction mode\"| TIX\n\n  subgraph INGEST[\"Offline ingestion and freshness\"]\n    CONF[\"Confluence pages\"]\n    PUBLIC[\"Public docs site\"]\n    ZD[\"Zendesk tickets\"]\n    SCRAPE[\"Document ingestion<br/>nightly Confluence · daily public docs\"]\n    SUM[\"Offline summarizer<br/>last 20 tickets per tenant\"]\n    EMBED[\"Indexing / embedding step<br/>tenant boundary must survive ingestion\"]\n  end\n\n  CONF -->|\"nightly scrape\"| SCRAPE\n  PUBLIC -->|\"daily scrape\"| SCRAPE\n  SCRAPE --> DOCS\n  SCRAPE --> EMBED\n  EMBED --> IDX\n  ZD -->|\"per-tenant ticket window\"| SUM\n  SUM --> TIX\n\n  subgraph LOOP[\"Feedback and operations\"]\n    FAPI[\"Feedback API<br/>thumbs up/down + optional note\"]\n    FDB[(\"Feedback DB\")]\n    UNUSED[\"No evaluation gating<br/>feedback not used\"]\n    LOGS[\"Existing logs<br/>unstructured and incomplete\"]\n  end\n\n  CUSTOMER -->|\"feedback\"| FAPI\n  AGENT -->|\"feedback\"| FAPI\n  FAPI --> FDB\n  FDB -.-> UNUSED\n  RAG -.->|\"partial operational logs\"| LOGS\n\n  subgraph HOT[\"Known risk hotspots\"]\n    LEAK[\"R1 · Tenant leakage near-miss<br/>foreign KB article ID cited\"]\n    GROUND[\"R2 · Weak grounding<br/>plausible answers, irrelevant citations\"]\n    SLOW[\"R3 · Burst latency<br/>p95 observed at 3–5s\"]\n    COST[\"R4 · Oversized context<br/>unexpected token cost\"]\n    TRACE[\"R5 · Missing decision trace<br/>cannot explain why\"]\n  end\n\n  IDX -.-> LEAK\n  RET -.-> GROUND\n  LLM -.-> SLOW\n  RAG -.-> COST\n  LOGS -.-> TRACE"
+          }
+        },
+        {
+          "type": "ledger",
+          "props": {
+            "groups": [
+              {
+                "label": "Definitions",
+                "signal": "none",
+                "rows": [
+                  {
+                    "title": "Trust boundary",
+                    "body": "The tenant_id arrives as request data; Auth + Tenant Resolver must establish the tenant context that governs every downstream read."
+                  },
+                  {
+                    "title": "Redaction mode",
+                    "body": "For regulated tenants, ticket snippets are prohibited. Retrieval must skip the Ticket Summary Store before prompt assembly."
+                  },
+                  {
+                    "title": "Isolation requirement",
+                    "body": "Enterprise customers require no cross-tenant access even in embeddings or the index. The brief states the requirement but not the mechanism."
+                  },
+                  {
+                    "title": "Broken learning loop",
+                    "body": "Feedback reaches the Feedback DB, then stops. It is not used for evaluation gating or release decisions."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "One request, step by step",
+        "deck": "The logical sequence clarifies where tenant policy and redaction must constrain data access."
+      },
+      "children": [
+        {
+          "type": "mermaid",
+          "props": {
+            "height": 880,
+            "caption": "Sequence for a question, conditional ticket-summary retrieval, answer generation, citations, and feedback.",
+            "code": "sequenceDiagram\n  actor U as Customer / support agent\n  participant API as copilot-api\n  participant AUTH as Auth + Tenant Resolver\n  participant RAG as RAG Orchestrator\n  participant RET as Retriever\n  participant IDX as Vector Index\n  participant DOCS as Doc Store\n  participant TIX as Ticket Summary Store\n  participant LLM as LLM Gateway\n  participant FB as Feedback API / DB\n\n  U->>API: question + tenant_id\n  API->>AUTH: authenticate and resolve tenant\n  AUTH-->>API: tenant context + redaction mode\n  API->>RAG: question + resolved tenant policy\n  RAG->>RET: retrieve eligible context\n  RET->>IDX: tenant-scoped similarity search\n  IDX-->>RET: candidate IDs + scores\n  RET->>DOCS: fetch tenant-eligible source content\n  DOCS-->>RET: document chunks + source IDs\n  alt Standard tenant\n    RET->>TIX: optionally fetch tenant ticket summaries\n    TIX-->>RET: allowed summaries\n  else Regulated tenant · redaction mode\n    Note over RET,TIX: Ticket snippets must not be requested or enter the prompt\n  end\n  RET-->>RAG: ranked context + citations\n  RAG->>LLM: question + bounded context\n  LLM-->>RAG: answer + cited source IDs\n  RAG-->>API: response + citations\n  API-->>U: rendered answer\n  opt User gives feedback\n    U->>FB: thumbs up/down + optional note\n    Note over FB: Stored, but not used for evaluation gating\n  end"
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Stores and ingestion contracts",
+        "deck": "What each store contains, how it is refreshed, and where the brief leaves safety behavior undefined."
+      },
+      "children": [
+        {
+          "type": "table",
+          "props": {
+            "dataKey": "stores",
+            "columns": [
+              {
+                "key": "store",
+                "label": "Store"
+              },
+              {
+                "key": "inputs",
+                "label": "Inputs / freshness"
+              },
+              {
+                "key": "retrievalRole",
+                "label": "Serving role"
+              },
+              {
+                "key": "tenantRule",
+                "label": "Tenant rule"
+              },
+              {
+                "key": "knownGap",
+                "label": "Known gap"
+              }
+            ],
+            "caption": "Current data sources and their implied serving contracts."
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Tenant isolation and auditability control map",
+        "deck": "Requirements are strong; implementation evidence in the supplied overview is weak."
+      },
+      "children": [
+        {
+          "type": "table",
+          "props": {
+            "dataKey": "controls",
+            "columns": [
+              {
+                "key": "control",
+                "label": "Control"
+              },
+              {
+                "key": "currentSignal",
+                "label": "Current signal"
+              },
+              {
+                "key": "requiredBehavior",
+                "label": "Required behavior"
+              },
+              {
+                "key": "gap",
+                "label": "Unresolved gap"
+              },
+              {
+                "key": "status",
+                "label": "State"
+              }
+            ],
+            "statusKey": "status",
+            "caption": "Control-level distinction between what the brief says exists and what must still be proven."
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Risk hotspots",
+        "deck": "Observed symptoms mapped to the architecture and pilot guardrails."
+      },
+      "children": [
+        {
+          "type": "ledger",
+          "props": {
+            "dataKey": "qa-risks-1-1",
+            "titleKey": "area",
+            "bodyKey": "qa-ledger-body",
+            "groupKey": "status",
+            "signals": {
+              "fail": "risk"
+            },
+            "caption": "Known current-state risks; fail indicates a trust or evidence gap already observed."
+          }
+        },
+        {
+          "type": "ledger",
+          "props": {
+            "dataKey": "qa-risks-2-1",
+            "titleKey": "area",
+            "bodyKey": "qa-ledger-body",
+            "groupKey": "status",
+            "signals": {
+              "warn": "wait"
+            }
+          }
+        },
+        {
+          "type": "ledger",
+          "props": {
+            "dataKey": "qa-risks-3-1",
+            "titleKey": "area",
+            "bodyKey": "qa-ledger-body",
+            "groupKey": "status",
+            "signals": {
+              "fail": "risk"
+            }
+          }
+        },
+        {
+          "type": "ledger",
+          "props": {
+            "dataKey": "qa-risks-4-1",
+            "titleKey": "area",
+            "bodyKey": "qa-ledger-body",
+            "groupKey": "status",
+            "signals": {
+              "warn": "wait"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "What the overview does not establish",
+        "deck": "These are explicit unknowns, not assumed defects."
+      },
+      "children": [
+        {
+          "type": "prose",
+          "props": {
+            "content": "- Whether the request’s `tenant_id` is checked against the authenticated principal before retrieval.\n- Whether the vector index is physically partitioned, namespaced, filtered, or protected by store-level authorization.\n- Whether tenant scope is applied **before** nearest-neighbour search rather than filtering results afterwards.\n- How redaction mode is stored, propagated, tested, and enforced when ticket summaries are optional.\n- Whether cited source IDs are validated against both the retrieved context and resolved tenant before response delivery.\n- Which model, prompt version, retrieved chunks, scores, policy decisions, latency spans, and token counts are persisted per answer.\n- How feedback becomes a labelled evaluation set and a release gate.",
+            "tone": "muted"
+          }
+        }
+      ]
+    }
+  ]
+}

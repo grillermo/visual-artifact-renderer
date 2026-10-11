@@ -1,0 +1,527 @@
+{
+  "slug": "project-atlas-diagram-gallery",
+  "title": "Every diagram the renderer can draw",
+  "description": "Twelve diagram types in the redesigned visual-artifact renderer, each shown with a real example.",
+  "artifactType": "diagram",
+  "topics": [
+    "visual-artifact",
+    "diagrams",
+    "node-redesign"
+  ],
+  "data": {
+    "tests": [
+      {
+        "round": "Baseline",
+        "passing": 128
+      },
+      {
+        "round": "WP0",
+        "passing": 157
+      },
+      {
+        "round": "WP2-5",
+        "passing": 173
+      },
+      {
+        "round": "Round 3",
+        "passing": 200
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "type": "prose",
+      "props": {
+        "content": "The redesigned renderer supports twelve ways to draw a diagram. Each chapter below shows one, using real examples from this week's work. Use the editorial ones first: steps, map, story, sequence, timeline and trend. The specialised ones cover code review, state and file layout. Mermaid and the SVG sandbox are last resorts."
+      }
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "kicker": "Steps",
+        "title": "A line of steps",
+        "deck": "For a short process where order matters. 2 to 7 steps, 1 or 2 marked key."
+      },
+      "children": [
+        {
+          "type": "steps",
+          "props": {
+            "items": [
+              {
+                "title": "Session grows",
+                "body": "Context passes 70%."
+              },
+              {
+                "title": "Memory saves first",
+                "body": "OptMem stores durable facts.",
+                "tag": "New order",
+                "key": true
+              },
+              {
+                "title": "Haiku summarises",
+                "body": "Up to 24K tokens of summary."
+              },
+              {
+                "title": "Next session wakes",
+                "body": "OptMem adds the wake view."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "kicker": "Map",
+        "title": "A map of parts and flows",
+        "deck": "For how 2 to 6 parts connect. Labels never sit on a node; over the limit, split the map."
+      },
+      "children": [
+        {
+          "type": "map",
+          "props": {
+            "caption": "How a visual artifact reaches the reader.",
+            "nodes": [
+              {
+                "id": "agent",
+                "label": "Agent",
+                "sub": "writes JSON",
+                "kind": "actor"
+              },
+              {
+                "id": "cli",
+                "label": "CLI",
+                "sub": "validates",
+                "kind": "service"
+              },
+              {
+                "id": "store",
+                "label": "Artifact store",
+                "kind": "store"
+              },
+              {
+                "id": "app",
+                "label": "Renderer",
+                "sub": "Next.js adapters",
+                "kind": "service",
+                "signal": "new"
+              },
+              {
+                "id": "reader",
+                "label": "Reader",
+                "kind": "actor"
+              }
+            ],
+            "edges": [
+              "agent -> cli : spec.json",
+              "cli -> store : artifact.json",
+              "store -> app : read",
+              "app -> reader : page",
+              "cli --> agent : warnings"
+            ],
+            "layout": "row"
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "kicker": "Story",
+        "title": "A diagram that builds as you scroll",
+        "deck": "For the one flow a page exists to explain. Use at most one per page."
+      },
+      "children": [
+        {
+          "type": "story",
+          "props": {
+            "caption": "What happens when a long session compacts.",
+            "diagram": {
+              "nodes": [
+                {
+                  "id": "session",
+                  "label": "Session"
+                },
+                {
+                  "id": "memory",
+                  "label": "OptMem",
+                  "signal": "new"
+                },
+                {
+                  "id": "haiku",
+                  "label": "Haiku 5.5"
+                },
+                {
+                  "id": "opus",
+                  "label": "Opus fallback"
+                },
+                {
+                  "id": "summary",
+                  "label": "Summary"
+                }
+              ],
+              "edges": [
+                "session -> memory : flush facts",
+                "session -> haiku : transcript",
+                "haiku -> summary : writes",
+                "+ haiku -> opus : token cap",
+                "opus -> summary : writes"
+              ],
+              "layout": "row"
+            },
+            "beats": [
+              {
+                "text": "The session passes 70% of its context window.",
+                "show": [
+                  "session"
+                ]
+              },
+              {
+                "text": "Before anything is thrown away, OptMem saves the durable facts.",
+                "show": [
+                  "session",
+                  "memory"
+                ],
+                "focus": [
+                  "memory"
+                ]
+              },
+              {
+                "text": "Haiku 5.5 reads the transcript and writes the summary.",
+                "show": [
+                  "session",
+                  "memory",
+                  "haiku",
+                  "summary"
+                ],
+                "focus": [
+                  "haiku",
+                  "summary"
+                ]
+              },
+              {
+                "text": "If Haiku hits the token cap, Opus takes over.",
+                "show": [
+                  "session",
+                  "memory",
+                  "haiku",
+                  "opus",
+                  "summary"
+                ],
+                "focus": [
+                  "opus"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "kicker": "Sequence",
+        "title": "Who calls whom, in order",
+        "deck": "For a conversation between parts. At most 10 steps."
+      },
+      "children": [
+        {
+          "type": "sequence",
+          "props": {
+            "caption": "The lead hands work to a Herdr worker.",
+            "participants": [
+              {
+                "id": "lead",
+                "kind": "actor"
+              },
+              {
+                "id": "herdr"
+              },
+              {
+                "id": "worker"
+              },
+              {
+                "id": "tree",
+                "label": "worktree",
+                "kind": "store"
+              }
+            ],
+            "steps": [
+              "lead -> herdr : tab create",
+              "lead -> herdr : agent start",
+              "lead -> worker : prompt with owned files",
+              "worker -> tree : edit owned files",
+              "worker --> lead : DONE + notes",
+              "lead -> tree : review, then commit"
+            ],
+            "key": [
+              2,
+              5
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "kicker": "Timeline",
+        "title": "Dated events on a spine",
+        "deck": "For what happened when. 2 to 12 items."
+      },
+      "children": [
+        {
+          "type": "timeline",
+          "props": {
+            "items": [
+              {
+                "when": "Oct 7",
+                "title": "Pi 1.0.4 live, tidy owns all tool cards"
+              },
+              {
+                "when": "Oct 8",
+                "title": "Haiku compaction ships"
+              },
+              {
+                "when": "Oct 9",
+                "title": "Cursor cloud agents land",
+                "signal": "new"
+              },
+              {
+                "when": "Oct 10",
+                "title": "spawn-lead skill pushed"
+              },
+              {
+                "when": "Oct 11",
+                "title": "Node redesign in review",
+                "signal": "wait"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "kicker": "Trend",
+        "title": "A line over time",
+        "deck": "For a measured change. Up to 3 series, labelled at their ends, with optional marks."
+      },
+      "children": [
+        {
+          "type": "trend",
+          "props": {
+            "dataKey": "tests",
+            "x": "round",
+            "y": "passing",
+            "caption": "App tests passing through the node redesign.",
+            "mark": [
+              {
+                "x": "WP0",
+                "label": "New contract"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "kicker": "State machine",
+        "title": "States and the events between them",
+        "deck": "For anything with a lifecycle. Events are terse; a grid places states."
+      },
+      "children": [
+        {
+          "type": "state-machine",
+          "props": {
+            "initial": "briefed",
+            "states": [
+              {
+                "id": "briefed"
+              },
+              {
+                "id": "working"
+              },
+              {
+                "id": "done"
+              },
+              {
+                "id": "blocked"
+              },
+              {
+                "id": "committed",
+                "final": true
+              }
+            ],
+            "events": [
+              "briefed -start-> working",
+              "working -finish-> done : DONE + notes",
+              "working -stuck-> blocked : SCHEMA REQUEST",
+              "blocked -answer-> working",
+              "done -review-> working : next round",
+              "+ done -approve-> committed : lead only"
+            ],
+            "grid": [
+              "| briefed | working | done |",
+              "| . | blocked | committed |"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "kicker": "Call stack",
+        "title": "The code path a change touches",
+        "deck": "For reviewing or planning code. Marks show added, changed and proposed calls."
+      },
+      "children": [
+        {
+          "type": "call-stack",
+          "props": {
+            "title": "Rendering a chapter",
+            "rows": [
+              "  <VisualArtifactRenderer/> @ app/src/components/visual-artifact-renderer.tsx",
+              "~   <RailLayout/> @ app/src/components/page-rail.tsx",
+              "+     chapterIdsFromSpec() @ app/src/lib/artifacts/chapter-ids.ts",
+              "+   <ChapterAdapter/> @ app/src/components/adapters/editorial/chapter-adapter.tsx",
+              "~     useChapterRegistry() @ app/src/components/scroll-active-provider.tsx"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "kicker": "File tree",
+        "title": "Where things live",
+        "deck": "For a folder layout. Collapsible and searchable."
+      },
+      "children": [
+        {
+          "type": "file-tree",
+          "props": {
+            "items": [
+              {
+                "name": "app/src",
+                "type": "directory",
+                "children": [
+                  {
+                    "name": "components/adapters/editorial",
+                    "type": "directory",
+                    "children": [
+                      {
+                        "name": "ledger-adapter.tsx",
+                        "type": "file"
+                      },
+                      {
+                        "name": "map-adapter.tsx",
+                        "type": "file"
+                      },
+                      {
+                        "name": "story-adapter.tsx",
+                        "type": "file"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "lib/diagram",
+                    "type": "directory",
+                    "children": [
+                      {
+                        "name": "label-placement.ts",
+                        "type": "file"
+                      },
+                      {
+                        "name": "map-layout.ts",
+                        "type": "file"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "shared/src/editorial-schemas.ts",
+                "type": "file"
+              }
+            ],
+            "flattenEmpty": true,
+            "searchable": true
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "kicker": "Compare",
+        "title": "Before and after, side by side",
+        "deck": "For two options or two states. Only differing rows render."
+      },
+      "children": [
+        {
+          "type": "compare",
+          "props": {
+            "mode": "before-after",
+            "left": {
+              "label": "Before",
+              "body": "Card grids, pink status tiles, box diagrams with colliding labels."
+            },
+            "right": {
+              "label": "After",
+              "body": "Hairline rows grouped by signal, label-safe maps, chapters with one exhibit."
+            },
+            "rows": [
+              {
+                "aspect": "Status",
+                "left": "Pill in a bordered card",
+                "right": "Dot and a word"
+              },
+              {
+                "aspect": "Edge labels",
+                "left": "Centred on the midpoint",
+                "right": "Placed clear of nodes"
+              },
+              {
+                "aspect": "Words",
+                "left": "Broken mid-word",
+                "right": "Wrap whole"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "kicker": "Fallback",
+        "title": "Mermaid, when nothing else fits",
+        "deck": "Zoomable and pannable. Not a way around the map limits: split the map instead."
+      },
+      "children": [
+        {
+          "type": "mermaid",
+          "props": {
+            "caption": "How agents2 reaches each tool.",
+            "code": "flowchart LR\n  profile[Profile] --> apply[agents2 apply]\n  pins[Pins and locks] --> apply\n  apply --> pi[Pi]\n  apply --> codex[Codex]\n  apply --> claude[Claude]\n  apply --> herdr[Herdr config]\n  doctor[agents2 doctor] -.checks.-> apply"
+          }
+        }
+      ]
+    },
+    {
+      "type": "callout",
+      "props": {
+        "tone": "note",
+        "title": "Also available",
+        "body": "svg-diagram embeds a sandboxed SVG or HTML diagram for layouts the other nodes cannot draw, and execution-trace shows a source-backed run with types at each boundary. Both need large, hand-built input, so they are not shown here."
+      }
+    }
+  ]
+}

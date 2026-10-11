@@ -1,0 +1,237 @@
+[
+  {
+    "before": {
+      "project": "project-atlas",
+      "slug": "spawn-lead-workflow"
+    },
+    "after": {
+      "project": "ui-v2-samples",
+      "slug": "project-atlas-spawn-lead-workflow"
+    },
+    "title": "Spawn lead workflow",
+    "mapped": {
+      "alert": "callout",
+      "section": "chapter",
+      "box-diagram": "mermaid",
+      "sequence-diagram": "sequence",
+      "flow": "steps",
+      "definition-list": "ledger"
+    },
+    "gaps": [
+      "Box-diagram grid placement and shape/tone styling have no exact Mermaid equivalent; all node labels, connections, captions and dashed legends are retained."
+    ]
+  },
+  {
+    "before": {
+      "project": "project-atlas",
+      "slug": "diagram-gallery"
+    },
+    "after": {
+      "project": "ui-v2-samples",
+      "slug": "project-atlas-diagram-gallery"
+    },
+    "title": "Diagram gallery",
+    "mapped": {},
+    "gaps": []
+  },
+  {
+    "before": {
+      "project": "project-atlas",
+      "slug": "pi-compaction-flow"
+    },
+    "after": {
+      "project": "ui-v2-samples",
+      "slug": "project-atlas-pi-compaction-flow"
+    },
+    "title": "Pi compaction flow",
+    "mapped": {},
+    "gaps": []
+  },
+  {
+    "before": {
+      "project": "project-atlas",
+      "slug": "pi-extensions-how-it-works"
+    },
+    "after": {
+      "project": "ui-v2-samples",
+      "slug": "project-atlas-pi-extensions-how-it-works"
+    },
+    "title": "Pi extensions how it works",
+    "mapped": {},
+    "gaps": []
+  },
+  {
+    "before": {
+      "project": "node-redesign-proj",
+      "slug": "after-agents2-implementation-plan"
+    },
+    "after": {
+      "project": "ui-v2-samples",
+      "slug": "node-redesign-proj-after-agents2-implementation-plan"
+    },
+    "title": "agents2 implementation plan",
+    "mapped": {},
+    "gaps": []
+  },
+  {
+    "before": {
+      "project": "obsidian-vault",
+      "slug": "latticehq-multi-tenant-support-copilot"
+    },
+    "after": {
+      "project": "ui-v2-samples",
+      "slug": "obsidian-vault-latticehq-multi-tenant-support-copilot"
+    },
+    "title": "LatticeHQ support copilot",
+    "mapped": {
+      "alert": "callout",
+      "section": "chapter",
+      "grid": "figures",
+      "stat-card": "figures",
+      "definition-list": "ledger",
+      "comparison-table": "table",
+      "status-grid": "ledger"
+    },
+    "gaps": [
+      "Directional stat-card arrows have no figures equivalent; values, labels and notes are unchanged, with tone mapped to a semantic signal."
+    ]
+  },
+  {
+    "before": {
+      "project": "agents",
+      "slug": "themed-agent-correspondence-now-next"
+    },
+    "after": {
+      "project": "ui-v2-samples",
+      "slug": "agents-themed-agent-correspondence-now-next"
+    },
+    "title": "Themed agent correspondence",
+    "mapped": {
+      "alert": "callout",
+      "grid": "figures",
+      "stat-card": "figures",
+      "section": "chapter",
+      "status-grid": "ledger",
+      "stepper": "checklist",
+      "flow": "steps",
+      "comparison-table": "table",
+      "accordion": "details"
+    },
+    "gaps": []
+  },
+  {
+    "before": {
+      "project": "logview-verification-plan",
+      "slug": "logview-project-recap-2026-09-19"
+    },
+    "after": {
+      "project": "ui-v2-samples",
+      "slug": "logview-verification-plan-logview-project-recap-2026-09-19"
+    },
+    "title": "Logview project recap",
+    "mapped": {
+      "section": "chapter",
+      "grid": "figures / columns",
+      "stat-card": "figures",
+      "chart": "trend",
+      "comparison-table": "table",
+      "status-grid": "ledger",
+      "card": "prose",
+      "text": "prose",
+      "stepper": "checklist",
+      "data-table": "table",
+      "alert": "callout"
+    },
+    "gaps": [
+      "Directional stat-card arrows have no figures equivalent; values, labels and notes are unchanged, with tone mapped to a semantic signal."
+    ]
+  },
+  {
+    "before": {
+      "project": "project-atlas",
+      "slug": "var-how-it-works"
+    },
+    "after": {
+      "project": "ui-v2-samples",
+      "slug": "project-atlas-var-how-it-works"
+    },
+    "title": "VAR how it works",
+    "mapped": {
+      "section": "chapter",
+      "status-grid": "ledger",
+      "sequence-diagram": "sequence",
+      "box-diagram": "mermaid",
+      "comparison-table": "table",
+      "code-block": "code"
+    },
+    "gaps": [
+      "Box-diagram grid placement and shape/tone styling have no exact Mermaid equivalent; all node labels, connections, captions and dashed legends are retained."
+    ]
+  },
+  {
+    "before": {
+      "project": "agents2",
+      "slug": "agents2-week-2026-10-04"
+    },
+    "after": {
+      "project": "ui-v2-samples",
+      "slug": "agents2-agents2-week-2026-10-04"
+    },
+    "title": "agents2 week 2026-10-04",
+    "mapped": {
+      "section": "chapter",
+      "sequence-diagram": "sequence",
+      "grid": "columns",
+      "card": "prose",
+      "box-diagram": "mermaid",
+      "flow": "steps",
+      "comparison-table": "table",
+      "status-grid": "ledger"
+    },
+    "gaps": [
+      "Box-diagram grid placement and shape/tone styling have no exact Mermaid equivalent; all node labels, connections, captions and dashed legends are retained."
+    ]
+  },
+  {
+    "before": {
+      "project": "nice-mermaid-nvim",
+      "slug": "nice-mermaid-inline-render-pipeline"
+    },
+    "after": {
+      "project": "ui-v2-samples",
+      "slug": "nice-mermaid-nvim-nice-mermaid-inline-render-pipeline"
+    },
+    "title": "nice-mermaid inline render pipeline",
+    "mapped": {
+      "alert": "callout",
+      "section": "chapter",
+      "code-block": "code",
+      "status-grid": "ledger"
+    },
+    "gaps": []
+  },
+  {
+    "before": {
+      "project": "dotfiles",
+      "slug": "cloud-agent-box-guided-tour"
+    },
+    "after": {
+      "project": "ui-v2-samples",
+      "slug": "dotfiles-cloud-agent-box-guided-tour"
+    },
+    "title": "Cloud agent box guided tour",
+    "mapped": {
+      "grid": "figures",
+      "stat-card": "figures",
+      "section": "chapter",
+      "accordion": "details",
+      "code-block": "code",
+      "chart": "trend",
+      "definition-list": "ledger",
+      "comparison-table": "table",
+      "flow": "steps",
+      "alert": "callout"
+    },
+    "gaps": []
+  }
+]
