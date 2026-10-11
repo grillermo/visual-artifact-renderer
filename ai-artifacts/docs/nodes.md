@@ -591,31 +591,24 @@ A question for the reader; options render as rows (radio ring, label, consequenc
 
 ### `code`
 
-Syntax-highlighted code on a flat surface, with title above. Use for commands, config and env contracts. Set diff: true for +/- lines.
+Use annotated `code` for explained source, commands, config and diffs. The header sits above a flat source surface. Each side is capped at 400 lines and 24 KB.
 
 | Prop | Type |
 |---|---|
-| `title` | string? |
-| `language` | string? |
-| `code` | string |
-| `caption` | string? |
-| `lineNumbers` | boolean? |
-| `startLine` | number? |
-| `highlight` | (number \| "a-b")[]? |
-| `annotations` | { line, title ≤80, body? ≤280, tone? }[]? — max 12 |
-| `diff` | boolean? — lines start with "+ ", "- ", "  " or "@@" |
-| `sketch` | boolean? |
-| `src` | "path:12-30"? — create inlines the range |
+| `title`, `file`, `language`, `caption` | optional strings; file ≤200 |
+| `code` or `src` | exactly one source form, or use before + after |
+| `before`, `after` | optional strings, both required for a comparison |
+| `lineNumbers`, `startLine`, `highlight` | optional boolean, number, and line/range array |
+| `annotations` | up to 12 `{ line, end?, title ≤80, body? ≤400, tone?, text? ≤80, side? }` |
+| `diff`, `diffMode` | unified patch boolean; mode `unified` or `split` |
+| `sketch` | optional illustrative-code flag |
+
+Annotation `end` is inclusive and must be at least `line`. Ranges cannot overlap on the same side. `text` must exist on the start line. `side` is `old` or `new`, only for diffs. Diff notes allow `info`, `risk` and `idea`, never green `ok`.
+
+Split falls back to unified below 720px container width or when p90 line length exceeds 70 columns. At 900px, notes align beside their source with measured collision placement and connectors. Narrow notes appear after their range. Shell recipes without notes hide line numbers and copy without `$ ` prompts.
 
 ```json
-{
-  "type": "code",
-  "props": {
-    "title": "Smoke release",
-    "language": "bash",
-    "code": "pnpm export:contract\npnpm verify:artifacts"
-  }
-}
+{"type":"code","props":{"file":"src/cache.ts","language":"typescript","code":"const cache = new Map()\ncache.clear()","annotations":[{"line":1,"end":2,"title":"Bound cache lifetime","text":"new Map()","tone":"idea"}]}}
 ```
 
 ### `trend`
@@ -770,30 +763,22 @@ Children: nodes
 }
 ```
 
-### `call-stack`
+### `walkthrough`
 
-Annotated call stack. Terse rows: column 0 is a mark (+ added, - removed, ~ changed, ? proposed, space context), column 1 a space, the call from column 2; indent 2 spaces per depth. End with " @ path/file.ts:12" and " -- note". Use **bold** for the focus call. Object rows add id, kind and an inline excerpt shown on click.
+An ordered route through source, with a following code pane on wide containers and per-step excerpts on narrow ones. This replaces sequences of unconnected code captions.
 
 | Prop | Type |
 |---|---|
-| `title` | string? |
-| `caption` | string? |
-| `rows` | (string \| { call, depth, mark?, at?, note?, kind?: "call"\|"ui"\|"net"\|"cond"\|"io"\|"gap", id?, excerpt?: { code, language?, startLine? } })[] ≤60 |
-| `repo` | { name, ref?, baseUrl? (https) }? — links locations |
-| `initialRow` | number? |
+| `title`, `caption` | optional strings |
+| `files` | 1 to 4 `{ path, language?, code? or src? or before+after, startLine?, diff? }` |
+| `steps` | 2 to 8 `{ file?, lines, title, body?, tone?, text?, side? }` |
+
+Every step names its `file` when several files are present. `lines` is `n` or `a-b` and must exist in the file. Notes share code annotation bounds and tones. The CLI inlines each project-contained `src` and validates step ranges again.
+
+At 720px container width the steps sit beside a sticky source pane. The active range is tinted; other source recedes. Buttons and ArrowUp/ArrowDown or j/k move steps when the pane has focus. Narrow screens show each step's range with three context lines, a pinned horizontal step list and full-file disclosures. Reduced motion is instant.
 
 ```json
-{
-  "type": "call-stack",
-  "props": {
-    "title": "The list",
-    "rows": [
-      "~ <Sidebar/> @ web/src/nav/Sidebar.tsx:30",
-      "+   <ScheduledFolder/> @ web/src/scheduled/ScheduledFolder.tsx:14",
-      "+     GET /api/scheduled @ web/src/api/scheduled.ts:21"
-    ]
-  }
-}
+{"type":"walkthrough","props":{"files":[{"path":"src/cache.ts","code":"const cache = new Map()\ncache.clear()"}],"steps":[{"lines":"1","title":"Track the work"},{"lines":"2","title":"Release settled work"}]}}
 ```
 
 ### `state-machine`
@@ -913,6 +898,8 @@ Low-fidelity UI primitive, only inside a mockup. prompt/output need a terminal f
 ```
 
 ### `execution-trace`
+
+The header and boundary bar span the full content width. At 960px container width, a 24rem wrapping frame list sits beside source; the inspector spans both columns and omits empty sections. Below that width, the call stack is a closed disclosure and source gets full width. Source uses the same code view, focus tint and underline as `code`. Frame order, kind glyphs, depth guides and `aria-current` identify selection without color alone.
 
 Source-backed call stack for planning or reviewing code changes, especially API surfaces: interfaces, types, transformations, and boundaries. JavaScript-family and Ruby adapters normalize ast-grep facts into one shared trace contract. Select ordered file spans, run `visual-artifact trace inspect` for canonical focus/scope facts, then add narrative context. Create-time verification rejects stale or edited code identity.
 
@@ -1152,7 +1139,8 @@ Contract 3.0.0 rejects every type below, including inside children. Older bundle
 |---|---|
 | `alert` | use callout: Use callout (tone: note, risk, new, wait). |
 | `definition-list` | use ledger: Term on the left, text on the right is a ledger row. |
-| `diff` | use code: Use code with diff: true and lines starting '+ ', '- ', '  '. |
+| `diff` | use `code` with `before` and `after`, or `diff: true` for a unified patch |
+| `call-stack` | use `walkthrough` for source steps, `execution-trace` for verified boundaries |
 | `donut-chart` | use figures: Donut charts mislead. Use figures or table. |
 | `area-chart` | use trend: Use trend. |
 | `radar-chart` | use table: Radar charts mislead. Use table or compare. |

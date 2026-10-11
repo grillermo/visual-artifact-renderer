@@ -186,7 +186,7 @@ Use these. Read their full props with `visual-artifact contract --node <type>`.
 | Dated events | `timeline` | Vertical spine, no cards. |
 | Before/after or options | `compare` | Two columns. With `rows`, only differences show. Omit `verdict` when the chapter already has a `takeaway`. |
 | A choice for the reader | `decision` | Option rows, one `suggested`. 2 to 5 per plan. |
-| Commands, config, diffs | `code` | `diff: true` for +/- lines. |
+| Explained excerpt, commands, config, diff | `code` | Use `annotations` by default for explanations. Use `before` + `after` for changes. |
 | A metric over time | `trend` | Data-backed line or bar, labelled at the line end, `mark` for events. |
 
 ## Specialised nodes
@@ -196,11 +196,11 @@ Use only when the content needs them. They are not for layout.
 | Node | Use when |
 |---|---|
 | `claim-tree` + `claim` | A plain implementation outline: one sentence and exhibit per claim. No claim-specific commenting model. |
-| `call-stack` | A plan sketch of what calls what and what changes. |
+| `walkthrough` | Follow an ordered route through source files. Narrow screens show each excerpt. |
 | `execution-trace` | Verified API boundaries and types (see Code reviews). |
 | `state-machine` | UI or lifecycle states, with a screen per state. |
 | `mockup` + `wireframe` | What the user or terminal will see. |
-| `file-tree` | Where files live. Keep it for repository orientation, as in `agents/visual-artifact-cli-implementation`. Prefer `code` for a walkthrough. |
+| `file-tree` | Where files live. Keep it for repository orientation, as in `agents/visual-artifact-cli-implementation`. Use `walkthrough` for a source flow and `code` with annotations for one explained excerpt. |
 | `links` | A plain row of underlined source links. |
 | `quote` | One pull-quote with a source line. |
 | `image` | A screenshot or asset. |
@@ -226,11 +226,20 @@ Removed node types do not parse or render. The table below is a writing guide, n
 | `radar-chart`, `heatmap` | `table` |
 | `alert` | `callout` |
 | `accordion` | `details` |
-| `code-block`, `diff`, `log` | `code` |
+| `code-block`, `diff`, `log` | `code`, with `before` + `after` for diffs |
+| `call-stack` | `walkthrough` for source steps, `execution-trace` for verified boundaries |
 | `quotes` | `quote` or `ledger` with `meta` |
 | `button` | `links` |
 
 The CLI rejects removed types. Older bundles containing them must be rewritten before opening with this runtime. There is no migration command.
+
+## Code explanations
+
+Use `code` with `file`, `startLine` and `annotations` for an explained excerpt. Each annotation has `line`, optional inclusive `end`, `title`, optional inline Markdown `body`, `tone` and a `text` substring to underline. Ranges must not overlap on the same side.
+
+Use `before` and `after` instead of writing a separate diff node. `diffMode: "split"` falls back below 720px container width or when p90 line length exceeds 70 columns. Diff notes use only `info`, `risk` and `idea`. Green means added.
+
+Use `walkthrough` for a sequence through source. Declare 1 to 4 files with inline `code` or project-contained `src`, then 2 to 8 steps with `lines`, `title` and optional `body`, `text`, `tone` and diff `side`. With multiple files, every step names its `file`. Keep each side below 400 lines and 24 KB. Do not emit `code-block`, `diff`, `log` or `call-stack` in major 3.
 
 ## Shape recipes
 
@@ -292,7 +301,7 @@ Chapters for the problem, the rules, and each phase. Each phase is a `checklist`
 ### Plans
 
 - Use a `claim-tree` as the page structure when each step needs an exhibit. Each `claim` says one thing.
-- One exhibit per claim (`call-stack`, `state-machine`, `sequence`, `map`, `mockup` or `code`). A second exhibit means a second claim.
+- One exhibit per claim (`walkthrough`, `state-machine`, `sequence`, `map`, `mockup` or `code`). A second exhibit means a second claim.
 - Put a `decision` after the exhibit and before child claims, on the claim it changes. Ask 2 to 5 per plan, and mark the option you would pick `suggested`.
 - Keep captions to one sentence. Read [`references/content-types/plans.md`](./references/content-types/plans.md) first.
 - Use `details` only for secondary detail.

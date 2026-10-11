@@ -60,7 +60,7 @@ The page reads like a short publication: one idea per chapter, calm type, whites
 - `ledger` holds facts grouped by what the reader must do. `checklist` holds work in progress.
 - `figures` holds at most four numbers the reader acts on.
 - `details` holds secondary detail. `callout` is used sparingly.
-- Legacy nodes (`card`, `grid`, `stat-card`, `status-grid`, `box-diagram`, `flow`, `accordion`, `tabs` and others) still parse but are not recommended. The contract's `legacy` map names the replacement for each.
+- Contract 3 rejects removed nodes, including `code-block`, `diff`, `log` and `call-stack`. Rewrite fixtures to surviving nodes; there are no renderer aliases.
 
 ### Anti-box rules
 
@@ -122,9 +122,25 @@ Plan diagrams (`state-machine`, `call-stack`, `map`) draw on a dot grid: the `.v
 
 Both can apply at once: a proposed dashed edge is green with the `2 4` pattern. `state-machine` and `call-stack` have no `style` prop, so there dashed always means proposed.
 
-### Callout tones are separate from `ToneSchema`
+### Code colors
 
-`callout.tone` and `code.annotations[].tone` use a callout vocabulary: `info · warn · risk · ok · idea`. This is deliberately separate from `ToneSchema` (`default · accent · success · warning · danger`). Callout tones describe the author's intent for a note. `ToneSchema` describes status. Do not merge them.
+| Meaning | Token | Treatment |
+|---|---|---|
+| Added | `--change-added` | `+`, row tint 12%, word tint 28%, added count |
+| Removed | `--change-removed` | `−`, row tint 12%, word tint 28%, removed count |
+| Paired change | `--change-changed` | split divider tick |
+| Focus | `--brand` | 10% tint, range bracket, filled pin |
+| Note `ok` | `--signal-new` | filled pin, bracket, text underline |
+| Note `risk` | `--signal-risk` | filled pin, bracket, text underline |
+| Note `warn` | `--signal-wait` | filled pin, bracket, text underline |
+| Note `info` | `--ink` | filled pin, bracket, text underline |
+| Note `idea` | `--brand` | filled pin, bracket, text underline |
+
+Diff notes use only `info`, `risk` and `idea`, so green keeps one meaning. Notes are plain text, not tinted cards. Tints use `color-mix(in oklch, ...)`. Color always accompanies a number, glyph or accessible label.
+
+Shiki uses GitHub high-contrast themes. A syntax color that fails 4.5:1 against conservative code/tint bounds falls back to that theme's foreground. No palette colors are edited. `code-contrast.test.ts` checks every theme JSON foreground.
+
+Callout tones remain separate from status `ToneSchema`. Keep Geist Sans, Geist Mono and the existing editorial serif. Walkthroughs and trace frames use sans labels and mono source.
 
 ## Sources of truth
 
