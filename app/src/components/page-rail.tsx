@@ -39,7 +39,7 @@ export function RailLayout({ children }: { children: ReactNode }) {
 
   return (
     <div
-      className={cn("va-rail-layout", hasRail && "min-[1200px]:grid min-[1200px]:grid-cols-[180px_minmax(0,1fr)] min-[1200px]:gap-12")}
+      className={cn("va-rail-layout", hasRail && "min-[1200px]:grid min-[1200px]:grid-cols-[160px_minmax(0,1fr)] min-[1200px]:gap-8")}
     >
       {hasRail && (
         <aside className="min-w-0 min-[1200px]:row-span-1">
@@ -60,7 +60,7 @@ export function PageRail() {
     <nav
       aria-label="Chapters"
       data-slot="page-rail"
-      className="sticky top-[calc(var(--header-height)+2rem)] hidden w-[180px] min-[1200px]:block"
+      className="sticky top-[calc(var(--header-height)+2rem)] hidden w-[160px] min-[1200px]:block"
     >
       <ChapterLinks chapters={chapters} activeId={activeId} />
     </nav>

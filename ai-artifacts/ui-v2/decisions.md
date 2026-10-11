@@ -1,5 +1,16 @@
 # Cycle 1 decisions
 
+## Cycle 1 design pass
+
+Keep Geist Sans, Geist Mono and the editorial serif. Colour identifies source focus, changes and note intent. Source reading takes priority over empty space.
+
+| Before | After | Why |
+|---|---|---|
+| 988px exhibit at 1440px with comments closed | 1184px exhibit, 96rem page cap and a 160px contents rail | Use the viewport for source and diagrams; prose keeps its 75ch measure |
+
+The comments panel stays 360px. At 1440px with comments open, exhibits retain 1016px. Mobile gutters and the bottom sheet stay unchanged. No contract or CLI change.
+
+
 - Follow the coordinator's removal rule. Major 3 accepts `code`, `walkthrough` and `execution-trace`, without aliases for removed code nodes. `call-stack` leaves both the schema union and renderer registry.
 - Keep the current typefaces and palette. Extend the source styles in `globals.css`; use semantic colors only for changes, focus and note intent.
 - Split diffs use their container width and p90 line length. Measured note heights drive collision placement; displaced notes get connectors. Narrow notes appear after their inclusive range end.

@@ -34,7 +34,7 @@ Headings use the editorial stack for report-like weight. Code and data use mono.
 
 ## Reading layout
 
-- `--va-content-max-width` is 80rem, or 1280px at the default font size. Prose keeps its own 75ch maximum.
+- `--va-content-max-width` is 96rem, or 1536px at the default font size. The desktop contents rail uses 160px with a 32px gap. Prose keeps its own 75ch maximum.
 - Feedback panels reserve 360px outside the content column at viewport widths of at least 1280px. The chapter rail becomes a Contents disclosure while a panel is open.
 - Below 1280px, feedback opens as a bottom sheet. It does not change the content width.
 - Execution traces switch to side-by-side panes only when their own container reaches 60rem. Narrow traces stack the source above the call stack.

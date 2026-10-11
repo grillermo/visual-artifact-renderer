@@ -38,7 +38,7 @@ describe("RailLayout server render", () => {
     const html = render([chapter("Memory"), chapter("Agents"), chapter("Skills")])
     assert.match(html, /data-slot="page-rail"/)
     assert.match(html, /data-slot="page-rail-mobile"/)
-    assert.match(html, /grid-cols-\[180px_minmax\(0,1fr\)\]/)
+    assert.match(html, /grid-cols-\[160px_minmax\(0,1fr\)\]/)
     // One disclosure only, with a 44px summary.
     assert.equal(html.match(/data-slot="page-rail-mobile"/g)?.length, 1)
     assert.match(html, /<summary class="[^"]*min-h-11/)

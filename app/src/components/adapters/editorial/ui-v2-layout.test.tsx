@@ -55,7 +55,7 @@ it("plain claims no longer expose a claim-specific comment action", () => {
 
 it("trace layouts and narrow maps respond to their own widths", () => {
   const css = readFileSync(new URL("../../../app/globals.css", import.meta.url), "utf8")
-  assert.match(css, /--va-content-max-width: 80rem/)
+  assert.match(css, /--va-content-max-width: 96rem/)
   assert.match(css, /@container va-trace \(min-width: 60rem\)/)
   assert.match(css, /@container va-map \(max-width: 44rem\)/)
 })

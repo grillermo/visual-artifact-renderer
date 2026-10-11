@@ -179,7 +179,7 @@
   --header-height: calc(3.5rem + 1px);
 
   /* Exhibit width stays independent of the prose measure and feedback panel. */
-  --va-content-max-width: 80rem;
+  --va-content-max-width: 96rem;
   --va-figure-min-width: 14rem;
   --va-trace-stack-width: 24rem;
 
