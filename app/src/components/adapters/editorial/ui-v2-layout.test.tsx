@@ -3,6 +3,7 @@ import { it } from "node:test"
 import { readFileSync } from "node:fs"
 import { renderToStaticMarkup } from "react-dom/server"
 import { renderFigures } from "./figures-adapter"
+import { renderCallout } from "./callout-adapter"
 import { MapConnectionList, cropToContent } from "@/components/mermaid/map-mermaid"
 import { renderClaim } from "../plan/claim-tree-adapter"
 import type { AdapterArgs } from "@/components/artifact-types"
@@ -18,6 +19,19 @@ it("figures wrap before values collide and keep labels at word boundaries", () =
   assert.match(out, /13,107 tokens/)
   assert.match(out, /<dt class="[^"]*text-small/)
   assert.doesNotMatch(out, /<dt class="[^"]*break-words/)
+})
+
+it("callouts carry tone through their full treatment instead of a side stripe", () => {
+  for (const tone of ["note", "risk", "new", "wait"] as const) {
+    const out = renderToStaticMarkup(renderCallout({
+      node: { type: "callout", props: { tone, title: "Read this first", body: "One supporting piece of advice." } },
+      context: { project: "p", slug: "s", data: undefined }, nodePath: "nodes.0", renderNodes: () => null,
+    }))
+    assert.match(out, /class="va-callout"/)
+    assert.match(out, /--callout-tone:var\(--(?:signal-|ink-)/)
+    assert.match(out, /Read this first/)
+    assert.doesNotMatch(out, /border-l-\[3px\]/)
+  }
 })
 
 it("narrow map list retains node labels, edges and proposed states", () => {

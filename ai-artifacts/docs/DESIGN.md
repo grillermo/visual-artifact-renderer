@@ -60,7 +60,7 @@ The page reads like a short publication: one idea per chapter, calm type, whites
 - A chapter has one main exhibit (`steps`, `map`, `story`, `sequence`, `compare`, `ledger`, `checklist`, `table`, `columns`, `figures` or `code`), plus at most one supporting `prose`, `details` or `callout`.
 - `ledger` holds facts grouped by what the reader must do. `checklist` holds work in progress.
 - `figures` holds at most four numbers the reader acts on.
-- `details` holds secondary detail. `callout` is used sparingly.
+- `details` holds secondary detail. `callout` is used sparingly. Risk, new and waiting advice use a full tone outline and 6% semantic fill, never a side stripe. Neutral notes use horizontal rules. Explanations keep a 75ch maximum.
 - Contract 3 rejects removed nodes, including `code-block`, `diff`, `log` and `call-stack`. Rewrite fixtures to surviving nodes; there are no renderer aliases.
 
 ### Anti-box rules

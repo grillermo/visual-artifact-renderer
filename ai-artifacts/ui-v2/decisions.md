@@ -13,6 +13,9 @@ Keep Geist Sans, Geist Mono and the editorial serif. Colour identifies source fo
 | Faint repeated symbols, full paths and deep indent | Narrative frame label first, symbol and basename below, at most 24px depth | Distinguish frames even when they call the same symbol |
 | Fixed 384px stack and minimum 320px source slab | Stack takes 42% up to 512px; source height follows its content | Spend width on frame identity and remove unused source space |
 | Map disappears when comments resize its container | Unique Mermaid ID for every render; QA waits for mounted drawings | Mermaid was removing the old SVG while React saw an unchanged HTML string |
+| Thin callout stripe | Full semantic outline and quiet tone fill | Risk, new and waiting advice remain visible in either theme |
+
+Callout icons and coloured titles stay. Neutral notes use plain horizontal rules instead of a box. Callout and inline source explanations cap their measure at 75ch. Prose, chapters, ledgers, checklists, figures, process steps, comparisons, timeline, trend, file trees, links, quotes, claims and specialised diagram frames retain their existing hierarchy. Tables keep their row-hover transitions and reduced-motion overrides unchanged. Large specialised Mermaid diagrams still need zoom for detail; the ordinary map has a readable connection-list fallback.
 
 The wider-component sweep exposed a real resize bug, not a styling preference. Preserve mounted maps during same-layout rerenders by giving Mermaid a fresh ID. The capture harness now checks map and story drawings after opening comments so an empty diagram cannot pass as visual evidence.
 
@@ -24,6 +27,7 @@ Source focus gets `--source-focus`, an alias of the existing blue palette throug
 
 The comments panel stays 360px. At 1440px with comments open, exhibits retain 1016px. Mobile gutters and the bottom sheet stay unchanged. No contract or CLI change.
 
+## Earlier cycle 1 implementation decisions
 
 - Follow the coordinator's removal rule. Major 3 accepts `code`, `walkthrough` and `execution-trace`, without aliases for removed code nodes. `call-stack` leaves both the schema union and renderer registry.
 - Keep the current typefaces and palette. Extend the source styles in `globals.css`; use semantic colors only for changes, focus and note intent.

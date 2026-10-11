@@ -621,6 +621,11 @@ html.dark {
 .va-walkthrough-nav button { display: flex; flex-shrink: 0; gap: .5rem; align-items: center; min-height: 44px; max-width: 18rem; padding: .5rem; text-align: left; font-size: var(--fs-small); }
 .va-walkthrough-nav button[aria-current] { background: color-mix(in oklch,var(--source-focus) 12%,transparent); border-radius: var(--radius-md); }
 
+/* Supporting advice earns a tone fill; ordinary narrative remains unboxed. */
+.va-callout { padding: 1rem 1.25rem; border: 1px solid color-mix(in oklch,var(--callout-tone) 35%,var(--rule)); border-radius: var(--radius-md); background: color-mix(in oklch,var(--callout-tone) 6%,transparent); }
+.va-callout .prose { max-width: 75ch; }
+.va-callout[data-tone="note"] { border-inline: 0; border-radius: 0; background: none; padding-inline: 0; }
+
 /* Shared source surface: colour means change, focus or note intent. */
 .va-code { container: va-code / inline-size; min-width: 0; max-width: 100%; }
 .va-code-header { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; margin-bottom: .5rem; }
@@ -653,6 +658,7 @@ html.dark {
 .va-code-note { display: flex; gap: .75rem; align-items: baseline; white-space: normal; font-family: var(--font-sans); }
 .va-code-note > div { min-width: 0; overflow-wrap: anywhere; }
 .va-code-inline-note { position: sticky; left: 0; width: calc(100cqw - 1.5rem); margin: .5rem .75rem .75rem; }
+.va-code-inline-note .prose { max-width: 75ch; }
 .va-code-rail { position: relative; margin: 0 1rem; min-width: 0; }
 .va-note-connector { position: absolute; left: -8px; width: 8px; border-left: 1px solid var(--rule); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
 .va-split-rows { display: grid; }

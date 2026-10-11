@@ -1,6 +1,7 @@
+import type { CSSProperties } from "react"
 import { cn } from "@/lib/utils"
 import { Prose } from "@/components/ui/prose"
-import { SIGNAL_RULE, SIGNAL_TEXT, TONE_ICON } from "./rows/signal"
+import { SIGNAL_TEXT, TONE_ICON } from "./rows/signal"
 import type { AdapterArgs } from "@/components/artifact-types"
 
 const TONE_SIGNAL = { note: "none", risk: "risk", new: "new", wait: "wait" } as const
@@ -10,7 +11,7 @@ export function renderCallout({ node }: AdapterArgs<"callout">) {
   const signal = TONE_SIGNAL[tone]
   const Icon = TONE_ICON[tone]
   return (
-    <aside data-callout data-tone={tone} className={cn("border-l-[3px] pl-5", tone === "note" ? "border-rule-strong" : SIGNAL_RULE[signal])}>
+    <aside data-callout data-tone={tone} className="va-callout" style={{"--callout-tone":tone==="note"?"var(--ink-muted)":`var(--signal-${signal})`} as CSSProperties}>
       {title && (
         <p className={cn("m-0 mb-1 flex items-center gap-2 text-small font-semibold", tone === "note" ? "text-ink" : SIGNAL_TEXT[signal])}>
           <Icon aria-hidden className="size-4 shrink-0" />
