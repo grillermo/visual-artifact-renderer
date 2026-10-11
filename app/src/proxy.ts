@@ -10,5 +10,6 @@ export const config = {
     "/api/annotations/:path*",
     "/data/artifacts/:project/:slug/artifact.json",
     "/data/artifacts/:project/:slug/annotations.json",
+    "/data/artifacts/:project/:slug/assets/:path*",
   ],
 }

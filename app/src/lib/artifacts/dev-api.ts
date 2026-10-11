@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises"
 import { homedir } from "node:os"
-import { resolve } from "node:path"
+import { extname, resolve, sep } from "node:path"
 import { annotationMutationRequestRejection } from "@agents/visual-artifact-annotations"
 import {
   ArtifactNotFoundError,
@@ -11,6 +11,16 @@ import {
 } from "../../../../cli/src/lib/annotations"
 import { parseBundleRoute } from "../../../../cli/src/lib/paths"
 import { readAnnotationMutationBody } from "../../../../cli/src/lib/annotation-body"
+
+const ASSET_TYPES: Record<string, string> = {
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".gif": "image/gif",
+  ".webp": "image/webp",
+  ".svg": "image/svg+xml",
+  ".avif": "image/avif",
+}
 
 export function devArtifactsDir(): string {
   const skillRoot = process.env.VISUAL_ARTIFACT_SKILL_ROOT ?? resolve(homedir(), ".agents/skills/visual-artifact")
@@ -25,6 +35,8 @@ export async function serveDevArtifactRequest(request: Request, artifactsDir = d
     return Response.json(await resolveLocalAuthor())
   }
   const api = pathname.match(/^\/api\/annotations\/([^/]+)\/([^/]+)$/)
+  const asset = pathname.match(/^\/data\/artifacts\/([^/]+)\/([^/]+)\/assets\/(.+)$/)
+  if (asset) return serveAsset(request, artifactsDir, asset[1], asset[2], asset[3])
   const data = pathname.match(/^\/data\/artifacts\/([^/]+)\/([^/]+)\/(artifact|annotations)\.json$/)
   const match = api ?? data
   if (!match) return new Response("Not found", { status: 404 })
@@ -61,5 +73,29 @@ export async function serveDevArtifactRequest(request: Request, artifactsDir = d
     }
     console.error("Dev artifact request failed", error)
     return Response.json({ error: "Failed to save or load artifact feedback" }, { status: 500 })
+  }
+}
+
+async function serveAsset(request: Request, artifactsDir: string, project: string, slug: string, rawPath: string): Promise<Response> {
+  if (request.method !== "GET" && request.method !== "HEAD") return new Response("Method not allowed", { status: 405 })
+  const route = parseBundleRoute(project, slug)
+  if (!route) return new Response("Invalid project or slug", { status: 400 })
+  let relative: string
+  try {
+    relative = decodeURIComponent(rawPath)
+  } catch {
+    return new Response("Invalid asset path", { status: 400 })
+  }
+  const type = ASSET_TYPES[extname(relative).toLowerCase()]
+  if (!type) return new Response("Not found", { status: 404 })
+  const assetsRoot = resolve(artifactsDir, route.project, route.slug, "assets")
+  const file = resolve(assetsRoot, relative)
+  if (!file.startsWith(assetsRoot + sep)) return new Response("Invalid asset path", { status: 400 })
+  try {
+    const body = await readFile(file)
+    return new Response(request.method === "HEAD" ? null : body, { headers: { "Content-Type": type, "Cache-Control": "no-store" } })
+  } catch (error) {
+    if (error instanceof Error && "code" in error && error.code === "ENOENT") return new Response("Not found", { status: 404 })
+    throw error
   }
 }

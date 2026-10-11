@@ -37,3 +37,28 @@ it("persists dev POSTs with and without trailing slashes in the artifact bundle"
     await rm(root, { recursive: true, force: true })
   }
 })
+
+it("serves bundle assets in dev and refuses paths outside the assets folder", async () => {
+  const root = await mkdtemp(join(tmpdir(), "va-dev-assets-"))
+  try {
+    await mkdir(join(root, "proj", "slug", "assets", "shots"), { recursive: true })
+    await writeFile(join(root, "proj", "slug", "assets", "shots", "a b.png"), Buffer.from([0x89, 0x50, 0x4e, 0x47]))
+    await writeFile(join(root, "proj", "slug", "artifact.json"), "{}")
+
+    const ok = await serveDevArtifactRequest(new Request("http://x/data/artifacts/proj/slug/assets/shots/a%20b.png"), root)
+    assert.equal(ok.status, 200)
+    assert.equal(ok.headers.get("content-type"), "image/png")
+    assert.equal(Buffer.from(await ok.arrayBuffer()).length, 4)
+
+    const missing = await serveDevArtifactRequest(new Request("http://x/data/artifacts/proj/slug/assets/none.png"), root)
+    assert.equal(missing.status, 404)
+
+    const escape = await serveDevArtifactRequest(new Request("http://x/data/artifacts/proj/slug/assets/..%2F..%2Fslug%2Fx.png"), root)
+    assert.equal(escape.status, 400)
+
+    const notImage = await serveDevArtifactRequest(new Request("http://x/data/artifacts/proj/slug/assets/..%2Fartifact.json"), root)
+    assert.equal(notImage.status, 404)
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})
