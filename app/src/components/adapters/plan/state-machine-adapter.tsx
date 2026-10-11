@@ -1,19 +1,13 @@
 "use client"
 
-// state-machine: states on a grid, event edges, a selected state whose screen
+// state-machine: Mermaid draws the diagram; a state row (buttons) selects a state whose screen
 // child renders below. Inactive screens stay mounted but `hidden`, so node paths are stable.
-import { Children, useId, useMemo, useState, type KeyboardEvent } from "react"
+import { Children, useMemo, useState } from "react"
 
 import type { AdapterArgs } from "@/components/artifact-types"
-import { normalizeMachineEvents, parseGridRows } from "@/lib/contract/artifact-manifest"
-import { autoCells, layoutGrid, pairOffsets, pointsToPath, routeEdge } from "@/lib/plan/grid-layout"
+import { MachineCanvas, useMachineSvg } from "@/components/mermaid/state-machine-mermaid"
+import { normalizeMachineEvents } from "@/lib/contract/artifact-manifest"
 import { cn } from "@/lib/utils"
-
-import { ArrowDefs, DiagramCanvas, EdgeLabel, markerFor } from "./diagram-svg"
-import { SVG_TEXT } from "./diagram-svg"
-import { markStroke } from "./plan-ui"
-
-const METRICS = { cellW: 232, cellH: 104, boxW: 136, boxH: 38, pad: 28 }
 
 /** Replays a trace from `initial`; returns the visited states (initial first). */
 export function replayTrace(initial: string, events: readonly { from: string; event: string; to: string }[], trace: readonly string[]): string[] {
@@ -34,11 +28,9 @@ export function renderStateMachine(args: AdapterArgs<"state-machine">) {
 
 function StateMachine({ node, children: renderedChildren }: AdapterArgs<"state-machine">) {
   const { title, caption, initial, states, traces } = node.props
-  const markerId = useId().replace(/:/g, "")
   const { events } = useMemo(() => normalizeMachineEvents(node.props.events), [node.props.events])
-  const grid = node.props.grid ? parseGridRows(node.props.grid).cells : autoCells(states.map((s) => s.id), 4)
-  const layout = layoutGrid(grid, METRICS)
-  const offsets = pairOffsets(events)
+  const input = useMemo(() => ({ initial, states, events }), [initial, states, events])
+  const { svg, compiled, error } = useMachineSvg(input)
   const [selected, setSelected] = useState(initial)
   const [trace, setTrace] = useState<{ name: string; step: number } | null>(null)
   const current = states.find((s) => s.id === selected)
@@ -59,89 +51,31 @@ function StateMachine({ node, children: renderedChildren }: AdapterArgs<"state-m
     setSelected(path[step])
   }
 
-  const onStateKey = (event: KeyboardEvent<SVGGElement>, id: string) => {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault()
-      select(id)
-      return
-    }
-    if (!event.key.startsWith("Arrow")) return
-    event.preventDefault()
-    const outgoing = events.filter((e) => e.from === id && e.to !== id)
-    if (!outgoing.length) return
-    const forward = event.key === "ArrowRight" || event.key === "ArrowDown"
-    const targetId = forward ? outgoing[0].to : events.find((e) => e.to === id && e.from !== id)?.from
-    if (!targetId) return
-    select(targetId)
-    const svg = event.currentTarget.ownerSVGElement
-    svg?.querySelector<SVGGElement>(`[data-state="${CSS.escape(targetId)}"]`)?.focus()
-  }
-
   const traceIndex = trace ? replayTrace(initial, events, traces?.find((t) => t.name === trace.name)?.events ?? []) : null
 
   return (
-    <figure className="m-0" data-state-machine="">
+    <figure className="m-0 min-w-0" data-state-machine="">
       {title && <div className="mb-3 font-mono text-label uppercase tracking-[0.14em] text-ink-muted">{title}</div>}
-      <DiagramCanvas width={layout.width} height={layout.height + 20} label={title ?? "State machine"}>
-        <ArrowDefs id={markerId} />
-        {events.map((edge, index) => {
-          const a = layout.boxes.get(edge.from)
-          const b = layout.boxes.get(edge.to)
-          if (!a || !b) return null
-          const route = routeEdge(a, b, offsets[index], { backUnder: true })
-          const active = edge.from === selected
-          const stroke = edge.mark && edge.mark !== "context" ? markStroke(edge.mark) : active ? "var(--foreground)" : "var(--muted-foreground)"
-          return (
-            <g key={index} data-event={edge.event} opacity={active || edge.mark ? 1 : 0.7}>
-              <path
-                d={pointsToPath(route.points, route.kind)}
-                fill="none"
-                stroke={stroke}
-                strokeWidth={active ? 2 : 1.4}
-                strokeDasharray={edge.mark === "proposed" || edge.mark === "added" ? "8 5" : undefined}
-                markerEnd={markerFor(markerId, edge.mark)}
-              />
-              <EdgeLabel x={route.label.x} y={route.label.y} text={edge.label ?? edge.event} />
-            </g>
-          )
-        })}
-        {states.map((state) => {
-          const box = layout.boxes.get(state.id)
-          if (!box) return null
-          const isSelected = state.id === selected
-          const stroke = state.mark && state.mark !== "context" ? markStroke(state.mark) : isSelected ? "var(--brand)" : "var(--ink)"
-          return (
-            <g
-              key={state.id}
+      <MachineCanvas svg={svg} label={title ?? "State machine"} error={error} input={input} compiled={compiled} selected={selected} onSelect={select} />
+      <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1" aria-label="States">
+        {states.map((state) => (
+          <li key={state.id}>
+            <button
+              type="button"
               data-state={state.id}
-              role="button"
-              tabIndex={0}
-              aria-pressed={isSelected}
+              aria-pressed={state.id === selected}
               aria-label={`State ${state.label ?? state.id}${state.final ? ", final" : ""}${state.id === initial ? ", initial" : ""}`}
               onClick={() => select(state.id)}
-              onKeyDown={(event) => onStateKey(event, state.id)}
-              className="cursor-pointer outline-none [&:focus-visible>rect:first-of-type]:stroke-[3]"
+              className={cn(
+                "border-b border-transparent font-mono text-meta text-ink-muted hover:text-ink focus-visible:ring-2 focus-visible:ring-ring",
+                state.id === selected && "border-ink text-ink",
+              )}
             >
-              {state.id === initial && <circle cx={box.x - 14} cy={box.cy} r={4} fill="var(--foreground)" />}
-              <rect
-                x={box.x}
-                y={box.y}
-                width={box.w}
-                height={box.h}
-                rx={box.h / 2}
-                fill="none"
-                stroke={stroke}
-                strokeWidth={isSelected ? 2 : 1.4}
-                strokeDasharray={state.mark === "proposed" || state.mark === "added" ? "8 5" : undefined}
-              />
-              {state.final && <rect x={box.x + 3} y={box.y + 3} width={box.w - 6} height={box.h - 6} rx={(box.h - 6) / 2} fill="none" stroke={stroke} strokeWidth={1} />}
-              <text x={box.cx} y={box.cy + 4} textAnchor="middle" style={{ fontSize: SVG_TEXT.meta }} fontWeight={600} fill="var(--foreground)" fontFamily="var(--font-mono)">
-                {state.label ?? state.id}
-              </text>
-            </g>
-          )
-        })}
-      </DiagramCanvas>
+              {state.label ?? state.id}
+            </button>
+          </li>
+        ))}
+      </ul>
       <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-rule pt-3 text-sm">
         <span className="font-mono text-xs text-muted-foreground">state</span>
         <span className="font-mono font-semibold" aria-live="polite">{current?.label ?? selected}</span>

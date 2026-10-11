@@ -7,9 +7,9 @@
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react"
 
 import { compileMap, edgeStroke, type CompiledMap, type MapInput, type MapSignal } from "@/lib/diagram/map-to-mermaid"
-import { cn } from "@/lib/utils"
 
 import { mermaidThemeVariables } from "./mermaid-theme"
+import { MermaidScrollFrame } from "./scroll-frame"
 import { renderMermaidSvg, useDocumentTheme } from "./mermaid-diagram"
 
 const SIGNAL_WORD: Record<MapSignal, string> = { new: "new", risk: "can break", wait: "waiting" }
@@ -83,7 +83,7 @@ export function decorateMapSvg(root: HTMLElement, compiled: CompiledMap) {
 }
 
 /** Trim empty margin: viewBox = content bounds plus a small pad. Width/height become natural px. */
-function cropToContent(svg: SVGSVGElement | null) {
+export function cropToContent(svg: SVGSVGElement | null) {
   if (!svg) return
   const group = svg.querySelector<SVGGElement>(":scope > g")
   if (!group) return
@@ -156,13 +156,13 @@ export function MapCanvas({
     )
   }
   return (
-    <div
-      ref={ref}
+    <MermaidScrollFrame
+      frameRef={ref}
+      html={svg}
       data-map-canvas=""
       role="img"
       aria-label={label}
-      className={cn("mm-canvas overflow-x-auto overflow-y-hidden overscroll-x-contain", className)}
-      dangerouslySetInnerHTML={{ __html: svg }}
+      className={className}
     />
   )
 }

@@ -491,3 +491,15 @@ html.dark {
 .mm-k-external { --mm-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke='black' stroke-width='1.4' stroke-dasharray='2.4 2.2'%3E%3Ccircle cx='7' cy='7' r='5.5'/%3E%3C/svg%3E"); }
 .mm-canvas foreignObject { overflow: visible; }
 .mm-canvas .edgeLabel, .mm-canvas .edgeLabel * { letter-spacing: normal; font-family: var(--font-sans); font-size: var(--fs-meta); }
+/* state-machine (Mermaid stateDiagram) */
+.mm-state .node rect, .mm-state .node path, .mm-state .node polygon { fill: var(--background) !important; stroke: var(--rule-strong) !important; stroke-width: 1.2px !important; }
+.mm-state .node circle { fill: var(--ink) !important; stroke: var(--ink) !important; }
+.mm-state .nodeLabel, .mm-state .nodeLabel p { font-family: var(--font-sans); font-size: 14px; font-weight: 400; color: var(--ink); }
+.mm-state .node { cursor: pointer; }
+.mm-state .node.sm-selected rect, .mm-state .node.sm-selected path { stroke: var(--ink) !important; stroke-width: 3px !important; }
+.mm-state .node.sm-selected .nodeLabel, .mm-state .node.sm-selected .nodeLabel p { font-weight: 700; }
+.mm-state .node.sm-proposed rect, .mm-state .node.sm-proposed path { stroke: var(--signal-new) !important; stroke-dasharray: 7 5; }
+.mm-state .edgeLabel p { padding: 0 2px; }
+.mm-state .edgeLabel rect { fill: var(--background) !important; opacity: 1; }
+.mm-state .edgePaths path { fill: none; }
+.mm-state .edgeLabel, .mm-state .edgeLabel p, .mm-state .edgeLabel span, .mm-state .labelBkg { background: var(--background) !important; background-color: var(--background) !important; }

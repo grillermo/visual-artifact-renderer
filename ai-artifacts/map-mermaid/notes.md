@@ -19,3 +19,13 @@
 - Story: `fitWidth` 460; two-column sticky stage at >=1100px, stacked sticky stage below.
 - Dark-mobile page overflow seen earlier is gone (all mobile shots are 390px wide).
 - `AGENTS.md`/`CLAUDE.md` show as untracked in `app/` (pre-existing, not mine).
+
+## Phase A: state-machine (uncommitted)
+- `lib/diagram/state-machine-to-mermaid.ts` (+ test): compiles to `stateDiagram-v2`. Ids become `s<i>`; `[*] --> initial`; final states `--> [*]`; labels wrapped; direction LR, or TB when the chain is over 4 ranks deep.
+- `components/mermaid/state-machine-mermaid.tsx`: `useMachineSvg`, `decorateMachineSvg` (per-transition stroke/dash set post-render; proposed = dashed `--signal-new`; selected state class `sm-selected`), click on a state selects it. `cropToContent` is now exported from `map-mermaid.tsx`.
+- `state-machine-adapter.tsx`: hand-rolled placement removed. Kept: state detail line, traces, screen children. Added a row of state buttons (keyboard selection was on the SVG nodes before).
+- Deleted `lib/plan/grid-layout.ts` and its tests; removed `DiagramCanvas`, `EdgeLabel` from `diagram-svg.tsx` (still used there: `ArrowDefs`, `markerFor`, `SVG_TEXT`, reduced-motion hook, for sequence).
+- `grid` prop is accepted by the schema but ignored.
+- Parallel edges (working<->blocked, working<->done) render as two separate curves, labels apart. Screenshots: `after-state-machine/`.
+- Open: `state-diagram` label backgrounds follow `--background`, not `--paper` (they match the page there). Mobile scrolls sideways as intended. `dev.log` shows as modified (tracked by the lead's commit).
+- Review fixes: selected state = 3px --ink outline + bold (DOM-verified: node id state-s<i> matches, stroke needed !important); shared `scroll-frame.tsx` adds right-edge fade when more content scrolls (map, story, state-machine); edge-label padding reduced.
