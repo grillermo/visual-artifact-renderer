@@ -122,7 +122,7 @@ function ProjectLibrary({ project, artifacts, others }: { project: string; artif
   const repo = projectRepo(project)
   const dates = artifacts.map((a) => a.modifiedAt).sort()
   const span = dates.length === 0 ? "" : formatSpan(dates[0], dates.at(-1)!)
-  const open = rows.reduce((n, r) => n + (r.artifact.openThreads ?? 0), 0)
+  const open = artifacts.reduce((n, a) => n + (a.openThreads ?? 0), 0)
   const versionsFolded = rows.reduce((n, r) => n + r.folded.filter((f) => f.kind === "version").length, 0)
   const linkTo = artifactHref(homeSearch)
   const text = queryText(q)
