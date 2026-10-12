@@ -1,0 +1,851 @@
+{
+  "slug": "dotfiles-cloud-agent-box-guided-tour",
+  "title": "Cloud agent box: guided tour",
+  "description": "How your dotfiles, agents, Herdr, Tailscale, Moshi and Cua come together on a small Hetzner server that runs agents around the clock, and which settings you control.",
+  "artifactType": "plan",
+  "topics": [
+    "cloud-agent-box",
+    "hetzner",
+    "remote-agents",
+    "computer-use",
+    "tailscale"
+  ],
+  "nodes": [
+    {
+      "type": "prose",
+      "props": {
+        "content": "## The story\n\nYou rent one small Linux server in Germany, the **agent-box**. It runs the same setup as your Macs, installed from the same two repos: **dotfiles**, which covers the shell, tmux, Neovim and tools, and **agents**, which covers Pi, OpenCode, skills and Herdr.\n\nAgents live in Herdr on that box and keep working when your laptop is closed. From the Mac, Herdr shows local and cloud agents in one window. From the phone, **Moshi** connects over Mosh and alerts you when an agent needs you. **Tailscale** is the only way in, and the box has no open public ports.\n\nLater, **Cua** adds a virtual desktop on the box. Agents can drive it, and you can watch or take over from any browser.\n\n*Status: research only. Nothing is provisioned yet. Knowledge base: `dotfiles/ai-artifacts/research/cloud-agent-box/`.*"
+      }
+    },
+    {
+      "type": "figures",
+      "props": {
+        "items": [
+          {
+            "value": "€12.72",
+            "label": "Monthly cost",
+            "note": "Recommended CX33 with IPv4 and backups, including 19% VAT",
+            "signal": "new"
+          },
+          {
+            "value": "99.9%",
+            "label": "Uptime target",
+            "note": "Hetzner SLA: up to about 43 minutes of downtime a month, with credits if missed",
+            "signal": "new"
+          },
+          {
+            "value": "4.5 to 5.5 days",
+            "label": "Effort",
+            "note": "Usable after half a day, in phase 1"
+          },
+          {
+            "value": "0",
+            "label": "Public ports",
+            "note": "Everything goes through Tailscale",
+            "signal": "new"
+          }
+        ]
+      }
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "1. What runs where",
+        "deck": "Four machines, one private network, the same repos everywhere."
+      },
+      "children": [
+        {
+          "type": "mermaid",
+          "props": {
+            "caption": "Target architecture: the agent-box on Hetzner, your Macs and the phone, joined by Tailscale. The box cannot connect to your Macs.",
+            "height": 560,
+            "code": "flowchart LR\n  subgraph TS[Tailscale tailnet - private]\n    direction LR\n    subgraph MAC[Home and work Macs]\n      G[Ghostty + Herdr client]\n      L[Lume macOS VMs\\nAndroid, Xcode]\n    end\n    subgraph PH[iPhone]\n      M[Moshi\\nMosh + notifications]\n      B[Safari\\ntailnet URLs]\n    end\n    subgraph BOX[agent-box - Hetzner CX33, Nuremberg]\n      H[Herdr server\\npi, claude, codex, opencode]\n      W[local-web-gateway\\nshare-port, apps]\n      K[moshi-hook]\n      C[Cua desktop container\\ncua-driver + noVNC - later]\n    end\n  end\n  G -- Herdr remote over SSH --> H\n  M -- Mosh --> H\n  K -. approvals and status .-> M\n  B -- HTTPS --> W\n  W --> C\n  H -- MCP --> C\n  OP[(1Password\\nbox-only vault)] -. secrets .-> H\n  GH[(GitHub\\nscoped token)] <-. git .-> H\n  BOX -. blocked by ACL .-x MAC"
+          }
+        },
+        {
+          "type": "details",
+          "props": {
+            "summary": "The layers installed on every machine"
+          },
+          "children": [
+            {
+              "type": "code",
+              "props": {
+                "language": "text",
+                "code": "Layer 4  Computer use   Cua Driver + virtual desktop          agent-box, later\nLayer 3  Network        Tailscale, local-web-gateway          all machines\nLayer 2  Agents         agents repo: Pi, OpenCode, skills,    all machines\n                        Herdr toolbox, services\nLayer 1  Environment    dotfiles via chezmoi: zsh, tmux,      all machines\n                        nvim, git, mise tools\nLayer 0  OS             macOS (Homebrew casks) | Ubuntu 24.04 (apt essentials)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "details",
+          "props": {
+            "summary": "Which work goes where"
+          },
+          "children": [
+            {
+              "type": "table",
+              "props": {
+                "dataKey": "workloads",
+                "columns": [
+                  "workload",
+                  "where",
+                  "why"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "2. How you reach it, day to day",
+        "deck": "Mac, phone and browser all reach the box over Tailscale."
+      },
+      "children": [
+        {
+          "type": "table",
+          "props": {
+            "dataKey": "dayInLife",
+            "columns": [
+              "moment",
+              "what_you_do"
+            ],
+            "caption": "A normal day"
+          }
+        },
+        {
+          "type": "details",
+          "props": {
+            "summary": "From the Mac: Herdr"
+          },
+          "children": [
+            {
+              "type": "prose",
+              "props": {
+                "content": "- Herdr keeps **Local** and **saved SSH machines** in one window. It shows a combined agent list and reconnects to each machine separately. Add `agent-box` next to the existing `herdr-home` and `herdr-work` launchers.\n- The Herdr server lives on the box. If you close the lid or drop the network, the agents keep working.\n- `ssh agent-box` uses Tailscale SSH, so there are no keys to copy."
+              }
+            }
+          ]
+        },
+        {
+          "type": "details",
+          "props": {
+            "summary": "From the phone: Moshi"
+          },
+          "children": [
+            {
+              "type": "prose",
+              "props": {
+                "content": "- Moshi connects **directly** over SSH, Mosh or ET, with no relay.\n- **Use Mosh.** It survives network switches and phone sleep. Its UDP ports are reachable only inside the tailnet.\n- **moshi-hook** on the box sends approvals, notifications and status to one inbox, shows the agent conversation in a phone-native view, and opens dev servers in an in-app browser.\n- It layers over Herdr, so the phone sees the same sessions as your Mac."
+              }
+            }
+          ]
+        },
+        {
+          "type": "details",
+          "props": {
+            "summary": "From a browser: tailnet URLs"
+          },
+          "children": [
+            {
+              "type": "prose",
+              "props": {
+                "content": "- `share-port 3000` on the box gives an HTTPS URL that only your tailnet can open. `local-web-gateway` is the only thing allowed to change Tailscale Serve.\n- Persistent apps, such as OpenCode web, Plannotator, visual artifacts and the desktop viewer, become gateway routes.\n- No **Funnel**, which makes URLs public, unless you choose it deliberately."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "3. Cost and billing",
+        "deck": "Hourly pricing with a monthly cap. EU prices after the June 2026 change."
+      },
+      "children": [
+        {
+          "type": "trend",
+          "props": {
+            "dataKey": "costBySize",
+            "x": "box",
+            "y": "eur_incl_vat",
+            "kind": "bar",
+            "caption": "€ per month including VAT, with server, IPv4 and backups"
+          }
+        },
+        {
+          "type": "table",
+          "props": {
+            "dataKey": "costBySize",
+            "columns": [
+              {
+                "key": "box",
+                "label": "Box"
+              },
+              {
+                "key": "spec",
+                "label": "Spec"
+              },
+              {
+                "key": "server",
+                "label": "Server"
+              },
+              {
+                "key": "eur_excl_vat",
+                "label": "Total excl. VAT"
+              },
+              {
+                "key": "eur_incl_vat",
+                "label": "Total incl. VAT"
+              }
+            ]
+          }
+        },
+        {
+          "type": "details",
+          "props": {
+            "summary": "How Hetzner bills"
+          },
+          "children": [
+            {
+              "type": "ledger",
+              "props": {
+                "groups": [
+                  {
+                    "label": "Definitions",
+                    "signal": "none",
+                    "rows": [
+                      {
+                        "title": "Hourly with a monthly cap",
+                        "body": "You pay the lower of hours used times the hourly price, or the monthly price. Hetzner rounds up to whole hours."
+                      },
+                      {
+                        "title": "Stopped still costs",
+                        "body": "You pay while the server exists. To stop paying, snapshot it, delete it and recreate it later."
+                      },
+                      {
+                        "title": "Traffic",
+                        "body": "Incoming and internal traffic is free. 20 TB of outgoing traffic is included each month in the EU. After that, Hetzner bills in 100 MB blocks and warns you at 75% and 100%."
+                      },
+                      {
+                        "title": "Backups",
+                        "body": "A flat 20% of the server price for automatic daily backups with 7 slots."
+                      },
+                      {
+                        "title": "Snapshots",
+                        "body": "Taken by hand and billed per GB a month on compressed size."
+                      },
+                      {
+                        "title": "IPv4",
+                        "body": "€0.50 a month. Keep it, because GitHub still has no IPv6."
+                      },
+                      {
+                        "title": "Price risk",
+                        "body": "Hetzner raised prices on 1 April and again on 15 June 2026."
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "type": "details",
+          "props": {
+            "summary": "Compared with managed agent computers"
+          },
+          "children": [
+            {
+              "type": "table",
+              "props": {
+                "dataKey": "vsManaged",
+                "columns": [
+                  "option",
+                  "monthly"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "4. Uptime and what survives a restart",
+        "deck": "Treat the box as disposable. The repos and 1Password can rebuild it."
+      },
+      "children": [
+        {
+          "type": "table",
+          "props": {
+            "dataKey": "survives",
+            "columns": [
+              {
+                "key": "event",
+                "label": "Event"
+              },
+              {
+                "key": "processes",
+                "label": "Running agents"
+              },
+              {
+                "key": "layout",
+                "label": "Herdr layout"
+              },
+              {
+                "key": "conversation",
+                "label": "Agent conversation"
+              }
+            ]
+          }
+        },
+        {
+          "type": "details",
+          "props": {
+            "summary": "Recommended settings for recovery"
+          },
+          "children": [
+            {
+              "type": "prose",
+              "props": {
+                "content": "- Automatic security updates, with **reboots at 04:00 only when needed**.\n- Herdr starts at boot as a systemd user service with linger, so it comes back without a login.\n- Daily Hetzner backups while the setup is new.\n- Aim to **rebuild in under an hour**. Code lives in git, config in dotfiles and agents, and secrets in 1Password.\n- Hetzner announces scheduled maintenance at least 24 hours ahead."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "5. Your knobs",
+        "deck": "The recommended setting comes first. Open any row for the trade-off. The companion page has the full board."
+      },
+      "children": [
+        {
+          "type": "table",
+          "props": {
+            "dataKey": "knobs",
+            "columns": [
+              {
+                "key": "knob",
+                "label": "Knob"
+              },
+              {
+                "key": "pick",
+                "label": "Recommended"
+              },
+              {
+                "key": "alternatives",
+                "label": "Alternatives"
+              },
+              {
+                "key": "tradeoff",
+                "label": "Trade-off"
+              }
+            ]
+          }
+        },
+        {
+          "type": "details",
+          "props": {
+            "summary": "Security: what an agent on the box can reach"
+          },
+          "children": [
+            {
+              "type": "table",
+              "props": {
+                "dataKey": "reach",
+                "columns": [
+                  "asset",
+                  "reachable",
+                  "how"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "type": "details",
+          "props": {
+            "summary": "Tailscale ACL sketch: one-way access"
+          },
+          "children": [
+            {
+              "type": "code",
+              "props": {
+                "language": "jsonc",
+                "code": "{\n  \"tagOwners\": { \"tag:agent-box\": [\"autogroup:admin\"] },\n  \"grants\": [\n    // You can reach the box\n    { \"src\": [\"autogroup:member\"], \"dst\": [\"tag:agent-box\"], \"ip\": [\"*\"] }\n    // No grant from tag:agent-box to anything, so the box can't reach your Macs\n  ],\n  \"ssh\": [\n    { \"action\": \"accept\", \"src\": [\"autogroup:member\"], \"dst\": [\"tag:agent-box\"], \"users\": [\"iury\"] }\n  ]\n}",
+                "caption": "Review this against your current policy first. The home and work Macs already use SSH to each other."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "6. Computer use with Cua",
+        "deck": "A virtual desktop that agents drive and you can watch or take over."
+      },
+      "children": [
+        {
+          "type": "prose",
+          "props": {
+            "content": "### Target shape on the box"
+          }
+        },
+        {
+          "type": "steps",
+          "props": {
+            "items": [
+              {
+                "title": "pi agent",
+                "tag": "MCP",
+                "key": true
+              },
+              {
+                "title": "cua-driver",
+                "tag": "AT-SPI and display"
+              },
+              {
+                "title": "Linux desktop container",
+                "tag": "Chromium and apps"
+              },
+              {
+                "title": "noVNC viewer",
+                "tag": "tailnet URL"
+              },
+              {
+                "title": "You, on a Mac or phone",
+                "tag": "watch or take over"
+              }
+            ]
+          }
+        },
+        {
+          "type": "table",
+          "props": {
+            "dataKey": "cua",
+            "columns": [
+              {
+                "key": "part",
+                "label": "Cua part"
+              },
+              {
+                "key": "what",
+                "label": "What it is"
+              },
+              {
+                "key": "fit",
+                "label": "On the box?"
+              }
+            ],
+            "statusKey": "fit"
+          }
+        },
+        {
+          "type": "details",
+          "props": {
+            "summary": "Spike plan and resource estimate"
+          },
+          "children": [
+            {
+              "type": "prose",
+              "props": {
+                "content": "**One-day spike:** run a desktop container with Chromium and noVNC. Install `cua-driver` and run `cua-driver doctor`. Connect Pi over MCP. Complete the calculator tutorial (6 × 7 = 42), then one real task. Open the viewer from the phone. Write down RAM and CPU use and make a go or no-go decision.\n\n**Estimate, not yet measured:** the desktop with Chromium uses about 1.5 to 3 GB of RAM. On a CX33 that leaves room for 2 to 4 command-line agents. Move to a CX43 if the desktop stays running all the time.\n\n**Use agent-browser for simple web tasks.** It's lighter. Use the full desktop only for real GUI apps or a shared, logged-in browser."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "7. Plan and risks",
+        "deck": "Each phase ends in a working state you can check."
+      },
+      "children": [
+        {
+          "type": "timeline",
+          "props": {
+            "dataKey": "phases",
+            "titleKey": "phase",
+            "markerKey": "effort",
+            "descriptionKey": "done_when",
+            "statusKey": "status"
+          }
+        },
+        {
+          "type": "table",
+          "props": {
+            "dataKey": "risks",
+            "columns": [
+              {
+                "key": "risk",
+                "label": "Risk"
+              },
+              {
+                "key": "likelihood",
+                "label": "Likelihood"
+              },
+              {
+                "key": "plan",
+                "label": "Plan"
+              }
+            ],
+            "statusKey": "likelihood"
+          }
+        },
+        {
+          "type": "callout",
+          "props": {
+            "tone": "note",
+            "body": "Create the Hetzner server, which costs money. Create the 1Password service account and vault. Approve the Tailscale ACL change. Install Moshi and Tailscale on the phone if they aren't there yet.",
+            "title": "Only you can do these"
+          }
+        }
+      ]
+    }
+  ],
+  "data": {
+    "workloads": [
+      {
+        "workload": "Long agent runs, overnight and scheduled jobs",
+        "where": "agent-box",
+        "why": "Always on; unaffected by the laptop lid"
+      },
+      {
+        "workload": "Interactive coding you are watching",
+        "where": "Either",
+        "why": "Herdr shows both machines in one window"
+      },
+      {
+        "workload": "Headless browser automation",
+        "where": "agent-box",
+        "why": "Chromium and Playwright don't need a display"
+      },
+      {
+        "workload": "Computer use in a Linux desktop",
+        "where": "agent-box, in a container",
+        "why": "Cua Driver runs against a virtual display"
+      },
+      {
+        "workload": "Android emulator, Xcode, macOS apps",
+        "where": "Mac",
+        "why": "No KVM on Hetzner cloud VMs, and no macOS on Linux"
+      }
+    ],
+    "dayInLife": [
+      {
+        "moment": "Morning at the Mac",
+        "what_you_do": "Herdr shows local and agent-box agents together. Start a long refactor on the box."
+      },
+      {
+        "moment": "Leave the house",
+        "what_you_do": "Close the laptop. Agents keep running on the box."
+      },
+      {
+        "moment": "On the U-Bahn",
+        "what_you_do": "Moshi pings that an agent needs approval. Approve or reply from the phone."
+      },
+      {
+        "moment": "Check a preview",
+        "what_you_do": "Open the dev server in Moshi's in-app browser, or at its tailnet URL."
+      },
+      {
+        "moment": "Evening",
+        "what_you_do": "Reattach from the Mac and review diffs in Hunk or Plannotator."
+      }
+    ],
+    "costBySize": [
+      {
+        "box": "CX23",
+        "spec": "2 vCPU, 4 GB, x86",
+        "server": "€5.49",
+        "eur_excl_vat": 7.09,
+        "eur_incl_vat": 8.43
+      },
+      {
+        "box": "CX33 (recommended)",
+        "spec": "4 vCPU, 8 GB, x86",
+        "server": "€8.49",
+        "eur_excl_vat": 10.69,
+        "eur_incl_vat": 12.72
+      },
+      {
+        "box": "CAX21",
+        "spec": "4 vCPU, 8 GB, ARM",
+        "server": "€10.49",
+        "eur_excl_vat": 13.09,
+        "eur_incl_vat": 15.57
+      },
+      {
+        "box": "CX43",
+        "spec": "8 vCPU, 16 GB, x86",
+        "server": "€15.99",
+        "eur_excl_vat": 19.69,
+        "eur_incl_vat": 23.43
+      },
+      {
+        "box": "CCX13",
+        "spec": "2 dedicated vCPU, 8 GB",
+        "server": "€53.99",
+        "eur_excl_vat": 65.29,
+        "eur_incl_vat": 77.69
+      }
+    ],
+    "vsManaged": [
+      {
+        "option": "Hetzner CX33, 4 vCPU and 8 GB, always on",
+        "monthly": "€12.72 including VAT"
+      },
+      {
+        "option": "Railway cloud agent, 2 vCPU and 2 GB, always on",
+        "monthly": "About $100 for memory alone"
+      },
+      {
+        "option": "Fly Sprite, 2 GB, awake 8 hours a day",
+        "monthly": "About $8 plus storage"
+      }
+    ],
+    "survives": [
+      {
+        "event": "Laptop closed or network lost",
+        "processes": "Keep running",
+        "layout": "Kept",
+        "conversation": "Kept"
+      },
+      {
+        "event": "Herdr update with --handoff",
+        "processes": "Kept if the handoff succeeds",
+        "layout": "Kept",
+        "conversation": "Kept"
+      },
+      {
+        "event": "Herdr server restart",
+        "processes": "Lost",
+        "layout": "Restored",
+        "conversation": "Only for agents with native resume"
+      },
+      {
+        "event": "Server reboot",
+        "processes": "Lost",
+        "layout": "Restored",
+        "conversation": "Resumable where supported"
+      },
+      {
+        "event": "Server deleted",
+        "processes": "Lost",
+        "layout": "Lost",
+        "conversation": "Restore from backup or rebuild from repos"
+      }
+    ],
+    "knobs": [
+      {
+        "knob": "Provider",
+        "pick": "Hetzner",
+        "alternatives": "Netcup, UpCloud, Scaleway",
+        "tradeoff": "Best balance of price and tooling. The repos keep you portable"
+      },
+      {
+        "knob": "Size",
+        "pick": "CX33, 4 vCPU and 8 GB",
+        "alternatives": "CX23 (€8.43), CX43 (€23.43)",
+        "tradeoff": "Resizing takes minutes. A Cua desktop may need a CX43"
+      },
+      {
+        "knob": "CPU type",
+        "pick": "x86",
+        "alternatives": "ARM (CAX21)",
+        "tradeoff": "Cheaper at this size, with better binary and Cua image support"
+      },
+      {
+        "knob": "Region",
+        "pick": "Nuremberg or Falkenstein",
+        "alternatives": "Helsinki, US, Singapore",
+        "tradeoff": "Lowest latency from Berlin"
+      },
+      {
+        "knob": "Backups",
+        "pick": "On, +20%",
+        "alternatives": "Off",
+        "tradeoff": "Turn off once a rebuild takes under an hour"
+      },
+      {
+        "knob": "Packages on Linux",
+        "pick": "mise, from your branch",
+        "alternatives": "Homebrew on Linux, Nix",
+        "tradeoff": "One tool list for Mac and Linux"
+      },
+      {
+        "knob": "Secrets",
+        "pick": "1Password service account",
+        "alternatives": "Entered by hand, or copied from the Mac",
+        "tradeoff": "Small blast radius and revocable in one click"
+      },
+      {
+        "knob": "GitHub",
+        "pick": "Fine-grained token",
+        "alternatives": "Personal token, deploy keys",
+        "tradeoff": "Limits the damage if an agent is compromised"
+      },
+      {
+        "knob": "Exposure",
+        "pick": "Tailscale only",
+        "alternatives": "Public SSH",
+        "tradeoff": "No public attack surface"
+      },
+      {
+        "knob": "Direction of access",
+        "pick": "One way: Macs to box",
+        "alternatives": "Full mesh",
+        "tradeoff": "An agent can't pivot to your laptop"
+      },
+      {
+        "knob": "Automatic reboots",
+        "pick": "04:00, only when needed",
+        "alternatives": "Reboot by hand",
+        "tradeoff": "Stay patched, but running agents are killed"
+      },
+      {
+        "knob": "Computer use",
+        "pick": "Cua container on the box",
+        "alternatives": "Cua Fleets, Lume on the Mac",
+        "tradeoff": "Cheapest option, but you maintain it"
+      }
+    ],
+    "reach": [
+      {
+        "asset": "Your Macs",
+        "reachable": "No",
+        "how": "Tailscale ACL: tag:agent-box has no grants"
+      },
+      {
+        "asset": "Public internet",
+        "reachable": "Outgoing only",
+        "how": "Agents need registries and APIs"
+      },
+      {
+        "asset": "GitHub",
+        "reachable": "Chosen repos only",
+        "how": "Fine-grained token"
+      },
+      {
+        "asset": "Secrets",
+        "reachable": "Box vault only",
+        "how": "Read-only 1Password service account"
+      },
+      {
+        "asset": "Inbound from the internet",
+        "reachable": "Nothing",
+        "how": "Hetzner firewall with no inbound rules"
+      }
+    ],
+    "cua": [
+      {
+        "part": "Cua Driver",
+        "what": "Controls desktop apps and browsers through MCP, a CLI or an SDK",
+        "fit": "yes, needs a display"
+      },
+      {
+        "part": "Sandbox container",
+        "what": "Ubuntu 24.04 desktop in Docker",
+        "fit": "spike, untested"
+      },
+      {
+        "part": "Sandbox VM on QEMU",
+        "what": "Full Linux VM",
+        "fit": "no, no KVM"
+      },
+      {
+        "part": "Lume",
+        "what": "macOS VMs on Apple Silicon",
+        "fit": "Mac only"
+      },
+      {
+        "part": "Cua Fleets",
+        "what": "Paid cloud desktops",
+        "fit": "optional, paid"
+      }
+    ],
+    "phases": [
+      {
+        "phase": "1. Provision and harden",
+        "effort": "½ day",
+        "done_when": "ssh agent-box works over Tailscale, and nothing answers on the public IP",
+        "status": "next"
+      },
+      {
+        "phase": "2. Dotfiles on Linux",
+        "effort": "1 day",
+        "done_when": "The cross-platform branch is merged, chezmoi is clean on both machines, and the Mac diff is empty",
+        "status": "branch exists"
+      },
+      {
+        "phase": "3. Secrets",
+        "effort": "½ day",
+        "done_when": "Agents on the box authenticate through the box vault",
+        "status": "planned"
+      },
+      {
+        "phase": "4. Agents layer on Linux",
+        "effort": "1.5 to 2 days",
+        "done_when": "systemd units work, --doctor passes, and the Herdr client on the Mac attaches to the box",
+        "status": "planned"
+      },
+      {
+        "phase": "5. Remote control",
+        "effort": "½ day",
+        "done_when": "Moshi approvals reach the phone, a tailnet URL works, and SSH from the box to a Mac is refused",
+        "status": "planned"
+      },
+      {
+        "phase": "6. Computer-use spike",
+        "effort": "1 day",
+        "done_when": "An agent completes one GUI task, and there is a go or no-go note",
+        "status": "spike"
+      }
+    ],
+    "risks": [
+      {
+        "risk": "Herdr plugins don't work on Linux",
+        "likelihood": "medium",
+        "plan": "Test in phase 1. Fall back to tmux on the box"
+      },
+      {
+        "risk": "Hetzner plan out of stock",
+        "likelihood": "medium",
+        "plan": "Try another German location or Helsinki"
+      },
+      {
+        "risk": "Another price rise",
+        "likelihood": "medium",
+        "plan": "Still cheap. Move provider by rerunning the installer"
+      },
+      {
+        "risk": "Prompt-injected agent",
+        "likelihood": "low",
+        "plan": "One-way ACL, small vault, scoped token"
+      },
+      {
+        "risk": "Cua container fails on the VM",
+        "likelihood": "medium",
+        "plan": "Use agent-browser, Fleets or Lume"
+      },
+      {
+        "risk": "Mac and Linux paths drift apart",
+        "likelihood": "high",
+        "plan": "CI job for the smoke test and chezmoi dry-run on Ubuntu"
+      }
+    ]
+  }
+}

@@ -1,0 +1,375 @@
+{
+  "slug": "after-skill-distribution-decision",
+  "title": "Skill distribution: stop copying, fetch at boot",
+  "description": "Research dated 10 October 2026. Nothing has changed yet.",
+  "artifactType": "comparison",
+  "topics": [
+    "skills",
+    "distribution",
+    "cloud"
+  ],
+  "layout": {
+    "type": "default"
+  },
+  "data": {
+    "options": [
+      {
+        "option": "3. Mac installs and cloud bootstrap",
+        "manual": "Yes",
+        "fresh": "Yes, if the boot network works",
+        "runtimes": "All; one hook per cloud runtime",
+        "writeToken": "Not needed (public read-only)",
+        "upkeep": "Low: one script in the catalog",
+        "pick": true
+      },
+      {
+        "option": "1. Fix PR fan-out",
+        "manual": "No: twelve merges per change",
+        "fresh": "Only after merge",
+        "runtimes": "Pi, Claude, Codex, Cursor cloud",
+        "writeToken": "Needed",
+        "upkeep": "Low: repo list, overlays, CI exclusions",
+        "pick": false
+      },
+      {
+        "option": "2. Submodules and Dependabot",
+        "manual": "No: a bump PR per repo",
+        "fresh": "Only with --recurse-submodules",
+        "runtimes": "Pi, Claude, Codex, Cursor cloud",
+        "writeToken": "Not needed",
+        "upkeep": "Medium",
+        "pick": false
+      },
+      {
+        "option": "4. Runtime-native user sync",
+        "manual": "Mostly",
+        "fresh": "Cursor and Claude only",
+        "runtimes": "No Codex cloud or Pi",
+        "writeToken": "Not needed",
+        "upkeep": "Low, but vendor-shaped and opaque",
+        "pick": false
+      },
+      {
+        "option": "5. npx skills or gh skill per box",
+        "manual": "No: an install step per box",
+        "fresh": "No, without a hook",
+        "runtimes": "Pi, Claude, Codex, Cursor cloud",
+        "writeToken": "Not needed",
+        "upkeep": "Low",
+        "pick": false
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "type": "prose",
+      "props": {
+        "content": "The copy-and-PR workflow fails its own goal of no manual steps. Stop copying: keep one public catalog and fetch it at boot."
+      }
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Copying skills is already broken",
+        "deck": "Seven sync runs failed, consumers hold stale copies, and one change would still need twelve merges."
+      },
+      "children": [
+        {
+          "type": "ledger",
+          "props": {
+            "groups": [
+              {
+                "label": "Can break something",
+                "signal": "risk",
+                "hint": "These fail today.",
+                "rows": [
+                  {
+                    "title": "Sync never ran",
+                    "body": "All seven sync-skills.yml runs since 14 September failed because `SKILLS_SYNC_TOKEN` was never set."
+                  },
+                  {
+                    "title": "Copies are stale",
+                    "body": "Each consumer holds 20 skills: one outdated, three missing, all from hand-merged first PRs."
+                  },
+                  {
+                    "title": "Three copies of everything",
+                    "body": "Source repo, `agents2/content/skills`, and each consumer's `.agents/skills`, plus a pinned snapshot on disk."
+                  }
+                ]
+              },
+              {
+                "label": "Costs, not failures",
+                "signal": "none",
+                "hint": "Annoying, not broken.",
+                "rows": [
+                  {
+                    "title": "One PR per repo per change",
+                    "body": "Twelve merges before a fresh clone is current."
+                  },
+                  {
+                    "title": "Mac update is a six-step chore",
+                    "body": "Push, bump three files, re-vendor, update provenance, test, apply and doctor. `agents2 update` also mishandles git pins."
+                  },
+                  {
+                    "title": "Repo plumbing",
+                    "body": "CI exclusions for `.agents/**`, overlay rules for four repos, a hand-kept `consumers.yml`, and a PAT with write access to 12 repos."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Five ways to fix it",
+        "deck": "Only one option needs no manual step, no write token and works in every runtime."
+      },
+      "children": [
+        {
+          "type": "table",
+          "props": {
+            "dataKey": "options",
+            "columns": [
+              {
+                "key": "option",
+                "label": "Option"
+              },
+              {
+                "key": "manual",
+                "label": "No manual step"
+              },
+              {
+                "key": "fresh",
+                "label": "Fresh clone current"
+              },
+              {
+                "key": "writeToken",
+                "label": "Write token"
+              },
+              {
+                "key": "upkeep",
+                "label": "Upkeep"
+              }
+            ],
+            "caption": "Five options against the goals, recommended first. Rows that look the same across options are hidden.",
+            "onlyDiffs": true,
+            "highlightKey": "pick"
+          }
+        },
+        {
+          "type": "prose",
+          "props": {
+            "content": "Options 4 and 5 can **complement** option 3 but not replace it. The MCP-server approach is a poor fit: runtimes find skills as files on disk, and skills can include scripts."
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Stop copying, fetch at boot",
+        "deck": "Repos hold a pointer, never a skill copy. Skills live in two places: the source repo, and user-level directories on each box.",
+        "takeaway": "A skill changes once, in agent-skills, and every box picks it up."
+      },
+      "children": [
+        {
+          "type": "compare",
+          "props": {
+            "mode": "options",
+            "left": {
+              "label": "On Macs",
+              "body": "Keep user-level installs through agents2. Remove the vendored `content/skills/` copies. Link skills into `~/.cursor/skills`. Make a pin update one command: `agents2 bump agent-skills`."
+            },
+            "right": {
+              "label": "On cloud boxes",
+              "body": "Add `scripts/bootstrap.sh` to the public agent-skills repo. It fetches `main` (or `AGENT_SKILLS_REF`) and extracts into the user-level skill folders for agents, Cursor, Claude and Codex."
+            },
+            "rows": [
+              {
+                "aspect": "Version",
+                "left": "Pinned commit, bumped on purpose",
+                "right": "Tracks main, with a ref override"
+              },
+              {
+                "aspect": "Repo files",
+                "left": "None",
+                "right": "One fixed line per runtime"
+              },
+              {
+                "aspect": "Needs network at boot",
+                "left": "No",
+                "right": "Yes, to GitHub"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "One fixed line per runtime",
+        "deck": "It never changes when skills change."
+      },
+      "children": [
+        {
+          "type": "steps",
+          "props": {
+            "caption": "The one fixed line each runtime carries. It never changes when skills change.",
+            "items": [
+              {
+                "title": "Cursor",
+                "body": "A curl line in .cursor/environment.json."
+              },
+              {
+                "title": "Claude Code cloud",
+                "body": "A SessionStart hook, only when CLAUDE_CODE_REMOTE is true."
+              },
+              {
+                "title": "Codex cloud",
+                "body": "A setup line, set per environment, not per repo."
+              },
+              {
+                "title": "Pi",
+                "body": "Runs on Macs, so already covered.",
+                "tag": "No change"
+              }
+            ],
+            "direction": "column"
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "One small step first",
+        "deck": "Prove the Cursor path on a single repo before rolling it out."
+      },
+      "children": [
+        {
+          "type": "checklist",
+          "props": {
+            "items": [
+              {
+                "text": "Write an idempotent ~20-line scripts/bootstrap.sh that honours AGENT_SKILLS_REF",
+                "state": "todo"
+              },
+              {
+                "text": "Add one line to termscope's existing .cursor/install.sh",
+                "state": "todo"
+              },
+              {
+                "text": "Start one Cursor Cloud agent and list its skills",
+                "state": "todo"
+              },
+              {
+                "text": "Check whether Cursor Cloud reads ~/.cursor/skills or ~/.agents/skills at install time",
+                "state": "todo",
+                "note": "If not, try a gitignored .agents/skills/_catalog/"
+              },
+              {
+                "text": "Delete consumers.yml, sync-skills.yml, fan-out modes and the token docs",
+                "state": "todo",
+                "note": "Only after step 2 passes"
+              }
+            ]
+          }
+        },
+        {
+          "type": "details",
+          "props": {
+            "summary": "What gets deleted, and what stays"
+          },
+          "children": [
+            {
+              "type": "prose",
+              "props": {
+                "content": "- **agent-skills:** `consumers.yml`, `sync-skills.yml`, the fan-out and prepare-pr modes, the unused vendor action and the token docs.\n- **Consumers:** the catalog copies and the `.agents/**` exclusions made for them.\n- **agents2:** the vendored catalog, the provenance test and the matching `PROVENANCE.md` section.\n- **Stay:** product-specific skills in clockwork, plannotator and visual-artifact-renderer."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Five questions for Iury",
+        "deck": "None of these block the first step.",
+        "takeaway": "Answer these before the Mac side changes."
+      },
+      "children": [
+        {
+          "type": "decision",
+          "props": {
+            "id": "mac-pin",
+            "question": "Should Macs keep the pin with a one-command bump, or track main?",
+            "options": [
+              {
+                "id": "pin",
+                "label": "Keep the pin",
+                "consequence": "Keeps agents2's lock guarantee; needs a bump.",
+                "suggested": true
+              },
+              {
+                "id": "main",
+                "label": "Track main",
+                "consequence": "No bump, but no lock guarantee for this record."
+              }
+            ]
+          }
+        },
+        {
+          "type": "decision",
+          "props": {
+            "id": "static-line",
+            "question": "Is one static bootstrap line per repo acceptable?",
+            "options": [
+              {
+                "id": "line",
+                "label": "Yes, one line",
+                "consequence": "The realistic minimum with current runtimes.",
+                "suggested": true
+              },
+              {
+                "id": "zero",
+                "label": "Zero agent files in repos",
+                "consequence": "Not achievable with current runtime setup."
+              }
+            ]
+          }
+        },
+        {
+          "type": "decision",
+          "props": {
+            "id": "sync-backup",
+            "question": "Enable Cursor's Sync Skills for Cloud Agents as a backup path?",
+            "options": [
+              {
+                "id": "yes",
+                "label": "Yes",
+                "consequence": "A second route for Cursor Cloud.",
+                "suggested": true
+              },
+              {
+                "id": "no",
+                "label": "No",
+                "consequence": "Bootstrap is the only route."
+              }
+            ]
+          }
+        },
+        {
+          "type": "prose",
+          "props": {
+            "content": "Still open: whether Claude Code cloud or Codex cloud are in use at all, and whether repo-local product skills stay. The recommendation is to keep them; they are not catalog skills."
+          }
+        }
+      ]
+    }
+  ]
+}

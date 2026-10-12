@@ -1,7 +1,1 @@
-{
-  "slug": "metadata-id-number",
-  "title": "Metadata id is numeric",
-  "nodes": [
-    { "type": "text", "props": { "text": "Hello" }, "metadata": { "id": 123 } }
-  ]
-}
+{"slug":"metadata-id-number","title":"Metadata id is numeric","nodes":[{"type":"prose","props":{"content":"Hello"},"metadata":{"id":123}}]}

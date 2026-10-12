@@ -22,7 +22,7 @@ function DefinitionList({ items, className, ...props }: DefinitionListProps) {
               {index > 0 && <Separator />}
               <div className="flex items-baseline justify-between gap-4 px-(--card-spacing) py-3">
                 <dt className="shrink-0 text-sm text-muted-foreground">{item.term}</dt>
-                <dd className="min-w-0 break-all text-right text-sm font-medium font-mono text-foreground">
+                <dd className="min-w-0 break-words text-right text-sm font-medium font-mono text-foreground">
                   {item.description}
                 </dd>
               </div>

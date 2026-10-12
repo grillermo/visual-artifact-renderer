@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useId, useMemo, useState } from "react"
+import { useEffect, useId, useMemo, useRef, useState } from "react"
 
 import {
   Dialog,
@@ -10,6 +10,9 @@ import {
 } from "@/components/ui/dialog"
 
 import { MermaidViewport } from "./mermaid-viewport"
+import { mermaidThemeVariables, svgNaturalSize } from "./mermaid-theme"
+
+const FRAME_CHROME = 16 + 56 // frame padding + toolbar row
 
 let mermaidRenderQueue: Promise<unknown> = Promise.resolve()
 
@@ -32,7 +35,7 @@ function runWithTimeout<T>(fn: () => Promise<T>, ms: number): Promise<T> {
   })
 }
 
-function enqueueMermaidRender<T>(renderFn: () => Promise<T>): Promise<T> {
+export function enqueueMermaidRender<T>(renderFn: () => Promise<T>): Promise<T> {
   return new Promise((resolve, reject) => {
     const run = async () => {
       try {
@@ -49,6 +52,43 @@ function enqueueMermaidRender<T>(renderFn: () => Promise<T>): Promise<T> {
   })
 }
 
+export type DocumentTheme = "light" | "dark"
+
+/** Follows the `dark` class on <html>, so diagrams re-render when the in-page toggle flips. */
+export function useDocumentTheme(): DocumentTheme {
+  const [theme, setTheme] = useState<DocumentTheme>("light")
+  useEffect(() => {
+    const sync = () => setTheme(document.documentElement.classList.contains("dark") ? "dark" : "light")
+    sync()
+    const observer = new MutationObserver(sync)
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] })
+    return () => observer.disconnect()
+  }, [])
+  return theme
+}
+
+/**
+ * Render Mermaid text to SVG through the shared queue. Mermaid keeps one global config, so
+ * every call re-initialises it. `config` is merged over the shared theme settings.
+ */
+export async function renderMermaidSvg(id: string, code: string, config: Record<string, unknown> = {}): Promise<string> {
+  const rendered = await enqueueMermaidRender(async () => {
+    const { default: mermaid } = await import("mermaid")
+    const vars = mermaidThemeVariables()
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: "base",
+      themeVariables: vars,
+      securityLevel: "strict",
+      fontFamily: vars.fontFamily,
+      ...config,
+    })
+    await mermaid.parse(code)
+    return mermaid.render(id, code)
+  })
+  return rendered.svg
+}
+
 export function MermaidDiagram({
   code,
   caption,
@@ -63,33 +103,35 @@ export function MermaidDiagram({
     () => `mermaid-${rawId.replace(/[^a-zA-Z0-9_-]/g, "")}`,
     [rawId]
   )
-  const [theme, setTheme] = useState<"default" | "dark">("default")
+  const theme = useDocumentTheme()
   const [svg, setSvg] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isMaximized, setIsMaximized] = useState(false)
+  const frameRef = useRef<HTMLDivElement>(null)
+  const [frameWidth, setFrameWidth] = useState(0)
+
+  useEffect(() => {
+    const el = frameRef.current
+    if (!el) return
+    const observer = new ResizeObserver(() => setFrameWidth(el.clientWidth))
+    observer.observe(el)
+    setFrameWidth(el.clientWidth)
+    return () => observer.disconnect()
+  }, [svg])
+
+  // A small diagram gets a short frame: natural height at <= 100% scale, never above `height`.
+  const frameHeight = useMemo(() => {
+    const natural = svgNaturalSize(svg)
+    if (!natural || !frameWidth) return height
+    const scale = Math.min(1, (frameWidth - 16) / natural.width)
+    return Math.min(height, Math.ceil(natural.height * scale) + FRAME_CHROME)
+  }, [svg, frameWidth, height])
 
   const normalizedCode = useMemo(
     () =>
       code.replace(/\\n/g, "\n").replace(/\\t/g, "\t").replace(/\\\\/g, "\\"),
     [code]
   )
-
-  useEffect(() => {
-    const syncTheme = () =>
-      setTheme(
-        document.documentElement.classList.contains("dark") ? "dark" : "default"
-      )
-
-    syncTheme()
-
-    const observer = new MutationObserver(syncTheme)
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    })
-
-    return () => observer.disconnect()
-  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -104,9 +146,10 @@ export function MermaidDiagram({
 
           mermaid.initialize({
             startOnLoad: false,
-            theme,
+            theme: "base",
+            themeVariables: mermaidThemeVariables(),
             securityLevel: "strict",
-            fontFamily: "var(--font-geist-sans)",
+            fontFamily: mermaidThemeVariables().fontFamily,
           })
 
           await mermaid.parse(normalizedCode)
@@ -152,12 +195,13 @@ export function MermaidDiagram({
         </div>
       ) : (
         <div
-          className="relative rounded-2xl bg-white p-2 shadow-[var(--shadow-card-sm)]"
-          style={{ height }}
+          ref={frameRef}
+          className="relative rounded-2xl bg-card p-2 shadow-[var(--shadow-card-sm)]"
+          style={{ height: frameHeight }}
         >
           <MermaidViewport
             svg={svg}
-            height={height - 16}
+            height={frameHeight - 16}
             instructionsId={`${diagramId}-instructions`}
             onToggleMaximize={() => setIsMaximized(true)}
           />
@@ -188,7 +232,7 @@ export function MermaidDiagram({
                 {error}
               </pre>
             ) : (
-              <div className="relative flex-1 rounded-2xl bg-white p-2">
+              <div className="relative flex-1 rounded-2xl bg-card p-2">
                 <MermaidViewport
                   svg={svg}
                   height="100%"

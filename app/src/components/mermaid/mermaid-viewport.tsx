@@ -12,6 +12,7 @@ import { Maximize2Icon, XIcon } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { svgNaturalSize } from "./mermaid-theme"
 import { cn } from "@/lib/utils"
 import {
   clampNumber,
@@ -253,6 +254,8 @@ export function MermaidViewport({
 
   const svgMarkup = useMemo(() => ({ __html: svg }), [svg])
   const fillsParent = height === "100%"
+  // Fit never scales above 100%: the mount is no wider than the drawing itself.
+  const natural = useMemo(() => svgNaturalSize(svg), [svg])
 
   return (
     <div
@@ -264,7 +267,7 @@ export function MermaidViewport({
         aria-describedby={instructionsId}
         aria-label={isMaximized ? "Maximized Mermaid diagram" : "Zoomable Mermaid diagram"}
         className={cn(
-          "absolute inset-x-0 bottom-0 top-14 overflow-hidden rounded-xl bg-white p-2 outline-none transition-shadow focus-visible:ring-3 focus-visible:ring-ring/50",
+          "absolute inset-x-0 bottom-0 top-14 overflow-hidden p-2 outline-none transition-shadow focus-visible:ring-3 focus-visible:ring-ring/50",
           isDragging ? "cursor-grabbing" : "cursor-grab"
         )}
         onKeyDown={handleKeyDown}
@@ -278,12 +281,13 @@ export function MermaidViewport({
       >
         <div
           ref={svgMountRef}
-          className="h-full w-full select-none [&_svg]:h-full [&_svg]:w-full [&_svg]:max-w-none"
+          className="mx-auto h-full w-full select-none [&_svg]:h-full [&_svg]:w-full [&_svg]:max-w-none"
+          style={{ maxWidth: natural ? natural.width : undefined }}
           dangerouslySetInnerHTML={svgMarkup}
         />
       </div>
       <div className="pointer-events-none absolute inset-x-0 top-2 z-10 flex justify-center px-2">
-        <div className="pointer-events-auto flex items-center gap-1.5 rounded-full border bg-white px-2 py-1 shadow-sm">
+        <div className="pointer-events-auto flex items-center gap-1.5 rounded-full border border-rule bg-background px-2 py-1">
           <Badge variant="outline" className="tabular-nums">
             {Math.round(zoomScale * 100)}%
           </Badge>

@@ -3,8 +3,8 @@
 import { useSyncExternalStore } from "react"
 import type { BundledLanguage, Highlighter, SpecialLanguage } from "shiki"
 
-export const LIGHT_CODE_THEME = "github-light"
-export const DARK_CODE_THEME = "github-dark"
+export const LIGHT_CODE_THEME = "github-light-high-contrast"
+export const DARK_CODE_THEME = "github-dark-high-contrast"
 
 const COMMON_LANGUAGES = [
   "bash",
@@ -14,6 +14,7 @@ const COMMON_LANGUAGES = [
   "javascript",
   "jsx",
   "python",
+  "lua",
   "yaml",
   "yml",
   "json",

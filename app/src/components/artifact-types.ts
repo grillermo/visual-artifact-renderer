@@ -6,6 +6,7 @@ export type ArtifactRenderContext = {
   project: string
   slug: string
   data: VisualArtifactSpec["data"]
+  /** True when the page uses the pre-redesign shell: shared nodes (e.g. table) keep their legacy look. */
 }
 
 export type RenderNodes = (

@@ -1,0 +1,74 @@
+{
+  "slug": "before-skill-distribution-decision",
+  "title": "Skill distribution: stop copying, fetch at boot",
+  "description": "Research dated 10 October 2026. One public catalog with pinned Mac installs and a static cloud bootstrap line is the source recommendation; nothing changed.",
+  "artifactType": "comparison",
+  "topics": ["skills", "distribution", "cloud"],
+  "layout": { "type": "default" },
+  "data": {
+    "options": [
+      { "option": "1. Fix PR fan-out", "noManualStep": "No: twelve merges", "freshClone": "Only after merge", "runtimeCoverage": "Pi, Claude, Codex, Cursor cloud", "avoidsWriteToken": "No", "maintenance": "Low: repo list, overlays, CI exclusions", "fit": "warn" },
+      { "option": "2. Submodule and Dependabot", "noManualStep": "No: bump PR per repo", "freshClone": "Only with --recurse-submodules", "runtimeCoverage": "Pi, Claude, Codex, Cursor cloud", "avoidsWriteToken": "Yes", "maintenance": "Medium", "fit": "warn" },
+      { "option": "3. Mac installs and cloud bootstrap", "noManualStep": "Yes", "freshClone": "Yes, if boot network works", "runtimeCoverage": "All; one hook per cloud runtime", "avoidsWriteToken": "Yes: public read-only repo", "maintenance": "Low: one catalog script", "fit": "pass" },
+      { "option": "4. Runtime-native user sync", "noManualStep": "Mostly", "freshClone": "Cursor and Claude only", "runtimeCoverage": "No Codex cloud or Pi", "avoidsWriteToken": "Yes", "maintenance": "Low; vendor-shaped, freshness opaque", "fit": "warn" },
+      { "option": "5. npx skills or gh skill per box", "noManualStep": "No: install per box", "freshClone": "No without a hook", "runtimeCoverage": "Pi, Claude, Codex, Cursor cloud", "avoidsWriteToken": "Yes", "maintenance": "Low", "fit": "warn" }
+    ],
+    "runtimeHooks": [
+      { "runtime": "Macs", "setup": "agents2 installed snapshot at tools/agent-skills/<sha>/skills/", "policy": "Pi, Claude and Codex adapters read the snapshot; link into ~/.cursor/skills" },
+      { "runtime": "Cursor cloud", "setup": "Static curl line in .cursor/environment.json install", "policy": "Start with termscope's existing .cursor/install.sh" },
+      { "runtime": "Claude Code cloud", "setup": "SessionStart hook", "policy": "Gate on CLAUDE_CODE_REMOTE=true" },
+      { "runtime": "Codex cloud", "setup": "Environment setup line", "policy": "Configure per Codex environment, not per repo" },
+      { "runtime": "Pi", "setup": "Mac user-level install", "policy": "Covered by agents2 on Macs" }
+    ],
+    "questions": [
+      { "choice": "Mac freshness", "status": "pending", "detail": "Keep the commit pin with a one-command bump, or track main and lose the lock guarantee?" },
+      { "choice": "Cloud setup footprint", "status": "pending", "detail": "Is one static bootstrap line acceptable, or must repos carry zero agent files?" },
+      { "choice": "Cloud runtimes in use", "status": "pending", "detail": "Confirm whether Claude Code cloud or Codex cloud are used, or only Cursor Cloud." },
+      { "choice": "Cursor sync backup", "status": "pending", "detail": "Decide whether to enable Sync Skills for Cloud Agents as a backup path." },
+      { "choice": "Repo-local product skills", "status": "pending", "detail": "Recommendation is to keep them; they are not catalog copies." }
+    ],
+    "cleanup": [
+      { "area": "agent-skills", "remove": "consumers.yml, sync-skills.yml, fan-out modes, unused vendor action, token docs", "keep": "Vendor mode only if still used" },
+      { "area": "Consumers", "remove": "Catalog copies and only their .agents/** CI exclusions", "keep": "Product skills in clockwork, plannotator and visual-artifact-renderer" },
+      { "area": "agents2", "remove": "Vendored catalog copies, matching provenance test and PROVENANCE.md lines", "keep": "Pinned user-level install" }
+    ]
+  },
+  "nodes": [
+    { "type": "text", "props": { "text": "Use one public catalog: pin skills on Macs, fetch them at cloud boot, and leave repos with a stable pointer instead of copied skills.", "size": "lg" } },
+    { "type": "grid", "props": { "columns": 3 }, "children": [
+      { "type": "stat-card", "props": { "label": "Failed sync runs", "value": "7 of 7", "caption": "Since 14 September 2026; SKILLS_SYNC_TOKEN was never set.", "tone": "danger" } },
+      { "type": "stat-card", "props": { "label": "Merges per change", "value": 12, "caption": "Even working PR fan-out needs one merge per consumer.", "tone": "warning" } },
+      { "type": "stat-card", "props": { "label": "Skills per stale consumer", "value": 20, "caption": "One outdated skill and three missing skills." } }
+    ] },
+    { "type": "section", "props": { "title": "Compare the five options", "description": "The source scores option 3 as the only one meeting all five criteria. Options 4 and 5 can complement it." }, "children": [
+      { "type": "comparison-table", "props": { "dataKey": "options", "columns": [
+        { "key": "option", "label": "Option" }, { "key": "noManualStep", "label": "No manual sync" }, { "key": "freshClone", "label": "Fresh clone current" }, { "key": "runtimeCoverage", "label": "Runtime coverage" }, { "key": "avoidsWriteToken", "label": "Avoids write token" }, { "key": "maintenance", "label": "Maintenance" }, { "key": "fit", "label": "All criteria" }
+      ], "statusKey": "fit", "caption": "The source's token column uses Yes for avoiding a cross-repo write token; this table makes that meaning explicit." } }
+    ] },
+    { "type": "section", "props": { "title": "Recommended distribution path" }, "children": [
+      { "type": "mermaid", "props": { "height": 480, "caption": "The same public catalog supplies pinned Mac snapshots and boot-time cloud installs without cross-repo writes.", "code": "flowchart TD\n  catalog[\"Public agent-skills catalog\"] -->|Pinned commit| mac[\"agents2 installed Mac snapshot\"]\n  catalog -->|main or AGENT_SKILLS_REF| boot[\"Idempotent cloud bootstrap\"]\n  mac --> local[\"User-level Pi, Claude, Codex and Cursor skills\"]\n  boot --> cloud[\"User-level cloud runtime skills\"]\n  pointer[\"Stable runtime setup line\"] --> boot" } },
+      { "type": "data-table", "props": { "dataKey": "runtimeHooks", "columns": ["runtime", "setup", "policy"] } }
+    ] },
+    { "type": "section", "props": { "title": "First prove cloud discovery", "description": "Do not roll out the one-liner or remove fan-out until the first runtime test passes." }, "children": [
+      { "type": "flow", "props": { "caption": "If user-level discovery fails, test a gitignored nested .agents/skills/_catalog/ before wider rollout.", "items": [
+        { "title": "Write bootstrap", "description": "About 20 idempotent lines; honor AGENT_SKILLS_REF." },
+        { "title": "Wire termscope", "description": "Add the line to its existing .cursor/install.sh." },
+        { "title": "Test one cloud agent", "description": "List skills; check ~/.cursor/skills and ~/.agents/skills discovery at install time." },
+        { "title": "Roll out after pass", "description": "Only then add the stable line elsewhere and remove catalog copies." }
+      ] } },
+      { "type": "code-block", "props": { "title": "Catalog download target", "language": "text", "code": "https://codeload.github.com/iurysza/agent-skills/tar.gz/${AGENT_SKILLS_REF:-main}", "caption": "The bootstrap extracts skills/* into each runtime's user-level skill directory." } }
+    ] },
+    { "type": "section", "props": { "title": "Choices still open", "description": "Cloud main favors freshness; Mac commit pins preserve reproducibility. A network connection is needed at boot." }, "children": [
+      { "type": "status-grid", "props": { "dataKey": "questions", "titleKey": "choice", "statusKey": "status", "descriptionKey": "detail", "columns": 2 } }
+    ] },
+    { "type": "accordion", "props": { "items": [
+      { "title": "Cleanup after the discovery gate passes", "nodes": [
+        { "type": "data-table", "props": { "dataKey": "cleanup", "columns": ["area", "remove", "keep"] } },
+        { "type": "text", "props": { "text": "Use local gh PRs from Iury's account, not a shared write token. Keep repo-local product skills. A Mac bump command should resolve HEAD, update lock and catalog docs, then apply; agents2 update currently mishandles git pins." } }
+      ] },
+      { "title": "Source and research status", "nodes": [
+        { "type": "text", "props": { "text": "ai-artifacts/node-redesign/sources/4-decision-comparison.md, summarizing distribution-options.md dated 10 October 2026. Research only; nothing changed. The existing process also keeps source, agents2/content/skills, consumer copies and an installed pinned snapshot aligned by tests and provenance. MCP is a poor fit because skill discovery reads disk files and skills can include scripts." } }
+      ] }
+    ] } }
+  ]
+}

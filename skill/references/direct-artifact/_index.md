@@ -56,6 +56,8 @@ Never use `file://` URLs.
 
 Pick a shape before building the spec:
 
+- [Shape recipes](../content-types/recipes.md): weekly report, design explainer, plan, decision, status board
+
 - [Code reviews and static execution traces](../content-types/code-reviews.md)
 - [Architecture diagrams](../content-types/architecture-diagrams.md)
 - [Data organization](../content-types/data-organization.md)
@@ -65,6 +67,6 @@ Pick a shape before building the spec:
 
 - First node answers "what am I looking at?"
 - Important facts get visual weight.
-- Structured evidence goes into data/table nodes.
+- Structured evidence goes into `table`, `ledger` or `checklist`. No cards.
 - Diagrams are readable and captioned.
-- Secondary detail goes in tabs/accordion, not the main path.
+- Secondary detail goes in `details`, not the main path.

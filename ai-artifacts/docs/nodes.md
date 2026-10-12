@@ -1,345 +1,947 @@
-# Visualizer node reference
+---
+description: "Node reference for the 31 surviving artifact node types in contract version 3.0.0."
+---
 
-> Available node types and when to use them.
+# Node reference
 
-Visualizer artifacts are built from a constrained node catalog. Agents never write React, JSX, CSS, routes, imports, or full HTML for the renderer; they choose nodes, fill props, and optionally provide data.
+> Generated from `cli/assets/contract.json`. Run `visual-artifact contract` or `visual-artifact contract --node <type>` for the live version. Source of truth: `shared/src/contract.ts`.
 
-## Sources of truth
+Pages are built from **chapters**. Each chapter holds one main exhibit, plus at most one supporting prose, details or callout, and one takeaway. See [`DESIGN.md`](./DESIGN.md) for the anti-box rules and [`skill/references/content-types/recipes.md`](../../skill/references/content-types/recipes.md) for the five page shapes.
 
-- `visual-artifact contract` — inspect the exported runtime contract bundled into the CLI.
-- [`shared/src/artifact-schema.ts`](../../shared/src/artifact-schema.ts) — executable Zod schema, TypeScript types, and resource preflight.
-- [`shared/src/contract.ts`](../../shared/src/contract.ts) — LLM-facing descriptions, examples, props, and exported limits.
-- [`cli/assets/contract.json`](../../cli/assets/contract.json) — tracked generated handshake checked for drift.
+## Core nodes
 
-Regenerate the contract after schema or manifest changes:
+### `chapter`
 
-```bash
-cd app
-pnpm export:contract
-pnpm verify:artifacts
-```
+A page chapter: mono kicker, serif title, one deck line, children, then one pull-line takeaway. Replaces section and heading. Each chapter is a rail/TOC entry. Do not number titles.
 
-## Stable node IDs for annotations
-
-Every node can carry an optional `metadata.id` string. Agents can leave it off; the renderer falls back to deterministic node paths such as `nodes.0`, `nodes.1.children.2`, or `nodes.3.props.items.0.nodes.1`. IDs are useful when artifacts need to keep comments anchored to a node across edits or reorders.
-
-Example:
-
-```json
-{
-  "type": "stat-card",
-  "metadata": { "id": "summary-card" },
-  "props": { "label": "Summary", "value": "Ready" }
-}
-```
-
-When rendered, each node is wrapped in a layout-neutral boundary with these attributes:
-
-- `data-va-node-id` — the `metadata.id` value, when present
-- `data-va-node-path` — the deterministic path inside the spec
-- `data-va-node-type` — the node type, e.g. `stat-card`
-- `data-va-node-label` — a short label derived from `title`, `text`, `label`, or `content`
-
-The renderer uses `display: contents` for the boundary so grids, tabs, accordions, and cards keep their existing layout.
-
-## Node set
-
-Visualizer ships **48** node types:
-
-```txt
-alert, area-chart, radar-chart, scatter-chart, heatmap, log,
-definition-list, diff, donut-chart, file-tree, heading, image,
-pie-chart, stepper, text, card, metric, stat-card, badge,
-button, separator, table, data-table, comparison-table, chart,
-mermaid, svg-diagram, flow, timeline, execution-trace, code-block, status-grid,
-grid, section, tabs, accordion, prose,
-claim-tree, claim, decision, call-stack, state-machine, sequence-diagram,
-box-diagram, mockup, wireframe, change-stats, quotes
-```
-
-## Selection map
-
-| Need | Use |
+| Prop | Type |
 |---|---|
-| Page/section structure | `heading`, `section`, `text`, `separator` |
-| Long markdown narrative | `prose` |
-| Narrative container | `card` |
-| Compact KPI | `metric` |
-| Summary band | `stat-card` inside `grid` |
-| Metadata/action | `badge`, `button` |
-| Standard data | `table`, `data-table`, `chart` |
-| Checks, risks, options, parity | `comparison-table` |
-| Health/readiness/risk board | `status-grid` |
-| Architecture/topology | `mermaid`, `svg-diagram` |
-| Request/deploy/data path | `flow` |
-| Release/runbook sequence | `timeline`, `stepper` |
-| Verified API boundaries and types: interfaces, boundaries, transformations | `execution-trace` |
-| What calls what and what changes (plan sketch, optional excerpts) | `call-stack` |
-| A plan as a tree of claims, each proved by one exhibit | `claim-tree` + `claim` |
-| A fork the reader must choose, placed on the claim it changes | `decision` |
-| Lifecycle or UI states, with a screen per state | `state-machine` |
-| Messages between components when the plan changes them | `sequence-diagram` (use `mermaid` for generic sequences) |
-| Components and connections with grid placement and proposed marks | `box-diagram` (use `flow` for a linear strip) |
-| What the user or terminal will see | `mockup` + `wireframe` |
-| Size of a change at a glance | `change-stats` |
-| The requests or sources behind a plan | `quotes` |
-| Commands/config/file maps | `code-block` (with `annotations`, `highlight`, `diff`, `sketch`, `startLine`), `file-tree` (with `notes`, `statusStyle: "marks"`, `gitStatus`, `flattenEmpty`, `searchable`, `density`, `iconSet`, `defaultExpanded`), `diff` (with `content`, `mode`, `showLineNumbers`, `indicators`, `highlightInline`, `hunkSeparator`, `caption`), `log` |
-| Proportional data | `pie-chart`, `donut-chart` |
-| Cumulative/trend data | `area-chart` |
-| Multi-dimensional comparison | `radar-chart` |
-| Correlation | `scatter-chart` |
-| Matrix/correlation intensity | `heatmap` |
-| Term definitions | `definition-list` |
-| Images | `image` |
-| Callouts with intent | `alert` with `tone`: `info`, `warn`, `risk`, `ok`, `idea` |
-| Alternate detail | `tabs`, `accordion` |
+| `kicker` | string ≤40? |
+| `title` | string ≤80 |
+| `deck` | string ≤200? — one plain sentence |
+| `takeaway` | string ≤160? — the quotable line |
+| `signal` | "new" \| "risk" \| "wait"? — colours the takeaway rule |
 
-## Composition guidance
-
-Prefer visual structure over card soup:
-
-- Open with a concise thesis.
-- Follow with `stat-card` summary tiles when there are key facts.
-- Use `status-grid` for health, readiness, validation state, and risk.
-- Use `comparison-table` for evidence, options, tradeoffs, and parity.
-- Use `flow` for linear handoffs and `mermaid` for richer diagrams.
-- Use `svg-diagram` only when Mermaid cannot express the layout or interaction.
-- Use `timeline` or `stepper` for phases and runbooks.
-- Use `code-block` for exact commands/config, not whole source files.
-- Use `tabs` for alternate views of the same subject.
-- Use `accordion` for secondary detail, never for conclusions.
-- Avoid `file://` links. Use app routes, HTTPS URLs, or relative sidecar assets.
-
-## Data-backed nodes
-
-Data-backed nodes read arrays from `spec.data` using `dataKey`.
-
-Example:
+Children: nodes
 
 ```json
 {
-  "data": {
-    "checks": [
-      { "check": "Contract", "status": "pass", "evidence": "pnpm verify:artifacts" },
-      { "check": "Build", "status": "ready", "evidence": "pnpm build" }
-    ]
+  "type": "chapter",
+  "props": {
+    "kicker": "Memory",
+    "title": "Long sessions keep their facts",
+    "deck": "Facts are saved before the model summarises.",
+    "takeaway": "Save first, summarise second."
   },
-  "nodes": [
+  "children": [
     {
-      "type": "comparison-table",
+      "type": "prose",
       "props": {
-        "dataKey": "checks",
-        "columns": ["check", "status", "evidence"],
-        "statusKey": "status"
+        "content": "Memory writes decisions down before compaction runs."
       }
     }
   ]
 }
 ```
 
-Keep data values well-formed. The CLI and renderer call the same shared executable schema. The enforced envelope is 2 MiB raw/final JSON, 30 top-level/100 total nodes, 20 datasets, node depth 8, 500 file-tree items, and file-tree depth 12.
+### `prose`
 
-## File-tree source reads
+Markdown paragraphs, lists, links and long-form narrative.
 
-A file item may supply `content` directly or use `src` as create-time input. Prefer project-relative `src` paths. They must resolve inside the canonical project root; raw `..` segments and symlink escapes are rejected. Absolute or outside-project reads require a matching repeatable `visual-artifact create --allow-read <dir>` grant. The Pi tool never grants external reads.
-
-The CLI reads the canonical regular file, caps each source at 512 KiB and all sourced content at 1 MiB, inlines it as `content`, and strips `src` from newly saved/published artifacts. Explicit `content` wins without reading disk.
-
-## Local images
-
-For local assets, place the file inside the artifact's `assets` directory:
-
-```text
-~/.agents/skills/visual-artifact/artifacts/<project>/<slug>/assets/hero.png
-```
-
-Then reference it with a relative path:
-
-```json
-{ "type": "image", "props": { "src": "assets/hero.png", "alt": "Artifact hero" } }
-```
-
-The renderer serves it as:
-
-```text
-/data/artifacts/<project>/<slug>/assets/hero.png
-```
-
-## Copyable pattern: architecture brief
-
-```json
-[
-  {
-    "type": "text",
-    "props": {
-      "text": "The runtime is a three-stage pipeline: JSON contract, CLI validation/storage, renderer adapters.",
-      "size": "lg"
-    }
-  },
-  {
-    "type": "grid",
-    "props": { "columns": 3 },
-    "children": [
-      { "type": "stat-card", "props": { "label": "Surface", "value": "JSON", "caption": "Agent contract", "tone": "accent" } },
-      { "type": "stat-card", "props": { "label": "Boundary", "value": "CLI", "caption": "Validation + storage", "tone": "success" } },
-      { "type": "stat-card", "props": { "label": "Output", "value": "UI", "caption": "Trusted adapters", "tone": "default" } }
-    ]
-  },
-  {
-    "type": "mermaid",
-    "props": {
-      "title": "Runtime flow",
-      "code": "flowchart LR\n  Agent --> Spec[JSON spec]\n  Spec --> CLI[visual-artifact CLI]\n  CLI --> Store[(artifacts)]\n  Store --> App[Next.js renderer]\n  App --> Page[artifact page]"
-    }
-  }
-]
-```
-
-## Copyable pattern: runbook
+| Prop | Type |
+|---|---|
+| `content` | string |
+| `tone` | default \| muted? |
 
 ```json
 {
-  "data": {
-    "releasePhases": [
-      { "step": "01", "phase": "Verify", "action": "Run local checks", "status": "pass" },
-      { "step": "02", "phase": "Build", "action": "Create static export", "status": "ready" }
-    ]
+  "type": "prose",
+  "props": {
+    "content": "Here is a list of items:\n\n- First item\n- Second item\n\n[Learn more](https://example.com)"
+  }
+}
+```
+
+### `columns`
+
+2 or 3 text columns with a top rule and no boxes. Children: prose, figures, checklist, links or quote only (no diagrams, no nested columns). A prose child starting with '### Heading' gets a mono caps label.
+
+| Prop | Type |
+|---|---|
+| `count` | 2 \| 3? — defaults to the number of children |
+
+Children: nodes
+
+```json
+{
+  "type": "columns",
+  "props": {
+    "count": 2
   },
-  "nodes": [
+  "children": [
     {
-      "type": "timeline",
+      "type": "prose",
       "props": {
-        "dataKey": "releasePhases",
-        "titleKey": "phase",
-        "markerKey": "step",
-        "descriptionKey": "action",
-        "statusKey": "status"
+        "content": "### Before\nTwo writers, one file."
       }
     },
     {
-      "type": "code-block",
+      "type": "prose",
       "props": {
-        "title": "Ship checks",
-        "language": "bash",
-        "code": "cd app\npnpm verify:artifacts\npnpm lint\npnpm build"
+        "content": "### After\nOne owner per file."
       }
     }
   ]
 }
 ```
 
-## Copyable pattern: file tree with git status
+### `callout`
+
+A margin note: coloured left rule, tone icon, short title, body. No fill, no box. At most two per chapter.
+
+| Prop | Type |
+|---|---|
+| `tone` | "note" \| "risk" \| "new" \| "wait" |
+| `title` | string ≤80? |
+| `body` | markdown ≤400 |
 
 ```json
 {
-  "type": "file-tree",
+  "type": "callout",
+  "props": {
+    "tone": "risk",
+    "title": "No secret-file filter yet",
+    "body": "The sandbox stops path escapes, not reads of .env inside the root."
+  }
+}
+```
+
+### `details`
+
+One quiet 'more detail' disclosure: chevron plus underlined summary, content opens below with no surface. For evidence, never for the main point.
+
+| Prop | Type |
+|---|---|
+| `summary` | string ≤80 |
+
+Children: nodes
+
+```json
+{
+  "type": "details",
+  "props": {
+    "summary": "Full request trace"
+  },
+  "children": [
+    {
+      "type": "prose",
+      "props": {
+        "content": "Evidence goes here."
+      }
+    }
+  ]
+}
+```
+
+### `ledger`
+
+Rows of title + body grouped under a coloured label (risk, wait, new, done, none). Replaces status-grid and definition-list. Put what can break first. Colour lives on the group label only. Literal form: groups[]. Data-backed form: dataKey + titleKey + bodyKey + groupKey (+ nextKey, metaKey, groupOrder, signals).
+
+| Prop | Type |
+|---|---|
+| `caption` | string? |
+| `groups` | { label ≤40, signal?: "risk"\|"wait"\|"new"\|"done"\|"none", hint? ≤80, rows: { title ≤60, body: markdown ≤280, next? ≤140, meta? ≤40, href?: https }[] 1-12 }[] 1-4 |
+| `dataKey` | string? — data-backed variant: data[dataKey] is an array of row objects |
+| `titleKey` | string? — required with dataKey |
+| `bodyKey` | string? — required with dataKey |
+| `groupKey` | string? — required with dataKey; row value names its group |
+| `nextKey` | string? |
+| `metaKey` | string? |
+| `groupOrder` | string[] ≤4? — group order; default is first-seen |
+| `signals` | Record<group, signal>? — colour per group |
+
+```json
+{
+  "type": "ledger",
+  "props": {
+    "groups": [
+      {
+        "label": "Can break something",
+        "signal": "risk",
+        "hint": "Fix these first.",
+        "rows": [
+          {
+            "title": "Stale lockfile hash",
+            "body": "Updating a git-pinned tool keeps the old hash.",
+            "next": "Recompute on update."
+          }
+        ]
+      },
+      {
+        "label": "Waiting on you",
+        "signal": "wait",
+        "rows": [
+          {
+            "title": "Work Mac check",
+            "body": "Not applied since the pin bump."
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### `checklist`
+
+One line per item with a state glyph: done, doing, todo, blocked, dropped. Replaces status chips and stepper-for-status.
+
+| Prop | Type |
+|---|---|
+| `items` | { text ≤140, state: "done"\|"doing"\|"todo"\|"blocked"\|"dropped", note? ≤140 }[] 1-20 |
+
+```json
+{
+  "type": "checklist",
   "props": {
     "items": [
       {
-        "name": "src",
-        "type": "directory",
-        "children": [
-          { "name": "index.ts", "type": "file" },
-          { "name": "button.tsx", "type": "file" }
+        "text": "Add the schemas",
+        "state": "done"
+      },
+      {
+        "text": "Register stubs",
+        "state": "doing"
+      },
+      {
+        "text": "Export the contract",
+        "state": "todo"
+      }
+    ]
+  }
+}
+```
+
+### `figures`
+
+An inline band of at most 4 big numbers with a label under each, optional note, sparkline and signal. No tiles. Replaces stat-card, metric and change-stats.
+
+| Prop | Type |
+|---|---|
+| `items` | { value: string ≤24 \| number, label ≤40, note? ≤80, trend?: number[] 2-24, signal?: "new"\|"risk"\|"wait" }[] 1-4 |
+
+```json
+{
+  "type": "figures",
+  "props": {
+    "items": [
+      {
+        "value": "114K",
+        "label": "Typical input",
+        "trend": [
+          90,
+          100,
+          110,
+          114
         ]
+      },
+      {
+        "value": "200K",
+        "label": "Model limit",
+        "signal": "risk"
+      }
+    ]
+  }
+}
+```
+
+### `table`
+
+Hairline table backed by embedded data. dense = smaller text, statusKey = dot plus word, highlightKey = boolean column that marks a row, onlyDiffs = hide columns where every row is the same. Absorbs data-table and comparison-table.
+
+| Prop | Type |
+|---|---|
+| `dataKey` | string |
+| `columns` | (string \| { key, label?, align?: left\|center\|right, width? })[]? |
+| `caption` | string? |
+| `dense` | boolean? |
+| `statusKey` | string? |
+| `highlightKey` | string? |
+| `onlyDiffs` | boolean? |
+
+```json
+{
+  "type": "table",
+  "props": {
+    "dataKey": "checks",
+    "columns": [
+      "check",
+      "result",
+      "evidence"
+    ],
+    "statusKey": "result",
+    "onlyDiffs": true
+  }
+}
+```
+
+### `steps`
+
+A step line of 2-7 steps with connectors. Mark 1-2 steps key (never all). Replaces flow and stepper. tag is a short mono label in the signal colour.
+
+| Prop | Type |
+|---|---|
+| `caption` | string ≤240? |
+| `items` | { title ≤40, body? ≤100, tag? ≤24, key?: boolean }[] 2-7 |
+| `direction` | "row" \| "column"? |
+
+```json
+{
+  "type": "steps",
+  "props": {
+    "items": [
+      {
+        "title": "Session grows",
+        "body": "Context passes 70%."
+      },
+      {
+        "title": "Memory saves first",
+        "tag": "New order",
+        "key": true
+      },
+      {
+        "title": "Model summarises"
+      }
+    ]
+  }
+}
+```
+
+### `map`
+
+A label-safe map of 2-6 nodes and at most 8 edges. Edges are terse: 'a -> b : label' (solid), 'a --> b' (dashed), '+ a -> b' (proposed). More than 6 nodes is an error: split into two maps or use steps. Caption is required.
+
+| Prop | Type |
+|---|---|
+| `caption` | string ≤240 |
+| `nodes` | { id, label ≤28, sub? ≤40, kind?: "actor"\|"service"\|"store"\|"file"\|"external", signal?: "new"\|"risk"\|"wait" }[] 2-6 |
+| `edges` | string[] ≤8 |
+| `layout` | "row" \| "column" \| "hub"? |
+| `legend` | { solid?, dashed? }? |
+
+```json
+{
+  "type": "map",
+  "props": {
+    "caption": "How a request reaches the store.",
+    "nodes": [
+      {
+        "id": "web",
+        "label": "Web",
+        "kind": "actor"
+      },
+      {
+        "id": "api",
+        "label": "API",
+        "kind": "service"
+      },
+      {
+        "id": "db",
+        "label": "Postgres",
+        "kind": "store",
+        "signal": "new"
       }
     ],
-    "flattenEmpty": true,
-    "searchable": true,
-    "density": "default",
-    "iconSet": "standard",
-    "defaultExpanded": true,
-    "gitStatus": {
-      "src/index.ts": { "status": "modified" },
-      "src/button.tsx": { "status": "added" },
-      "src": { "status": "modified", "descendant": true }
+    "edges": [
+      "web -> api : POST",
+      "api -> db : write"
+    ],
+    "layout": "row"
+  }
+}
+```
+
+### `story`
+
+A diagram that assembles as the reader scrolls: a map (up to 8 nodes) plus 2-7 beats, each showing nodes and optionally focusing some. Use one per page, for the core data flow.
+
+| Prop | Type |
+|---|---|
+| `caption` | string ≤240 |
+| `diagram` | { caption?, nodes (2-8, as map), edges ≤8, layout?, legend? } |
+| `beats` | { text: markdown ≤320, show: id[], focus?: id[] }[] 2-7 |
+
+```json
+{
+  "type": "story",
+  "props": {
+    "caption": "From a full session to a summary.",
+    "diagram": {
+      "nodes": [
+        {
+          "id": "session",
+          "label": "Session"
+        },
+        {
+          "id": "memory",
+          "label": "Memory",
+          "signal": "new"
+        },
+        {
+          "id": "summary",
+          "label": "Summary"
+        }
+      ],
+      "edges": [
+        "session -> memory : save facts",
+        "memory -> summary : writes"
+      ],
+      "layout": "row"
+    },
+    "beats": [
+      {
+        "text": "The session fills up.",
+        "show": [
+          "session"
+        ]
+      },
+      {
+        "text": "Memory saves the facts first.",
+        "show": [
+          "session",
+          "memory"
+        ],
+        "focus": [
+          "memory"
+        ]
+      },
+      {
+        "text": "The summary is written from them.",
+        "show": [
+          "session",
+          "memory",
+          "summary"
+        ],
+        "focus": [
+          "summary"
+        ]
+      }
+    ]
+  }
+}
+```
+
+### `sequence`
+
+Lifeline sequence diagram, at most 10 steps (split bigger ones). Terse steps: 'a -> b : text', 'a --> b', 'a -x-> b', 'note over a, b: text', '--- label ---'. key lists 0-based step indices to emphasise. caption is required.
+
+| Prop | Type |
+|---|---|
+| `title` | string? |
+| `caption` | string |
+| `participants` | { id, label? ≤28, kind?: "actor"\|"service"\|"store"\|"external", mark? }[] 2-8 |
+| `steps` | (string \| object)[] 1-10 |
+| `key` | number[]? — step indices to emphasise |
+
+```json
+{
+  "type": "sequence",
+  "props": {
+    "caption": "Cancel wins only before the worker claims the row.",
+    "participants": [
+      {
+        "id": "user",
+        "kind": "actor"
+      },
+      {
+        "id": "api"
+      },
+      {
+        "id": "db",
+        "kind": "store"
+      }
+    ],
+    "steps": [
+      "user -> api : cancel",
+      "api -> db : update status",
+      "db --> api : 1 row",
+      "api --> user : 204"
+    ],
+    "key": [
+      1
+    ]
+  }
+}
+```
+
+### `timeline`
+
+A vertical spine with dated ticks, no cards. Literal form: items[] of 2-12. Data-backed form: dataKey with whenKey/titleKey/bodyKey/signalKey (the old markerKey, descriptionKey and statusKey still work).
+
+| Prop | Type |
+|---|---|
+| `items` | { when ≤24, title ≤60, body? ≤200, signal?: "new"\|"risk"\|"wait" }[] 2-12 |
+| `caption` | string? |
+| `dataKey` | string? — data-backed variant |
+| `whenKey` | string? |
+| `titleKey` | string? |
+| `bodyKey` | string? |
+| `signalKey` | string? |
+| `markerKey` | string? — v1 alias of whenKey |
+| `descriptionKey` | string? — v1 alias of bodyKey |
+| `statusKey` | string? — v1 alias of signalKey |
+
+```json
+{
+  "type": "timeline",
+  "props": {
+    "items": [
+      {
+        "when": "Oct 4",
+        "title": "Pi 1.0.4 live"
+      },
+      {
+        "when": "Oct 7",
+        "title": "Tool cards ship",
+        "signal": "new"
+      },
+      {
+        "when": "Oct 9",
+        "title": "Cloud agents land"
+      }
+    ]
+  }
+}
+```
+
+### `compare`
+
+Before/after or option comparison: two labelled columns with a vertical rule, no boxes. With rows, only differing rows render; identical rows collapse to one muted line. verdict renders as the takeaway.
+
+| Prop | Type |
+|---|---|
+| `mode` | "before-after" \| "options" |
+| `left` | { label ≤40, body: markdown ≤600 } |
+| `right` | { label ≤40, body: markdown ≤600 } |
+| `rows` | { aspect ≤40, left ≤120, right ≤120 }[] ≤10? |
+| `verdict` | string ≤160? |
+
+```json
+{
+  "type": "compare",
+  "props": {
+    "mode": "before-after",
+    "left": {
+      "label": "Before",
+      "body": "Two writers, one file."
+    },
+    "right": {
+      "label": "After",
+      "body": "One owner per file."
+    },
+    "rows": [
+      {
+        "aspect": "Conflicts",
+        "left": "Last write wins",
+        "right": "Cannot happen"
+      }
+    ],
+    "verdict": "One owner per file."
+  }
+}
+```
+
+### `decision`
+
+A question for the reader; options render as rows (radio ring, label, consequence), exactly one suggested option for single choice. Answers are local page state; one "Copy decisions as Markdown" button exports them. Max 5 per spec; ids unique.
+
+| Prop | Type |
+|---|---|
+| `id` | PlanId |
+| `question` | string ≤200 |
+| `mode` | "single" \| "multiple"? |
+| `options` | { id, label ≤80, consequence? ≤100, suggested? }[] 2-6 |
+| `allowOther` | boolean? |
+
+```json
+{
+  "type": "decision",
+  "props": {
+    "id": "limit",
+    "question": "How many scheduled messages per user?",
+    "options": [
+      {
+        "id": "fifty",
+        "label": "50",
+        "suggested": true
+      },
+      {
+        "id": "five-hundred",
+        "label": "500"
+      },
+      {
+        "id": "none",
+        "label": "No limit",
+        "consequence": "risk of abuse"
+      }
+    ]
+  }
+}
+```
+
+### `code`
+
+Use annotated `code` for explained source, commands, config and diffs. The header sits above a flat source surface. Each side is capped at 400 lines and 24 KB.
+
+| Prop | Type |
+|---|---|
+| `title`, `file`, `language`, `caption` | optional strings; file ≤200 |
+| `code` or `src` | exactly one source form, or use before + after |
+| `before`, `after` | optional strings, both required for a comparison |
+| `lineNumbers`, `startLine`, `highlight` | optional boolean, number, and line/range array |
+| `annotations` | up to 12 `{ line, end?, title ≤80, body? ≤400, tone?, text? ≤80, side? }` |
+| `diff`, `diffMode` | unified patch boolean; mode `unified` or `split` |
+| `sketch` | optional illustrative-code flag |
+
+Annotation `end` is inclusive and must be at least `line`. Ranges cannot overlap on the same side. `text` must exist on the start line. `side` is `old` or `new`, only for diffs. Diff notes allow `info`, `risk` and `idea`, never green `ok`.
+
+Split falls back to unified below 720px container width or when p90 line length exceeds 70 columns. At 900px, notes align beside their source with measured collision placement and connectors. Narrow notes appear after their range. Shell recipes without notes hide line numbers and copy without `$ ` prompts.
+
+```json
+{"type":"code","props":{"file":"src/cache.ts","language":"typescript","code":"const cache = new Map()\ncache.clear()","annotations":[{"line":1,"end":2,"title":"Bound cache lifetime","text":"new Map()","tone":"idea"}]}}
+```
+
+### `trend`
+
+Bare line or bar chart backed by embedded data. Up to 3 series labelled directly at their ends, no legend box. mark adds up to 3 annotated vertical hairlines. caption is required.
+
+| Prop | Type |
+|---|---|
+| `dataKey` | string |
+| `x` | string |
+| `y` | string \| string[] ≤3 |
+| `kind` | "line" \| "bar"? |
+| `caption` | string ≤240 |
+| `mark` | { x: string\|number, label ≤60 }[] ≤3? |
+
+```json
+{
+  "type": "trend",
+  "props": {
+    "dataKey": "inputSizes",
+    "x": "week",
+    "y": "tokens",
+    "caption": "Input size by week.",
+    "mark": [
+      {
+        "x": "W3",
+        "label": "Haiku switch"
+      }
+    ]
+  }
+}
+```
+
+### `quote`
+
+One pull-quote in serif italic with an optional source line (from, via, date, href). A list of quotes is a ledger with meta.
+
+| Prop | Type |
+|---|---|
+| `text` | string ≤400 |
+| `from` | string ≤60? |
+| `via` | "prompt"\|"slack"\|"github"\|"doc"\|"email"\|"meeting"\|"transcript"? |
+| `date` | YYYY-MM-DD? |
+| `href` | https url? |
+
+```json
+{
+  "type": "quote",
+  "props": {
+    "text": "Users keep asking to send later.",
+    "via": "slack",
+    "from": "Dana",
+    "date": "2026-09-30"
+  }
+}
+```
+
+### `links`
+
+A plain inline row of underlined links (sources, references). Hrefs: http, https, mailto, tel or relative.
+
+| Prop | Type |
+|---|---|
+| `items` | { label ≤60, href }[] 1-8 |
+
+```json
+{
+  "type": "links",
+  "props": {
+    "items": [
+      {
+        "label": "Design review",
+        "href": "https://example.com/review"
+      },
+      {
+        "label": "Plan",
+        "href": "https://example.com/plan"
+      }
+    ]
+  }
+}
+```
+
+## Specialised nodes
+
+Use these when the content needs the exhibit. Plans use `claim-tree` with `claim` children.
+
+### `claim-tree`
+
+Plan spine: numbered, collapsible claims with a contents rail. Children must be claim nodes. At most one per spec. open: "needs" opens claims that hold a decision.
+
+| Prop | Type |
+|---|---|
+| `title` | string? |
+| `open` | "all" \| 1 \| 2 \| "needs"? |
+| `contents` | boolean? — side contents rail (default true) |
+
+Children: nodes
+
+```json
+{
+  "type": "claim-tree",
+  "props": {
+    "open": "needs"
+  },
+  "children": [
+    {
+      "type": "claim",
+      "props": {
+        "text": "The user can pick a time in the composer."
+      },
+      "children": [
+        {
+          "type": "prose",
+          "props": {
+            "content": "Exhibit goes first."
+          }
+        }
+      ]
     }
-  }
+  ]
 }
 ```
 
-## Copyable pattern: diff from a unified diff string
+### `claim`
+
+One numbered plan claim inside a claim-tree or claim (max 3 levels). Children order: one exhibit, then at most one decision or callout, then child claims. aux "shared" renders ✱, "scope" renders –.
+
+| Prop | Type |
+|---|---|
+| `text` | string ≤280 |
+| `aux` | "shared" \| "scope"? |
+| `open` | boolean? |
+
+Children: nodes
 
 ```json
 {
-  "type": "diff",
+  "type": "claim",
   "props": {
-    "title": "utils.ts",
-    "language": "typescript",
-    "mode": "unified",
-    "indicators": "plus-minus",
-    "highlightInline": true,
-    "content": "diff --git a/utils.ts b/utils.ts\n--- a/utils.ts\n+++ b/utils.ts\n@@ -1,3 +1,3 @@\n export function greet(name: string) {\n-  return `Hello, ${name}`;\n+  return `Hello, ${name}!`;\n }\n"
-  }
+    "text": "A worker claims due messages once a minute."
+  },
+  "children": [
+    {
+      "type": "prose",
+      "props": {
+        "content": "Exhibit."
+      }
+    }
+  ]
 }
 ```
 
-## Copyable pattern: diff from before/after (split mode)
+### `walkthrough`
+
+An ordered route through source, with a following code pane on wide containers and per-step excerpts on narrow ones. This replaces sequences of unconnected code captions.
+
+| Prop | Type |
+|---|---|
+| `title`, `caption` | optional strings |
+| `files` | 1 to 4 `{ path, language?, code? or src? or before+after, startLine?, diff? }` |
+| `steps` | 2 to 8 `{ file?, lines, title, body?, tone?, text?, side? }` |
+
+Every step names its `file` when several files are present. `lines` is `n` or `a-b` and must exist in the file. Notes share code annotation bounds and tones. The CLI inlines each project-contained `src` and validates step ranges again.
+
+At 720px container width the steps sit beside a sticky source pane. The active range is tinted; other source recedes. Buttons and ArrowUp/ArrowDown or j/k move steps when the pane has focus. Narrow screens show each step's range with three context lines, a pinned horizontal step list and full-file disclosures. Reduced motion is instant.
+
+```json
+{"type":"walkthrough","props":{"files":[{"path":"src/cache.ts","code":"const cache = new Map()\ncache.clear()"}],"steps":[{"lines":"1","title":"Track the work"},{"lines":"2","title":"Release settled work"}]}}
+```
+
+### `state-machine`
+
+Clickable state machine. Events are terse "from -event-> to : label" (event ids are kebab-case). Optional grid places states; traces replay event paths. Screen children (with metadata.id) are shown when a state with screen = that id is selected.
+
+| Prop | Type |
+|---|---|
+| `title` | string? |
+| `caption` | string? |
+| `initial` | state id |
+| `states` | { id, label?, description?, final?, mark?, screen?, code?, sets? }[] 2-16 |
+| `events` | (string \| { from, event, to, label?, mark? })[] |
+| `grid` | ("\| a \| b \| . \|" \| (id \| null)[])[]? |
+| `traces` | { name, events: event[] }[]? |
+
+Children: nodes
 
 ```json
 {
-  "type": "diff",
+  "type": "state-machine",
   "props": {
-    "title": "cache.go",
-    "language": "go",
-    "mode": "split",
-    "indicators": "bars",
-    "before": "func Get(key string) (*Item, bool) {\n    return item.Value, true\n}",
-    "after": "func Get(key string) (*Item, bool) {\n    delete(c.items, key)\n    return item.Value, true\n}"
+    "initial": "scheduled",
+    "states": [
+      {
+        "id": "scheduled"
+      },
+      {
+        "id": "sending"
+      },
+      {
+        "id": "sent",
+        "final": true
+      },
+      {
+        "id": "failed",
+        "final": true
+      }
+    ],
+    "events": [
+      "scheduled -at-send-at-> sending : at send_at",
+      "sending -ok-> sent",
+      "+ sending -error-> failed"
+    ],
+    "grid": [
+      "| scheduled | sending | sent |",
+      "| . | failed | . |"
+    ]
   }
 }
 ```
 
-## Copyable pattern: source-backed call stack
+### `mockup`
 
-Source-backed frames support TypeScript/TSX, JavaScript/JSX, and Ruby. The CLI selects a small source-analysis adapter for the file extension and normalizes its ast-grep calls, declarations, scopes, assignments, returns, and branches into the same renderer contract. Unsupported source must stay in non-trace nodes; never use a fake file in a supported language to manufacture verified facts.
+Framed UI mockup built from wireframe, prose or code nodes. Pins point at a child metadata.id or at x/y fractions. No claims, decisions, mockups or state-machines inside.
 
-First inspect the ordered span:
+| Prop | Type |
+|---|---|
+| `frame` | "none" \| "browser" \| "phone" \| "desktop" \| "terminal" |
+| `width` | number? 280-1440 |
+| `label` | string? — URL bar or window title |
+| `caption` | string? |
+| `pins` | { n?, target?: metadata.id, x?, y?, text ≤140 }[]? ≤12 |
 
-```bash
-visual-artifact --json trace inspect \
-  --project . \
-  --anchor shared/src/artifact-schema.ts:1626
+Children: nodes
+
+```json
+{
+  "type": "mockup",
+  "props": {
+    "frame": "terminal",
+    "label": "zsh"
+  },
+  "children": [
+    {
+      "type": "wireframe",
+      "props": {
+        "element": "prompt",
+        "text": "visual-artifact create plan.json"
+      }
+    },
+    {
+      "type": "wireframe",
+      "props": {
+        "element": "output",
+        "text": "✓ created"
+      }
+    }
+  ]
+}
 ```
 
-Copy the resolved `.sources[0].source` object unchanged into the event:
+### `wireframe`
+
+Low-fidelity UI primitive, only inside a mockup. prompt/output need a terminal frame.
+
+| Prop | Type |
+|---|---|
+| `element` | "navbar"\|"sidebar"\|"input"\|"textarea"\|"select"\|"toggle"\|"checkbox"\|"avatar"\|"placeholder"\|"skeleton-lines"\|"toast"\|"modal-scrim"\|"divider"\|"prompt"\|"output"\|"spinner" |
+| `text` | string? |
+| `items` | string[]? ≤8 |
+| `lines` | number? 1-8 |
+| `state` | "default"\|"active"\|"disabled"\|"error"\|"checked"? |
+| `mark` | ChangeMark? |
+
+```json
+{
+  "type": "wireframe",
+  "props": {
+    "element": "navbar",
+    "items": [
+      "Inbox",
+      "Scheduled"
+    ]
+  }
+}
+```
+
+### `execution-trace`
+
+The header and boundary bar span the full content width. At 960px container width, a 24rem wrapping frame list sits beside source; the inspector spans both columns and omits empty sections. Below that width, the call stack is a closed disclosure and source gets full width. Source uses the same code view, focus tint and underline as `code`. Frame order, kind glyphs, depth guides and `aria-current` identify selection without color alone.
+
+Source-backed call stack for planning or reviewing code changes, especially API surfaces: interfaces, types, transformations, and boundaries. JavaScript-family and Ruby adapters normalize ast-grep facts into one shared trace contract. Select ordered file spans, run `visual-artifact trace inspect` for canonical focus/scope facts, then add narrative context. Create-time verification rejects stale or edited code identity.
+
+| Prop | Type |
+|---|---|
+| `title` | string? |
+| `caption` | string? |
+| `provenance` | { mode: 'captured' \| 'inferred' \| 'simulated' \| 'mixed', method: 'runtime-probe' \| 'inspector' \| 'static-analysis' \| 'author-curated', summary: string, confidence: 'high' \| 'medium' \| 'low', codeRevision?: string } |
+| `events` | ExecutionTraceEvent[] (1-100; every event requires source: { src, facts } copied from `visual-artifact trace inspect`; the CLI re-extracts facts and persists { content, facts }; boundary events require boundary.from/to/kind/outcome; values require typed preview + provenance; optional impacts are { kind: 'effect' \| 'error', title, description?, codeRef? }[] and should be omitted unless evidence establishes them) |
+| `typeDefinitions` | { name: string, definition: string, language?: string, file?: string, line?: number, provenance: 'inferred' \| 'derived' }[]? (main domain types referenced by staticType; names must be unique) |
+| `initialEventId` | string? (select the most review-relevant event on load without changing execution order) |
+| `showCallStack` | boolean? |
 
 ```json
 {
   "type": "execution-trace",
   "props": {
-    "title": "Artifact validation path",
+    "title": "Artifact validation boundary",
     "provenance": {
       "mode": "inferred",
       "method": "static-analysis",
-      "summary": "Control flow and types derived from reviewed source.",
+      "summary": "Types and control flow derived from the reviewed source.",
       "confidence": "high"
     },
-    "typeDefinitions": [
-      {
-        "name": "VisualArtifactSpec",
-        "definition": "export type VisualArtifactSpec = z.infer<typeof VisualArtifactSpecShapeSchema>",
-        "language": "typescript",
-        "file": "shared/src/artifact-schema.ts",
-        "line": 1583,
-        "provenance": "derived"
-      }
-    ],
     "events": [
       {
         "id": "validate-spec",
         "order": 0,
         "phase": "validate",
         "kind": "boundary",
-        "label": "Validate renderer contract",
+        "label": "Validate artifact JSON",
         "source": {
           "src": "shared/src/artifact-schema.ts",
           "facts": {
-            "span": { "file": "shared/src/artifact-schema.ts", "startLine": 1626, "endLine": 1626 },
+            "span": {
+              "file": "shared/src/artifact-schema.ts",
+              "startLine": 1610,
+              "endLine": 1610
+            },
             "excerpt": "  return VisualArtifactSpecSchema.safeParse(value)",
-            "sourceHash": "390afc310771efa486c14e4145034df19dda460ff5595f92d2e4137957c66b3f",
-            "revision": "041a7a318091c47359a64e6d86bb7d62c2f0e625",
-            "worktree": "clean",
+            "sourceHash": "04490e3be59080179353fa997da4035cab6e64337bc18e8a4aef2914d1ddc6f6",
+            "revision": "c8313cafef237497e233c2e5aa2072875b1a613a",
+            "worktree": "dirty",
             "language": "typescript",
             "syntaxKind": "call_expression",
             "focus": {
@@ -350,25 +952,34 @@ Copy the resolved `.sources[0].source` object unchanged into the event:
             "scope": {
               "kind": "function",
               "symbol": "safeParseVisualArtifactSpec",
-              "startLine": 1621,
-              "endLine": 1627
+              "startLine": 1605,
+              "endLine": 1611
             },
             "resolution": "resolved"
           }
         },
         "boundary": {
           "kind": "validation",
-          "from": { "label": "Untrusted JSON", "system": "runtime" },
-          "to": { "label": "Renderer contract", "system": "renderer" },
+          "from": {
+            "label": "Parsed JSON",
+            "system": "runtime"
+          },
+          "to": {
+            "label": "Renderer contract",
+            "system": "renderer"
+          },
           "outcome": "passed"
         },
         "inputs": [
           {
-            "id": "data",
+            "id": "raw",
             "name": "data",
             "staticType": "unknown",
             "runtimeType": "object",
-            "preview": { "kind": "object", "text": "{ slug, nodes, data }" },
+            "preview": {
+              "kind": "object",
+              "text": "{ slug, nodes, data }"
+            },
             "provenance": "inferred"
           }
         ],
@@ -378,91 +989,191 @@ Copy the resolved `.sources[0].source` object unchanged into the event:
             "name": "spec",
             "staticType": "VisualArtifactSpec",
             "runtimeType": "object",
-            "preview": { "kind": "object", "text": "validated artifact spec" },
+            "preview": {
+              "kind": "object",
+              "text": "validated artifact spec"
+            },
             "provenance": "inferred"
           }
         ],
         "transformation": {
-          "summary": "Unknown external data becomes a trusted renderer contract.",
-          "mappings": [{ "from": "data", "to": "spec", "operation": "validate" }]
+          "summary": "Untrusted JSON becomes a validated renderer contract.",
+          "mappings": [
+            {
+              "from": "data",
+              "to": "spec",
+              "operation": "validate"
+            }
+          ]
         },
         "impacts": [
           {
             "kind": "error",
             "title": "Rejects invalid artifact data",
             "description": "Validation failure prevents the renderer from accepting the external value.",
-            "codeRef": { "file": "shared/src/artifact-schema.ts", "line": 1626 }
+            "codeRef": {
+              "file": "shared/src/artifact-schema.ts",
+              "line": 1610
+            }
           }
         ],
-        "evidence": { "origin": "inferred", "confidence": "high" }
+        "evidence": {
+          "origin": "inferred",
+          "confidence": "high"
+        }
       }
     ]
   }
 }
 ```
 
-Render events as one persistent call stack; previous/next moves the current step instead of replacing the list. The agent chooses ordered spans, but the call-stack primary identity, enclosing scope, excerpt, location, and hash come only from `trace inspect`. `visual-artifact create` re-runs extraction, rejects stale or edited code identity, and refreshes revision/worktree provenance before inlining source. If inspection returns `ambiguous`, narrow the span rather than choosing a candidate by prose. `event.label` remains the human narrative and never substitutes for verified code identity. Boundary `from`/`to` describe the conceptual handoff; there is no freeform code operation. Always model static/runtime types and provenance separately. Add `typeDefinitions` for important custom `staticType` names so their declarations appear transiently. Use `event.impacts` only for concise, source-established behavior besides the returned value: `effect` for observable work and `error` for possible failure. Omit timings unless they are real monotonic runtime measurements.
+### `file-tree`
 
-For code-change plans and reviews, use this node when the main concern is API shape: interfaces, types, and boundaries. Prioritize boundary events and `typeDefinitions` over a long call transcript. Static analysis is the default: follow changed entrypoints, callers, imports, types, boundaries, and relevant tests without executing the program. Use `mode: "inferred"` with `method: "static-analysis"`; keep unknown values symbolic, label test/fixture examples as derived with a source note, and never claim captured runtime evidence or branch outcomes that source alone cannot prove. Source-backed frames may describe only code that exists; keep proposed target APIs in clearly labeled narrative or comparison content.
+A collapsible file explorer tree. Defaults to the enhanced look: empty dirs are flattened, file-type icons (iconSet=standard), default density. Add gitStatus for status badges (rows auto-align), searchable for a filter box. File items may carry `content` + `language` (tapping renders a code-block below the tree) or `src` (a repo-relative or absolute path that `visual-artifact create` reads and inlines into `content` at save time).
 
-## Copyable pattern: html-plan style plan
-
-A plan is one `claim-tree`. Each `claim` states one thing and proves it with one exhibit. A `decision` sits on the claim it changes, after the exhibit and before child claims. Keep 2 to 5 decisions per plan. The full worked example is `artifacts/visualizer/call-stack-excerpts/artifact.json`.
+| Prop | Type |
+|---|---|
+| `items` | { name: string, type?: "file" \| "directory", children?: file-tree[], content?: string, language?: string, src?: string }[] |
+| `flattenEmpty` | boolean? |
+| `searchable` | boolean? |
+| `gitStatus` | Record<string, GitStatus>? |
+| `density` | "compact" \| "default" \| "relaxed"? |
+| `iconSet` | "minimal" \| "standard" \| "complete"? |
+| `defaultExpanded` | boolean? |
+| `notes` | Record<path, string ≤80>? — right-aligned # note; keys are full slash-joined paths like gitStatus keys |
+| `statusStyle` | "letters" \| "marks"? — marks shows + ~ − and strikes deleted names; plans use marks |
 
 ```json
 {
-  "type": "claim-tree",
-  "props": { "open": "needs" },
-  "children": [
-    { "type": "claim", "props": { "text": "Inlining hooks into the existing source walker." }, "children": [
-      { "type": "call-stack", "props": { "title": "create → resolveDiskSources", "rows": [
-        "  **create(specArg, options)** @ cli/src/commands/create.ts:295",
-        "~   resolveDiskSources(specJson, ctx) @ cli/src/commands/create.ts:358",
-        "+     **sliceLines(content, start, end)** -- new, pure"
-      ] } },
-      { "type": "decision", "props": { "id": "walker-shape", "question": "Where does the call-stack branch go?", "options": [
-        { "id": "inline-branch", "label": "Another if in visit", "suggested": true },
-        { "id": "registry", "label": "A table of node → source props", "consequence": "Refactors two existing branches" }
-      ] } }
-    ] }
-  ]
+  "type": "file-tree",
+  "props": {
+    "items": [
+      {
+        "name": "src",
+        "type": "directory",
+        "children": [
+          {
+            "name": "index.ts",
+            "type": "file"
+          }
+        ]
+      }
+    ],
+    "flattenEmpty": true,
+    "searchable": true
+  }
 }
 ```
 
-- `open: "needs"` opens claims that hold a decision, plus their ancestors. `"all"` and `"none"` also work.
-- Decisions keep local, unsaved answers. The tree ends with a "Copy decisions as Markdown" button.
-- `claim.ref` links a claim to a call-stack row id. `claim.aux` (for example `"scope"`) adds an unnumbered side claim.
-- Keyboard: `[` collapses all claims, `]` expands all, arrow keys move through call-stack rows and state-machine states.
+### `image`
 
-## Terse forms
+An image with optional caption, aspect ratio, and click-to-zoom modal. Place sidecar image files next to the artifact JSON under ~/.pi/artifacts/<project>/ and use a relative path like "hero.png". Use absolute HTTPS URLs for external images. Never use file:// URLs.
 
-Structured JSON is canonical. Some array props also accept string items in a short form, and strings and objects can mix in one array. The same shared parser runs at `create`/`validate` time and in the renderer. A bad string fails with its JSON path and line, for example:
+| Prop | Type |
+|---|---|
+| `src` | string |
+| `alt` | string |
+| `caption` | string? |
+| `aspect` | "auto" \| "square" \| "video" \| "wide"? |
+| `zoom` | boolean? |
 
-```txt
-nodes.0.props.steps.1 → step 2: couldn't parse "a >> b" — expected "a -> b : text", "a --> b", "a -x-> b", "note over a: text" or "--- label ---"
+```json
+{
+  "type": "image",
+  "props": {
+    "src": "hero.png",
+    "alt": "Placeholder",
+    "zoom": true
+  }
+}
 ```
 
-Mark prefixes are shared: `+` added or proposed, `-` removed, `~` changed, `?` uncertain (call-stack only), nothing for context.
+### `mermaid`
 
-| Prop | Form |
+Client-rendered zoomable/pannable Mermaid diagram with wheel, pinch, drag, keyboard, and fit controls. Provide a required caption that describes the diagram. Use for quick architecture, sequence, flowchart, ERD, state, class, and C4 diagrams from Mermaid text.
+
+| Prop | Type |
 |---|---|
-| `call-stack.rows` | Indented lines: `"  + **sendLater()** @ app/x.ts:12 -- note"`. Indent is depth, `**…**` marks the focus call, `@` is the location, `--` starts a note. |
-| `sequence-diagram.steps` | `"a -> b : msg"`, `"b --> a : reply"`, `"a -x-> b : lost"`, `"--- label"`, `"note over a,b: text"`, `"+ a -> b : new"` |
-| `box-diagram.edges` | `"a -> b : label"`, `"a --> b"` (dashed), `"a => b"` (bold), `"a <-> b"`, `"+ a -> b"` |
-| `box-diagram.grid`, `state-machine.grid` | Row strings `"| a | b | . |"` or arrays `["a", "b", null]`. `.` is an empty cell. |
-| `state-machine.events` | `"queued -review-> reviewing : /feedback"`, `"+ a -retry-> b"` |
+| `code` | string |
+| `caption` | string |
+| `height` | integer? 240-1600 |
 
-Nodes, states, decisions, claims, mockups, quotes and change-stats take objects only.
+```json
+{
+  "type": "mermaid",
+  "props": {
+    "caption": "Request flow",
+    "code": "flowchart LR\n  Client --> API\n  API --> DB"
+  }
+}
+```
 
-## Mockups and wireframes
+### `svg-diagram`
 
-`mockup` draws a frame (`none`, `browser`, `phone`, `desktop`, `terminal`) around ordinary child nodes. It never takes HTML. Child content is inert for the reader, but comment picking still works.
+Full-screen interactive SVG/HTML architecture diagram embedded in a sandboxed iframe. Use when Mermaid cannot lay out the topology cleanly, when you need animated request paths, clickable nodes, or precise visual control. The html value must be a complete self-contained document with hand-rolled CSS variables for light/dark themes, an apply-before-paint theme script, a theme toggle, and an SVG styled through CSS classes (no hard-coded hex inside SVG). Layout rules: pick a viewBox large enough for all nodes; keep at least 30px between node rectangles and 40px between zones; reserve the bottom-right corner for the detail card overlay; route edges and labels through empty space; verify by inspection that nothing overlaps.
 
-- **Pins.** `pins: [{ "target": "<metadata.id>", "text": "…" }]` puts a numbered badge on the child with that `metadata.id` and lists the text under the frame. `x`/`y` fractions also work when there is no target.
-- **Wireframe vocabulary.** `wireframe.element` is one of `navbar`, `sidebar`, `input`, `textarea`, `select`, `toggle`, `checkbox`, `avatar`, `placeholder`, `skeleton-lines`, `toast`, `modal-scrim`, `divider`, `prompt`, `output`, `spinner`.
-- **Banned inside a mockup:** `claim-tree`, `claim`, `decision`, `mockup` and `state-machine`. Validation rejects them.
-- A `state-machine` state can name a mockup as its `screen` by `metadata.id`. The mockup must be a child of that state machine.
+| Prop | Type |
+|---|---|
+| `html` | string |
+| `title` | string? |
+| `caption` | string? |
+| `height` | integer? 240-1600 |
 
-## Credits
+```json
+{
+  "type": "svg-diagram",
+  "props": {
+    "title": "Interactive architecture",
+    "height": 720,
+    "html": "<!doctype html><html><head><script>(function(){try{const k='visualizer-theme',s=localStorage.getItem(k),d=s?s==='dark':matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('dark',d)}catch(e){}})();</script><style>:root{--bg:#FAF9F5;--ink:#141413;}html.dark{--bg:#141413;--ink:#FAF9F5;}body{background:var(--bg);}</style></head><body><svg viewBox='0 0 100 40'><text x='5' y='24' fill='var(--ink)'>Architecture</text></svg></body></html>"
+  }
+}
+```
 
-The plan nodes (`claim-tree`, `claim`, `decision`, `call-stack`, `state-machine`, `sequence-diagram`, `box-diagram`, `mockup`, `wireframe`, `change-stats`, `quotes`) and the code-block, file-tree and alert improvements port ideas and the documented block grammar from Thariq Shihipar's [html-plan](https://github.com/anthropics/claude-plugins-community/tree/main/html-plan) skill (commit `f60f0454df3045f724c43c6346ec80bdcc3472b2`). The call-stack idea is credited to @dillon_mulroy. We wrote our own code; no html-plan JavaScript or CSS is copied. See `NOTICE` for the licence note.
+## Removed types: rewrite before opening
+
+Contract 3.0.0 rejects every type below, including inside children. Older bundles containing removed types must be rewritten. There is no migration command. The table is writing advice, not a compatibility API.
+
+| Legacy type | Use instead |
+|---|---|
+| `alert` | use callout: Use callout (tone: note, risk, new, wait). |
+| `definition-list` | use ledger: Term on the left, text on the right is a ledger row. |
+| `diff` | use `code` with `before` and `after`, or `diff: true` for a unified patch |
+| `call-stack` | use `walkthrough` for source steps, `execution-trace` for verified boundaries |
+| `donut-chart` | use figures: Donut charts mislead. Use figures or table. |
+| `area-chart` | use trend: Use trend. |
+| `radar-chart` | use table: Radar charts mislead. Use table or compare. |
+| `scatter-chart` | use trend: Use trend, or table when exact values matter. |
+| `heatmap` | use table: Use table with highlightKey. |
+| `log` | use code: Use code with language 'log'. |
+| `pie-chart` | use figures: Pie charts mislead. Use figures or table. |
+| `stepper` | use steps: Use steps (or checklist for status). |
+| `heading` | use chapter: Use chapter (kicker, title, deck, takeaway) instead of free headings. |
+| `text` | use prose: Use prose for paragraphs; chapter carries the headings. |
+| `card` | use columns: No boxes. Use columns for text side by side, or chapter + prose. |
+| `metric` | use figures: Use figures. |
+| `stat-card` | use figures: Use figures: an inline band of at most 4 numbers, no tiles. |
+| `badge` | use ledger: Status is a dot plus a word inside ledger or checklist rows. |
+| `button` | use links: Use links for a plain row of underlined links. |
+| `separator` | use chapter: Chapters draw their own rule. |
+| `data-table` | use table: Use table with dense: true. |
+| `comparison-table` | use table: Use table with statusKey (and onlyDiffs). |
+| `chart` | use trend: Use trend: bare line or bar with direct labels. |
+| `flow` | use steps: Use steps: a step line with 1-2 key steps. |
+| `code-block` | use code: Syntax-highlighted code and annotated snippets. |
+| `sequence-diagram` | use sequence: A bounded lifeline diagram. |
+| `box-diagram` | use map: Use map: 2-6 nodes, label-safe edges. Split bigger diagrams. |
+| `change-stats` | use figures: Use figures. |
+| `quotes` | use quote: Use quote for one pull-quote, or ledger rows with meta for a list. |
+| `status-grid` | use ledger: Use ledger: groups by status, risk first; data-backed via groupKey. |
+| `grid` | use columns: Grids of cards are the anti-pattern. Use columns for text, figures for numbers. |
+| `section` | use chapter: Use chapter: it adds a kicker, deck and takeaway. |
+| `tabs` | use compare: Tabs hide content. Use compare or ledger groups. |
+| `accordion` | use details: Use details for one quiet 'more detail' disclosure. |
+
+## Notes
+
+- `claim-tree` and `claim` are plain plan outlines without claim-specific commenting. Use the page-wide feedback sidebar.
+- `dataKey` variants (`ledger`, `table`, `timeline`, `trend`) read rows from the top-level `data` object, so tabular content stays out of the node tree.
+- `decision` ids are unique per page.
+- Limits come from `contract.limits`.

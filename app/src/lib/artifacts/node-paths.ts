@@ -8,14 +8,6 @@ export function childrenNodePath(parentPath: string): string {
   return `${parentPath}.children`
 }
 
-export function tabItemNodePath(parentPath: string, itemIndex: number): string {
-  return `${parentPath}.props.items.${itemIndex}.nodes`
-}
-
-export function accordionItemNodePath(parentPath: string, itemIndex: number): string {
-  return `${parentPath}.props.items.${itemIndex}.nodes`
-}
-
 export function resolveNodePath(spec: VisualArtifactSpec, nodePath: string): ArtifactNode | undefined {
   const segments = nodePath.split(".")
   let current: unknown = spec

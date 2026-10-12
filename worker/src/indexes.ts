@@ -56,11 +56,24 @@ function parseBundleKey(key: string): ParsedKey | null {
   return { project, slug, filename }
 }
 
+async function listAll(bucket: R2Bucket, prefix: string): Promise<R2Object[]> {
+  const objects: R2Object[] = []
+  let cursor: string | undefined
+  const seen = new Set<string>()
+  for (;;) {
+    const page = await bucket.list(cursor ? { prefix, cursor } : { prefix })
+    objects.push(...page.objects)
+    if (!page.truncated || !page.cursor || seen.has(page.cursor)) return objects
+    seen.add(page.cursor)
+    cursor = page.cursor
+  }
+}
+
 export async function buildHomeIndex(bucket: R2Bucket): Promise<HomeIndex> {
-  const list = await bucket.list({ prefix: BUNDLE_PREFIX })
+  const objects = await listAll(bucket, BUNDLE_PREFIX)
   const projects = new Map<string, { count: number; lastModified: Date }>()
 
-  for (const object of list.objects) {
+  for (const object of objects) {
     const parsed = parseBundleKey(object.key)
     if (!parsed || parsed.filename !== ARTIFACT_FILE) continue
     const existing = projects.get(parsed.project)
@@ -84,11 +97,10 @@ export async function buildHomeIndex(bucket: R2Bucket): Promise<HomeIndex> {
 }
 
 export async function buildProjectIndex(bucket: R2Bucket, project: string): Promise<ProjectIndex> {
-  const prefix = `${BUNDLE_PREFIX}${project}/`
-  const list = await bucket.list({ prefix })
+  const objects = await listAll(bucket, `${BUNDLE_PREFIX}${project}/`)
   const artifacts = new Map<string, { modifiedAt: Date }>()
 
-  for (const object of list.objects) {
+  for (const object of objects) {
     const parsed = parseBundleKey(object.key)
     if (!parsed || parsed.project !== project || parsed.filename !== ARTIFACT_FILE) continue
     const existing = artifacts.get(parsed.slug)
@@ -116,13 +128,11 @@ export async function buildProjectIndex(bucket: R2Bucket, project: string): Prom
   }
 }
 
-async function buildRecentArtifacts(bucket: R2Bucket, limit = 100): Promise<RecentArtifact[]> {
-  const list = await bucket.list({ prefix: BUNDLE_PREFIX })
-  const artifactObjects = list.objects
+async function buildRecentArtifacts(bucket: R2Bucket): Promise<RecentArtifact[]> {
+  const artifactObjects = (await listAll(bucket, BUNDLE_PREFIX))
     .map((object) => ({ object, parsed: parseBundleKey(object.key) }))
     .filter(({ parsed }) => parsed?.filename === ARTIFACT_FILE)
     .sort((a, b) => b.object.uploaded.getTime() - a.object.uploaded.getTime())
-    .slice(0, limit)
 
   return Promise.all(artifactObjects.map(async ({ object, parsed }) => {
     const metadata = await readArtifactMetadata(bucket, parsed!.project, parsed!.slug)

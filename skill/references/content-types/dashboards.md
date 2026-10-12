@@ -1,38 +1,33 @@
 ---
-description: "Build dashboards and metric summaries with constrained Visualizer nodes."
-date created: 2026-06-28
-date modified: 2026-06-28
+description: "Build status and metric summaries with few numbers and grouped rows, no tiles."
 tags: ["visual-artifact", "dashboard", "metrics", "status"]
 ---
 
-# Dashboards & metrics
+# Dashboards and metrics
 
-Use for KPI summaries, readiness boards, health overviews, and compact operational reports.
+Use for readiness boards, health overviews and compact operational reports.
 
 ## Structure
 
-1. Lead with one thesis sentence.
-2. Show 3–4 `stat-card` tiles for the most important numbers.
-3. Use `status-grid` for health/readiness/risk.
-4. Use charts only when trend or proportion matters.
-5. Put exact evidence in a table below.
+1. Open with one sentence that says the state.
+2. `figures`: 3 or 4 numbers at most. Never a grid of tiles.
+3. `ledger` grouped by what to do: can break something, then waiting on someone, then done.
+4. `trend` only when change over time is the point.
+5. A dense `table` with `statusKey` in `details` for the full evidence.
 
 ## Node selection
 
 | Content | Node |
 |---|---|
-| Hero number | `stat-card` |
-| Inline metric | `metric` |
-| Status board | `status-grid` |
-| Trend | `chart` or `area-chart` |
-| Proportion | `pie-chart` or `donut-chart` |
-| Correlation | `scatter-chart` |
-| Matrix/intensity | `heatmap` |
-| Evidence | `data-table` or `comparison-table` |
+| Hero numbers | `figures` (sparkline with `trend`) |
+| Items that need action | `ledger` |
+| Per-item progress | `checklist` |
+| Trend with an event | `trend` with `mark` |
+| Full inventory | `table` (`dense`, `statusKey`) inside `details` |
 
 ## Anti-patterns
 
-- Too many equally weighted cards.
-- Charts without a decision or comparison to support.
-- Status labels longer than a couple words.
-- Dashboard metrics about the artifact itself instead of the user's topic.
+- A tile per fact, or any equally weighted row of boxes.
+- Counting things about the page itself (nodes, sections, files).
+- Pie, donut and radar charts. Use `figures` or `table`.
+- Colour on every row. Colour belongs on the group label.

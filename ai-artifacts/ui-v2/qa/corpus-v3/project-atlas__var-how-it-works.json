@@ -1,0 +1,264 @@
+{
+  "slug": "project-atlas-var-how-it-works",
+  "title": "How the visual-artifact renderer works",
+  "description": "An agent writes JSON. A CLI checks and stores it. A Next.js page draws it with trusted components.",
+  "artifactType": "explainer",
+  "topics": [
+    "visual-artifact",
+    "architecture",
+    "renderer"
+  ],
+  "layout": {
+    "type": "default"
+  },
+  "data": {
+    "risks": [
+      {
+        "item": "Stale install",
+        "status": "risk",
+        "detail": "The Pi extension calls the installed binary, not the source. New nodes fail until you rebuild.",
+        "next": "Run visual-artifact bootstrap, then /reload in Pi"
+      },
+      {
+        "item": "Contract drift",
+        "status": "risk",
+        "detail": "cli/assets/contract.json is generated from shared/src/contract.ts. Edit the schema without re-exporting and CLI and renderer disagree.",
+        "next": "Run pnpm export:contract"
+      },
+      {
+        "item": "Server ports",
+        "status": "warning",
+        "detail": "pnpm dev (9999) and visual-artifact serve (9998) used to share a port and collide. Old notes may still say 9999 for both.",
+        "next": "Check which server you opened"
+      },
+      {
+        "item": "Node redesign",
+        "status": "pending",
+        "detail": "An unmerged branch rewrites the node set. It changes what agents may write.",
+        "next": "See var-node-redesign-review"
+      }
+    ],
+    "servers": [
+      {
+        "port": "9999",
+        "command": "pnpm dev",
+        "use it for": "Editing renderer code, live mode",
+        "artifacts": "Read from the store"
+      },
+      {
+        "port": "9998",
+        "command": "visual-artifact serve",
+        "use it for": "Viewing finished artifacts",
+        "artifacts": "Read live, no rebuild"
+      }
+    ],
+    "qa-risks-1-1": [
+      {
+        "item": "Stale install",
+        "status": "risk",
+        "detail": "The Pi extension calls the installed binary, not the source. New nodes fail until you rebuild.",
+        "next": "Run visual-artifact bootstrap, then /reload in Pi"
+      },
+      {
+        "item": "Contract drift",
+        "status": "risk",
+        "detail": "cli/assets/contract.json is generated from shared/src/contract.ts. Edit the schema without re-exporting and CLI and renderer disagree.",
+        "next": "Run pnpm export:contract"
+      }
+    ],
+    "qa-risks-2-1": [
+      {
+        "item": "Server ports",
+        "status": "warning",
+        "detail": "pnpm dev (9999) and visual-artifact serve (9998) used to share a port and collide. Old notes may still say 9999 for both.",
+        "next": "Check which server you opened"
+      }
+    ],
+    "qa-risks-3-1": [
+      {
+        "item": "Node redesign",
+        "status": "pending",
+        "detail": "An unmerged branch rewrites the node set. It changes what agents may write.",
+        "next": "See var-node-redesign-review"
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "type": "prose",
+      "props": {
+        "content": "The agent never writes UI code. It writes a JSON spec made of node types. The CLI rejects anything outside the contract, saves the rest as a file, and a renderer maps each node to a component that is already trusted. That one rule keeps pages consistent and safe."
+      }
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Open risks first",
+        "deck": "These come from AGENTS.md, ARCHITECTURE.md and the recent log (latest tag v0.9.0, installed CLI 0.10.1)."
+      },
+      "children": [
+        {
+          "type": "ledger",
+          "props": {
+            "dataKey": "qa-risks-1-1",
+            "titleKey": "item",
+            "bodyKey": "detail",
+            "groupKey": "status",
+            "signals": {
+              "risk": "risk"
+            },
+            "nextKey": "next"
+          }
+        },
+        {
+          "type": "ledger",
+          "props": {
+            "dataKey": "qa-risks-2-1",
+            "titleKey": "item",
+            "bodyKey": "detail",
+            "groupKey": "status",
+            "signals": {
+              "warning": "wait"
+            },
+            "nextKey": "next"
+          }
+        },
+        {
+          "type": "ledger",
+          "props": {
+            "dataKey": "qa-risks-3-1",
+            "titleKey": "item",
+            "bodyKey": "detail",
+            "groupKey": "status",
+            "signals": {
+              "pending": "wait"
+            },
+            "nextKey": "next"
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "From agent to browser",
+        "deck": "Validation happens before anything touches the disk."
+      },
+      "children": [
+        {
+          "type": "sequence",
+          "props": {
+            "caption": "The CLI is the gate: a bad spec never reaches the store, and the renderer parses the JSON again on load.",
+            "participants": [
+              {
+                "id": "agent",
+                "label": "Agent",
+                "kind": "external"
+              },
+              {
+                "id": "tool",
+                "label": "Pi extension",
+                "kind": "service"
+              },
+              {
+                "id": "cli",
+                "label": "CLI",
+                "kind": "service"
+              },
+              {
+                "id": "store",
+                "label": "Artifact store",
+                "kind": "store"
+              },
+              {
+                "id": "app",
+                "label": "Renderer",
+                "kind": "service"
+              }
+            ],
+            "steps": [
+              "agent -> tool : create_visual_artifact(spec)",
+              "tool -> cli : stdin, create - --project cwd",
+              "note over cli: validate with the shared Zod schema",
+              "cli -> store : write artifact.json",
+              "cli --> tool : URL",
+              "tool --> agent : URL",
+              "app -> store : fetch JSON in the browser",
+              "store --> app : artifact.json",
+              "note over app, store: renderer parses again, maps nodes to adapters"
+            ]
+          }
+        },
+        {
+          "type": "prose",
+          "props": {
+            "content": "**Pi extension.** A thin wrapper in `pi-extension/visual-artifact.ts`. It also registers `choose_visual_artifact_direction`, `/visual-diff` and `/visual-recap`.\n\n**CLI.** A Bun binary in `cli/`: `create`, `validate`, `serve`, `list`, `open`, `doctor`, `bootstrap`.\n\n**Store.** `~/.agents/skills/visual-artifact/artifacts/<project>/<slug>/` holds `artifact.json` and `annotations.json`."
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Inside the renderer",
+        "deck": "Four steps from JSON to a page."
+      },
+      "children": [
+        {
+          "type": "mermaid",
+          "props": {
+            "code": "flowchart LR\n  url[\"/project/slug<br/>static shell\"]\n  loader[\"Client loader<br/>fetches artifact.json\"]\n  zod[\"Zod parse<br/>VisualArtifactSpec\"]\n  reg[\"Component registry<br/>type to adapter\"]\n  ad[\"Adapters<br/>app/src/components/adapters\"]\n  url --> loader\n  loader --> zod\n  zod --> reg\n  reg --> ad",
+            "caption": "The registry is the only place that knows which adapter draws which node type."
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Two ports, two jobs",
+        "deck": "The split exists because one server has hot reload and one is a built snapshot."
+      },
+      "children": [
+        {
+          "type": "table",
+          "props": {
+            "dataKey": "servers",
+            "columns": [
+              "port",
+              "command",
+              "use it for",
+              "artifacts"
+            ],
+            "caption": "New artifacts appear on 9998 without a rebuild because the static export holds only the shell."
+          }
+        },
+        {
+          "type": "code",
+          "props": {
+            "title": "Run each server",
+            "language": "bash",
+            "code": "cd app && pnpm dev                    # :9999, HMR\ncd cli && bun run src/main.ts serve --no-open   # :9998, static preview"
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Where the contract lives",
+        "deck": "Three places must agree."
+      },
+      "children": [
+        {
+          "type": "code",
+          "props": {
+            "title": "Source of truth",
+            "language": "text",
+            "code": "shared/src/contract.ts          node manifest for the LLM\nshared/src/artifact-schema.ts   executable Zod schema\napp/src/lib/contract/*          re-exports for the renderer\ncli/assets/contract.json        generated by pnpm export:contract\npi-extension/visual-artifact.ts thin tool wrapper"
+          }
+        }
+      ]
+    }
+  ]
+}

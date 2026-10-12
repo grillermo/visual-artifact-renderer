@@ -1,0 +1,357 @@
+{
+  "slug": "project-atlas-pi-extensions-how-it-works",
+  "title": "pi-extensions: how the toolbox fits together",
+  "description": "What each package in the pi-extensions monorepo does, with the tidy tool cards, compaction model, follow-up, leader key and Cursor Cloud flows.",
+  "artifactType": "explainer",
+  "topics": [
+    "pi-extensions",
+    "pi-agent",
+    "architecture"
+  ],
+  "nodes": [
+    {
+      "type": "prose",
+      "props": {
+        "content": "**pi-extensions** is one npm workspace of 12 independently publishable packages for the Pi coding agent. Most daily behaviour lives in one big package, `pi-ext`. The rest are small, single-purpose add-ons. Watch first for hidden coupling: several features depend on each other through events and settings, not imports, so a change in one place can quietly change another."
+      }
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "kicker": "Open risks",
+        "title": "What can break",
+        "deck": "Read these before changing anything.",
+        "takeaway": "Most risks come from things that look independent but are not.",
+        "signal": "risk"
+      },
+      "children": [
+        {
+          "type": "ledger",
+          "props": {
+            "groups": [
+              {
+                "label": "Can break something",
+                "signal": "risk",
+                "rows": [
+                  {
+                    "title": "Subagents patch is wiped on reinstall",
+                    "body": "`@tintinweb/pi-subagents` is patched locally. An agents2 update replaces the package folder and drops the patch.",
+                    "next": "Run `apply.sh`, then `/reload`. `apply.sh --status` shows the state."
+                  },
+                  {
+                    "title": "Haiku compaction was unproven in saved sessions",
+                    "body": "The compaction design notes found no saved summary written by Haiku. Every logged attempt fell back. A later review saw one real success in a test session.",
+                    "next": "Watch for a live automatic compaction."
+                  },
+                  {
+                    "title": "Catalog drift",
+                    "body": "The root `pi` manifest must list every child resource by hand.",
+                    "next": "`npm run check:catalog` enforces it."
+                  }
+                ]
+              },
+              {
+                "label": "Waiting on you",
+                "signal": "wait",
+                "rows": [
+                  {
+                    "title": "Offline Haiku test",
+                    "body": "Planned, not built: score Haiku against 927 saved session-model summaries with probe questions."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "kicker": "The packages",
+        "title": "Twelve packages, three groups",
+        "deck": "One big host, some model helpers, and stand-alone tools.",
+        "takeaway": "If you remember one package, remember pi-ext."
+      },
+      "children": [
+        {
+          "type": "ledger",
+          "props": {
+            "groups": [
+              {
+                "label": "The host",
+                "signal": "new",
+                "rows": [
+                  {
+                    "title": "pi-ext",
+                    "body": "Command palette, review tooling, session workflows, tidy tool cards, leader key, compaction model, footer, handoff, permissions and more. It has 17 extension folders."
+                  }
+                ]
+              },
+              {
+                "label": "Model and agent helpers",
+                "signal": "none",
+                "rows": [
+                  {
+                    "title": "pi-follow-up",
+                    "body": "After a long reply, a small helper model proposes next messages."
+                  },
+                  {
+                    "title": "pi-cursor-cloud",
+                    "body": "Delegates tasks to Cursor's cloud VMs and reports back."
+                  },
+                  {
+                    "title": "pi-cursor-sdk",
+                    "body": "Runs Cursor SDK models inside Pi with fail-closed recorded tool replay."
+                  },
+                  {
+                    "title": "pi-optmem",
+                    "body": "Per-session memory. See the memory and models explainer."
+                  }
+                ]
+              },
+              {
+                "label": "Inspection and chrome",
+                "signal": "none",
+                "rows": [
+                  {
+                    "title": "pi-context-audit, pi-cache-hit-predictor, pi-token-tank",
+                    "body": "Measure prompt overhead, reusable cache prefixes and subscription quota."
+                  },
+                  {
+                    "title": "pi-agent-explorer, artifact-explorer",
+                    "body": "Read-only views of the loaded runtime and of each repo's `ai-artifacts/`."
+                  },
+                  {
+                    "title": "pi-secret-env, pi-wtf, herdr-attention, ghost",
+                    "body": "Credential redaction, a friction log, Herdr blocked events and a shader face for lifecycle states."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "kicker": "Tidy tool cards",
+        "title": "One resolver draws every tool call",
+        "deck": "Packages register tools. The tidy renderer decides how they look.",
+        "takeaway": "Tools never import card code."
+      },
+      "children": [
+        {
+          "type": "map",
+          "props": {
+            "caption": "Pi 1.0.4's registerToolRenderer lets tidy wrap every tool without touching its arguments or results.",
+            "nodes": [
+              {
+                "id": "tool",
+                "label": "Any tool call",
+                "kind": "actor"
+              },
+              {
+                "id": "res",
+                "label": "Tidy resolver",
+                "sub": "calls next() for every tool",
+                "kind": "service",
+                "signal": "new"
+              },
+              {
+                "id": "spec",
+                "label": "Card spec",
+                "sub": "by name or mcp__server__tool",
+                "kind": "file"
+              },
+              {
+                "id": "native",
+                "label": "Native renderer",
+                "sub": "questions, plans, images",
+                "kind": "service"
+              },
+              {
+                "id": "chill",
+                "label": "Chill folding",
+                "sub": "Worked: N tools",
+                "kind": "service"
+              }
+            ],
+            "edges": [
+              "tool -> res : render",
+              "res -> spec : known name",
+              "res --> native : unknown or disabled",
+              "spec -> chill : if chill is on"
+            ],
+            "layout": "row"
+          }
+        },
+        {
+          "type": "prose",
+          "props": {
+            "content": "A collapsed card is two lines (one in reasoning or result mode). A failure changes the colour but never Pi's `isError`. With **chill** on (`/chill`, or `chill: true` in `pi-tidy-tools.json`), finished calls fold into one `Worked · <count> tools · <duration>` line. Ctrl+O unfolds them. Unknown tools pass through unchanged, even in chill mode."
+          }
+        },
+        {
+          "type": "callout",
+          "props": {
+            "tone": "risk",
+            "title": "Open boundary",
+            "body": "Chill mode does not hide Pi-managed image attachments. Review this if chill must hide every tool display."
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "kicker": "Compaction model",
+        "title": "Pick who writes the summary",
+        "deck": "A setting chooses a cheaper model. The host falls back if it fails.",
+        "takeaway": "Haiku writes the summary. The session model is the safety net."
+      },
+      "children": [
+        {
+          "type": "prose",
+          "props": {
+            "content": "The `compaction-model` extension reads a `compactionModel` block from settings: a model, a thinking level, which reasons apply (`manual`, `threshold`, `overflow`), an optional threshold percent and a summary budget of 24K tokens. It adds extra instructions to Pi's prompt, wraps the result with the first user message and a pointer to the session file, and records a card. The full story is in the compaction-flow explainer."
+          }
+        },
+        {
+          "type": "code",
+          "props": {
+            "title": "settings.json (shape)",
+            "language": "json",
+            "code": "{\n  \"compactionModel\": {\n    \"model\": \"claude-code/claude-haiku-5-5\",\n    \"reasons\": [\"manual\", \"threshold\", \"overflow\"],\n    \"summaryMaxTokens\": 24000\n  }\n}"
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "kicker": "Follow-up",
+        "title": "A second model guesses your next message",
+        "deck": "It runs after long replies, in the background.",
+        "takeaway": "It never falls back to the chat model."
+      },
+      "children": [
+        {
+          "type": "prose",
+          "props": {
+            "content": "Only visible assistant text counts toward the `threshold` (default 1,200 characters). The helper sees the last few messages and must call a `follow_up_suggestions` tool. Defaults: 3 suggestions, `openai-codex` with `gpt-5.6-luna`, low thinking. A `followUpModel` entry in `settings.json` overrides the model, so a managed profile can choose. An invalid config file stops the extension from loading instead of guessing. `/follow-up` shows the active values."
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "kicker": "Leader key and pickers",
+        "title": "One key opens the menus",
+        "deck": "Ctrl+X is the home menu. Other extensions add entries by event.",
+        "takeaway": "Extensions contribute without importing leader-key."
+      },
+      "children": [
+        {
+          "type": "sequence",
+          "props": {
+            "caption": "Registration is an event, not an import.",
+            "participants": [
+              {
+                "id": "ext",
+                "label": "Your extension",
+                "kind": "service"
+              },
+              {
+                "id": "bus",
+                "label": "pi.events",
+                "kind": "service"
+              },
+              {
+                "id": "lk",
+                "label": "Leader key",
+                "kind": "service"
+              },
+              {
+                "id": "you",
+                "label": "You",
+                "kind": "actor"
+              }
+            ],
+            "steps": [
+              "ext -> bus : registerCommand and listen",
+              "you -> lk : Ctrl+X",
+              "lk -> bus : command-menu:collect:v1",
+              "bus -> ext : collect",
+              "ext --> lk : menu entries",
+              "lk --> you : menu"
+            ],
+            "key": [
+              2
+            ]
+          }
+        },
+        {
+          "type": "prose",
+          "props": {
+            "content": "`e` opens a searchable command picker. Team is `g`, Voice is `v`, Memory is `b`. Typing `$` at the start of a message lists skills, and `$name request` becomes `/skill:name request` on send. Ctrl+Shift+S copies the draft to the clipboard and clears the editor only if the copy worked."
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "kicker": "pi-cursor-cloud",
+        "title": "Delegate to a cloud VM",
+        "deck": "Local Pi keeps working while Cursor runs the task.",
+        "takeaway": "The result arrives later as a follow-up message."
+      },
+      "children": [
+        {
+          "type": "sequence",
+          "props": {
+            "caption": "Cloud agents see a GitHub repo and ref, not your local checkout.",
+            "participants": [
+              {
+                "id": "pi",
+                "label": "Pi",
+                "kind": "actor"
+              },
+              {
+                "id": "ext",
+                "label": "pi-cursor-cloud",
+                "kind": "service"
+              },
+              {
+                "id": "cur",
+                "label": "Cursor cloud",
+                "kind": "external"
+              }
+            ],
+            "steps": [
+              "pi -> ext : cursor_cloud_spawn",
+              "ext -> cur : create agent, send prompt",
+              "ext --> pi : short id at once",
+              "note over ext, cur: widget shows live activity",
+              "cur --> ext : finished",
+              "ext --> pi : result as follow-up"
+            ],
+            "key": [
+              2,
+              4
+            ]
+          }
+        },
+        {
+          "type": "prose",
+          "props": {
+            "content": "Other tools: `cursor_cloud_send` (follow-up when idle), `cursor_cloud_cancel` and `cursor_cloud_status`. The default model is `composer-2.5`, changed with `/cloud model`. Each run is billed at Cursor Max Mode pricing. Completion renders as a tidy card, and `/cloud open` opens the agent's Cursor page."
+          }
+        }
+      ]
+    }
+  ]
+}

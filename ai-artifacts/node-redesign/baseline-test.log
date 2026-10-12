@@ -1,0 +1,1045 @@
+$ node --import tsx --test --test-concurrency=1 'src/**/*.test.ts' 'src/**/*.test.tsx'
+TAP version 13
+# Subtest: [project]/[slug] dynamic route
+    # Subtest: returns 404 when the project is a reserved root segment
+    ok 1 - returns 404 when the project is a reserved root segment
+      ---
+      duration_ms: 0.448292
+      type: 'test'
+      ...
+    1..1
+ok 1 - [project]/[slug] dynamic route
+  ---
+  duration_ms: 0.720667
+  type: 'suite'
+  ...
+# Subtest: [project] dynamic route
+    # Subtest: returns 404 for reserved root segment project names
+    ok 1 - returns 404 for reserved root segment project names
+      ---
+      duration_ms: 0.442542
+      type: 'test'
+      ...
+    1..1
+ok 2 - [project] dynamic route
+  ---
+  duration_ms: 0.726833
+  type: 'suite'
+  ...
+# Subtest: home page
+    # Subtest: unconditionally renders the canonical artifact library
+    ok 1 - unconditionally renders the canonical artifact library
+      ---
+      duration_ms: 0.316125
+      type: 'test'
+      ...
+    1..1
+ok 3 - home page
+  ---
+  duration_ms: 0.627708
+  type: 'suite'
+  ...
+# Subtest: execution trace adapter
+    # Subtest: renders verified code identity separately from narrative
+    ok 1 - renders verified code identity separately from narrative
+      ---
+      duration_ms: 11.937667
+      type: 'test'
+      ...
+    1..1
+ok 4 - execution trace adapter
+  ---
+  duration_ms: 12.207458
+  type: 'suite'
+  ...
+# Subtest: plan adapters (DOM)
+    # Subtest: open: needs expands exactly claims 1, 2 and 2.1 (D10)
+    ok 1 - open: needs expands exactly claims 1, 2 and 2.1 (D10)
+      ---
+      duration_ms: 448.043875
+      type: 'test'
+      ...
+    # Subtest: toggles a claim, and [ / ] collapse and expand all
+    ok 2 - toggles a claim, and [ / ] collapse and expand all
+      ---
+      duration_ms: 14.7035
+      type: 'test'
+      ...
+    # Subtest: numbers decisions and records reader changes
+    ok 3 - numbers decisions and records reader changes
+      ---
+      duration_ms: 5.308625
+      type: 'test'
+      ...
+    # Subtest: state machine selects states and steps traces
+    ok 4 - state machine selects states and steps traces
+      ---
+      duration_ms: 9.87975
+      type: 'test'
+      ...
+    1..4
+ok 5 - plan adapters (DOM)
+  ---
+  duration_ms: 508.330875
+  type: 'suite'
+  ...
+# Subtest: AIColabProvider
+    # Subtest: resets comments when project changes while slug stays the same
+    ok 1 - resets comments when project changes while slug stays the same
+      ---
+      duration_ms: 15.210375
+      type: 'test'
+      ...
+    # Subtest: plumbs the artifact data path to the clipboard
+    ok 2 - plumbs the artifact data path to the clipboard
+      ---
+      duration_ms: 3.719459
+      type: 'test'
+      ...
+    1..2
+ok 6 - AIColabProvider
+  ---
+  duration_ms: 48.098708
+  type: 'suite'
+  ...
+# An update to AIColabProviderInner inside a test was not wrapped in act(...).
+# When testing, code that causes React state updates should be wrapped into act(...):
+# act(() => {
+#   /* fire events that update state */
+# });
+# /* assert on the output */
+# This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+# Subtest: anchor DOM helpers
+    # Subtest: finds element by stable node id when id attribute exists
+    ok 1 - finds element by stable node id when id attribute exists
+      ---
+      duration_ms: 4.6775
+      type: 'test'
+      ...
+    # Subtest: falls back to node path when id is missing
+    ok 2 - falls back to node path when id is missing
+      ---
+      duration_ms: 0.8825
+      type: 'test'
+      ...
+    # Subtest: prefers node id over path when both match
+    ok 3 - prefers node id over path when both match
+      ---
+      duration_ms: 0.463792
+      type: 'test'
+      ...
+    # Subtest: reports orphaned anchor when no element matches
+    ok 4 - reports orphaned anchor when no element matches
+      ---
+      duration_ms: 0.323917
+      type: 'test'
+      ...
+    1..4
+ok 7 - anchor DOM helpers
+  ---
+  duration_ms: 33.759375
+  type: 'suite'
+  ...
+# Subtest: nodeIdentityMatches
+    # Subtest: matches by nodeId when both ids are present
+    ok 1 - matches by nodeId when both ids are present
+      ---
+      duration_ms: 0.247333
+      type: 'test'
+      ...
+    # Subtest: falls back to nodePath when anchor nodeId is missing
+    ok 2 - falls back to nodePath when anchor nodeId is missing
+      ---
+      duration_ms: 0.03925
+      type: 'test'
+      ...
+    # Subtest: falls back to nodePath when runtime nodeId is missing
+    ok 3 - falls back to nodePath when runtime nodeId is missing
+      ---
+      duration_ms: 0.032
+      type: 'test'
+      ...
+    1..3
+ok 8 - nodeIdentityMatches
+  ---
+  duration_ms: 0.633667
+  type: 'suite'
+  ...
+# Subtest: thread grouping
+    # Subtest: returns threads matching node identity
+    ok 1 - returns threads matching node identity
+      ---
+      duration_ms: 0.110042
+      type: 'test'
+      ...
+    # Subtest: falls back to path when runtime nodeId is undefined
+    ok 2 - falls back to path when runtime nodeId is undefined
+      ---
+      duration_ms: 0.068291
+      type: 'test'
+      ...
+    1..2
+ok 9 - thread grouping
+  ---
+  duration_ms: 0.224125
+  type: 'suite'
+  ...
+# An update to AnnotationProviderInner inside a test was not wrapped in act(...).
+# When testing, code that causes React state updates should be wrapped into act(...):
+# act(() => {
+#   /* fire events that update state */
+# });
+# /* assert on the output */
+# This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+# An update to AnnotationProviderInner inside a test was not wrapped in act(...).
+# When testing, code that causes React state updates should be wrapped into act(...):
+# act(() => {
+#   /* fire events that update state */
+# });
+# /* assert on the output */
+# This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+# Subtest: AnnotationProvider queue and reconciliation
+    # Subtest: serializes two rapid mutations and keeps authoritative responses
+    ok 1 - serializes two rapid mutations and keeps authoritative responses
+      ---
+      duration_ms: 25.301167
+      type: 'test'
+      ...
+# An update to AnnotationProviderInner inside a test was not wrapped in act(...).
+# When testing, code that causes React state updates should be wrapped into act(...):
+# act(() => {
+#   /* fire events that update state */
+# });
+# /* assert on the output */
+# This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+# An update to AnnotationProviderInner inside a test was not wrapped in act(...).
+# When testing, code that causes React state updates should be wrapped into act(...):
+# act(() => {
+#   /* fire events that update state */
+# });
+# /* assert on the output */
+# This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+    # Subtest: rolls back a failed first mutation before the second succeeds
+    ok 2 - rolls back a failed first mutation before the second succeeds
+      ---
+      duration_ms: 3.854458
+      type: 'test'
+      ...
+    1..2
+ok 10 - AnnotationProvider queue and reconciliation
+  ---
+  duration_ms: 58.076708
+  type: 'suite'
+  ...
+# Subtest: rejects oversized content-length before reading the response
+ok 11 - rejects oversized content-length before reading the response
+  ---
+  duration_ms: 9.46075
+  type: 'test'
+  ...
+# Subtest: rejects an oversized streamed response without content-length
+ok 12 - rejects an oversized streamed response without content-length
+  ---
+  duration_ms: 1.885458
+  type: 'test'
+  ...
+# Subtest: decodes a bounded streamed response
+ok 13 - decodes a bounded streamed response
+  ---
+  duration_ms: 0.221708
+  type: 'test'
+  ...
+# Subtest: serializePanelParams
+    # Subtest: preserves home filters while replacing panel state
+    ok 1 - preserves home filters while replacing panel state
+      ---
+      duration_ms: 0.338375
+      type: 'test'
+      ...
+    # Subtest: removes only panel parameters when closing
+    ok 2 - removes only panel parameters when closing
+      ---
+      duration_ms: 0.045375
+      type: 'test'
+      ...
+    1..2
+ok 14 - serializePanelParams
+  ---
+  duration_ms: 0.704375
+  type: 'suite'
+  ...
+# Subtest: AI Colab store
+    # Subtest: builds an artifact target
+    ok 1 - builds an artifact target
+      ---
+      duration_ms: 1.361875
+      type: 'test'
+      ...
+    # Subtest: builds a node target preserving identity
+    ok 2 - builds a node target preserving identity
+      ---
+      duration_ms: 0.0505
+      type: 'test'
+      ...
+    # Subtest: creates a comment with id and timestamp
+    ok 3 - creates a comment with id and timestamp
+      ---
+      duration_ms: 0.826
+      type: 'test'
+      ...
+    # Subtest: adds a comment to an empty list
+    ok 4 - adds a comment to an empty list
+      ---
+      duration_ms: 0.112083
+      type: 'test'
+      ...
+    # Subtest: ignores empty comment bodies
+    ok 5 - ignores empty comment bodies
+      ---
+      duration_ms: 0.040958
+      type: 'test'
+      ...
+    # Subtest: trims comment bodies
+    ok 6 - trims comment bodies
+      ---
+      duration_ms: 0.034333
+      type: 'test'
+      ...
+    # Subtest: deletes a comment by id
+    ok 7 - deletes a comment by id
+      ---
+      duration_ms: 0.093791
+      type: 'test'
+      ...
+    # Subtest: produces unique ids across many comments
+    ok 8 - produces unique ids across many comments
+      ---
+      duration_ms: 0.182125
+      type: 'test'
+      ...
+    1..8
+ok 15 - AI Colab store
+  ---
+  duration_ms: 3.100083
+  type: 'suite'
+  ...
+# Subtest: AI Colab formatter integration
+    # Subtest: includes artifact-level comments
+    ok 1 - includes artifact-level comments
+      ---
+      duration_ms: 0.416166
+      type: 'test'
+      ...
+    # Subtest: includes node-level comments with the correct node range
+    ok 2 - includes node-level comments with the correct node range
+      ---
+      duration_ms: 0.209959
+      type: 'test'
+      ...
+    # Subtest: groups multiple comments on the same node
+    ok 3 - groups multiple comments on the same node
+      ---
+      duration_ms: 0.128042
+      type: 'test'
+      ...
+    # Subtest: surfaces orphaned node comments
+    ok 4 - surfaces orphaned node comments
+      ---
+      duration_ms: 0.056666
+      type: 'test'
+      ...
+    # Subtest: returns an empty string when comments are empty
+    ok 5 - returns an empty string when comments are empty
+      ---
+      duration_ms: 0.022417
+      type: 'test'
+      ...
+    1..5
+ok 16 - AI Colab formatter integration
+  ---
+  duration_ms: 0.903625
+  type: 'suite'
+  ...
+# Subtest: AI Colab copy handler
+    # Subtest: copies formatted Markdown to the clipboard
+    ok 1 - copies formatted Markdown to the clipboard
+      ---
+      duration_ms: 0.185875
+      type: 'test'
+      ...
+    # Subtest: rejects when clipboard is unavailable
+    ok 2 - rejects when clipboard is unavailable
+      ---
+      duration_ms: 0.169375
+      type: 'test'
+      ...
+    # Subtest: copies an empty string when no comments exist
+    ok 3 - copies an empty string when no comments exist
+      ---
+      duration_ms: 0.052042
+      type: 'test'
+      ...
+    1..3
+ok 17 - AI Colab copy handler
+  ---
+  duration_ms: 0.438833
+  type: 'suite'
+  ...
+# Subtest: formatArtifactForAI
+    # Subtest: returns an empty string when there are no comments
+    ok 1 - returns an empty string when there are no comments
+      ---
+      duration_ms: 0.400625
+      type: 'test'
+      ...
+    # Subtest: renders the artifact file path and title line range
+    ok 2 - renders the artifact file path and title line range
+      ---
+      duration_ms: 0.513958
+      type: 'test'
+      ...
+    # Subtest: renders node comments by path with the node object line range
+    ok 3 - renders node comments by path with the node object line range
+      ---
+      duration_ms: 0.338041
+      type: 'test'
+      ...
+    # Subtest: resolves comments by node id to the current node range
+    ok 4 - resolves comments by node id to the current node range
+      ---
+      duration_ms: 0.144875
+      type: 'test'
+      ...
+    # Subtest: uses the correct line ranges for nested children
+    ok 5 - uses the correct line ranges for nested children
+      ---
+      duration_ms: 0.159917
+      type: 'test'
+      ...
+    # Subtest: uses the correct line ranges for tabs
+    ok 6 - uses the correct line ranges for tabs
+      ---
+      duration_ms: 0.203292
+      type: 'test'
+      ...
+    # Subtest: uses the correct line ranges for accordion items
+    ok 7 - uses the correct line ranges for accordion items
+      ---
+      duration_ms: 0.103375
+      type: 'test'
+      ...
+    # Subtest: prefixes every line of a multi-line comment body with |
+    ok 8 - prefixes every line of a multi-line comment body with |
+      ---
+      duration_ms: 0.149083
+      type: 'test'
+      ...
+    # Subtest: prefixes blank lines inside a multi-line body with |
+    ok 9 - prefixes blank lines inside a multi-line body with |
+      ---
+      duration_ms: 0.215833
+      type: 'test'
+      ...
+    # Subtest: does not emit verbose package sections
+    ok 10 - does not emit verbose package sections
+      ---
+      duration_ms: 0.272625
+      type: 'test'
+      ...
+    # Subtest: surfaces orphaned node comments at the end with a fallback range
+    ok 11 - surfaces orphaned node comments at the end with a fallback range
+      ---
+      duration_ms: 0.084292
+      type: 'test'
+      ...
+    # Subtest: escapes double quotes inside the quoted target label
+    ok 12 - escapes double quotes inside the quoted target label
+      ---
+      duration_ms: 0.127709
+      type: 'test'
+      ...
+    # Subtest: uses singular 'piece' for one comment and plural for many
+    ok 13 - uses singular 'piece' for one comment and plural for many
+      ---
+      duration_ms: 0.11775
+      type: 'test'
+      ...
+    1..13
+ok 18 - formatArtifactForAI
+  ---
+  duration_ms: 3.331
+  type: 'suite'
+  ...
+# Subtest: artifact index
+    # Subtest: searches metadata while combining project and type filters
+    ok 1 - searches metadata while combining project and type filters
+      ---
+      duration_ms: 0.557375
+      type: 'test'
+      ...
+    # Subtest: groups artifacts chronologically by local day
+    ok 2 - groups artifacts chronologically by local day
+      ---
+      duration_ms: 1.226292
+      type: 'test'
+      ...
+    # Subtest: offers only artifact types present in the current project
+    ok 3 - offers only artifact types present in the current project
+      ---
+      duration_ms: 0.0995
+      type: 'test'
+      ...
+    # Subtest: round-trips filters through home and artifact URLs
+    ok 4 - round-trips filters through home and artifact URLs
+      ---
+      duration_ms: 0.16425
+      type: 'test'
+      ...
+    # Subtest: keeps only valid home filters from navigation query parameters
+    ok 5 - keeps only valid home filters from navigation query parameters
+      ---
+      duration_ms: 0.086958
+      type: 'test'
+      ...
+    # Subtest: project sentinel shows all projects and does not collide with a project named all
+    ok 6 - project sentinel shows all projects and does not collide with a project named all
+      ---
+      duration_ms: 0.08375
+      type: 'test'
+      ...
+    1..6
+ok 19 - artifact index
+  ---
+  duration_ms: 2.686834
+  type: 'suite'
+  ...
+# Subtest: resolveNodePath
+    # Subtest: resolves top-level nodes
+    ok 1 - resolves top-level nodes
+      ---
+      duration_ms: 0.315041
+      type: 'test'
+      ...
+    # Subtest: resolves children of containers
+    ok 2 - resolves children of containers
+      ---
+      duration_ms: 0.085584
+      type: 'test'
+      ...
+    # Subtest: resolves nodes inside tabs
+    ok 3 - resolves nodes inside tabs
+      ---
+      duration_ms: 0.045417
+      type: 'test'
+      ...
+    # Subtest: resolves nodes inside accordions
+    ok 4 - resolves nodes inside accordions
+      ---
+      duration_ms: 0.034667
+      type: 'test'
+      ...
+    # Subtest: returns undefined for unknown paths
+    ok 5 - returns undefined for unknown paths
+      ---
+      duration_ms: 0.082167
+      type: 'test'
+      ...
+    1..5
+ok 20 - resolveNodePath
+  ---
+  duration_ms: 0.912292
+  type: 'suite'
+  ...
+# Subtest: metadata schema
+    # Subtest: accepts nodes without metadata
+    ok 1 - accepts nodes without metadata
+      ---
+      duration_ms: 0.13975
+      type: 'test'
+      ...
+    # Subtest: rejects empty metadata id
+    ok 2 - rejects empty metadata id
+      ---
+      duration_ms: 0.206916
+      type: 'test'
+      ...
+    1..2
+ok 21 - metadata schema
+  ---
+  duration_ms: 0.544125
+  type: 'suite'
+  ...
+# Subtest: paths
+    # Subtest: isReservedRootSegment
+        # Subtest: reserves the runtime namespace segments
+        ok 1 - reserves the runtime namespace segments
+          ---
+          duration_ms: 0.239083
+          type: 'test'
+          ...
+        # Subtest: does not reserve ordinary project names
+        ok 2 - does not reserve ordinary project names
+          ---
+          duration_ms: 0.111875
+          type: 'test'
+          ...
+        1..2
+    ok 1 - isReservedRootSegment
+      ---
+      duration_ms: 0.623208
+      type: 'suite'
+      ...
+    # Subtest: artifactParamsFromPath
+        # Subtest: extracts project and slug from a root artifact path
+        ok 1 - extracts project and slug from a root artifact path
+          ---
+          duration_ms: 0.365917
+          type: 'test'
+          ...
+        # Subtest: rejects paths with reserved project segments
+        ok 2 - rejects paths with reserved project segments
+          ---
+          duration_ms: 0.049334
+          type: 'test'
+          ...
+        # Subtest: rejects paths with reserved slug segments
+        ok 3 - rejects paths with reserved slug segments
+          ---
+          duration_ms: 0.045375
+          type: 'test'
+          ...
+        # Subtest: rejects non-kebab segments
+        ok 4 - rejects non-kebab segments
+          ---
+          duration_ms: 0.077834
+          type: 'test'
+          ...
+        1..4
+    ok 2 - artifactParamsFromPath
+      ---
+      duration_ms: 0.648625
+      type: 'suite'
+      ...
+    # Subtest: projectParamsFromPath
+        # Subtest: extracts project from a root project path
+        ok 1 - extracts project from a root project path
+          ---
+          duration_ms: 0.102666
+          type: 'test'
+          ...
+        # Subtest: rejects reserved project segments
+        ok 2 - rejects reserved project segments
+          ---
+          duration_ms: 0.046875
+          type: 'test'
+          ...
+        1..2
+    ok 3 - projectParamsFromPath
+      ---
+      duration_ms: 0.247084
+      type: 'suite'
+      ...
+    # Subtest: root URL helpers
+        # Subtest: builds root artifact page paths
+        ok 1 - builds root artifact page paths
+          ---
+          duration_ms: 0.104667
+          type: 'test'
+          ...
+        # Subtest: builds root data paths
+        ok 2 - builds root data paths
+          ---
+          duration_ms: 0.126667
+          type: 'test'
+          ...
+        1..2
+    ok 4 - root URL helpers
+      ---
+      duration_ms: 0.291625
+      type: 'suite'
+      ...
+    1..4
+ok 22 - paths
+  ---
+  duration_ms: 2.107875
+  type: 'suite'
+  ...
+# Subtest: reads through one opened handle and enforces the byte cap
+ok 23 - reads through one opened handle and enforces the byte cap
+  ---
+  duration_ms: 8.594375
+  type: 'test'
+  ...
+# Subtest: execution-trace schema
+    # Subtest: accepts source-backed typed boundary events
+    ok 1 - accepts source-backed typed boundary events
+      ---
+      duration_ms: 8.457667
+      type: 'test'
+      ...
+    # Subtest: accepts create-time source paths with inspected facts
+    ok 2 - accepts create-time source paths with inspected facts
+      ---
+      duration_ms: 0.36025
+      type: 'test'
+      ...
+    # Subtest: accepts Ruby source facts
+    ok 3 - accepts Ruby source facts
+      ---
+      duration_ms: 0.149042
+      type: 'test'
+      ...
+    # Subtest: requires boundary metadata for boundary events
+    ok 4 - requires boundary metadata for boundary events
+      ---
+      duration_ms: 0.157459
+      type: 'test'
+      ...
+    # Subtest: rejects display strings that omit typed previews
+    ok 5 - rejects display strings that omit typed previews
+      ---
+      duration_ms: 0.371708
+      type: 'test'
+      ...
+    # Subtest: rejects legacy freeform source identity
+    ok 6 - rejects legacy freeform source identity
+      ---
+      duration_ms: 0.854125
+      type: 'test'
+      ...
+    # Subtest: requires exactly one source input
+    ok 7 - requires exactly one source input
+      ---
+      duration_ms: 1.005041
+      type: 'test'
+      ...
+    # Subtest: rejects source excerpts that do not match persisted content
+    ok 8 - rejects source excerpts that do not match persisted content
+      ---
+      duration_ms: 0.3605
+      type: 'test'
+      ...
+    # Subtest: rejects freeform boundary operations
+    ok 9 - rejects freeform boundary operations
+      ---
+      duration_ms: 0.210917
+      type: 'test'
+      ...
+    # Subtest: accepts minimal effect and error impacts
+    ok 10 - accepts minimal effect and error impacts
+      ---
+      duration_ms: 0.478583
+      type: 'test'
+      ...
+    # Subtest: rejects impact references to blank source lines
+    ok 11 - rejects impact references to blank source lines
+      ---
+      duration_ms: 0.09825
+      type: 'test'
+      ...
+    # Subtest: accepts reusable source-derived type definitions
+    ok 12 - accepts reusable source-derived type definitions
+      ---
+      duration_ms: 0.274125
+      type: 'test'
+      ...
+    # Subtest: rejects duplicate type definition names
+    ok 13 - rejects duplicate type definition names
+      ---
+      duration_ms: 0.091
+      type: 'test'
+      ...
+    # Subtest: rejects timing fields to prevent false precision
+    ok 14 - rejects timing fields to prevent false precision
+      ---
+      duration_ms: 0.080709
+      type: 'test'
+      ...
+    # Subtest: rejects duplicate event ids
+    ok 15 - rejects duplicate event ids
+      ---
+      duration_ms: 0.102166
+      type: 'test'
+      ...
+    # Subtest: requires initialEventId to reference a real event
+    ok 16 - requires initialEventId to reference a real event
+      ---
+      duration_ms: 0.078666
+      type: 'test'
+      ...
+    1..16
+ok 24 - execution-trace schema
+  ---
+  duration_ms: 13.622375
+  type: 'suite'
+  ...
+# Subtest: call-stack terse rows
+    # Subtest: normalises the demo rows (golden)
+    ok 1 - normalises the demo rows (golden)
+      ---
+      duration_ms: 0.997208
+      type: 'test'
+      ...
+    # Subtest: infers kinds
+    ok 2 - infers kinds
+      ---
+      duration_ms: 0.110125
+      type: 'test'
+      ...
+    # Subtest: names the row in errors
+    ok 3 - names the row in errors
+      ---
+      duration_ms: 0.110209
+      type: 'test'
+      ...
+    # Subtest: rejects too many changed calls without a location
+    ok 4 - rejects too many changed calls without a location
+      ---
+      duration_ms: 6.359958
+      type: 'test'
+      ...
+    1..4
+ok 25 - call-stack terse rows
+  ---
+  duration_ms: 7.918
+  type: 'suite'
+  ...
+# Subtest: sequence steps
+    # Subtest: parses every form
+    ok 1 - parses every form
+      ---
+      duration_ms: 0.363625
+      type: 'test'
+      ...
+    # Subtest: reports the step line
+    ok 2 - reports the step line
+      ---
+      duration_ms: 0.050083
+      type: 'test'
+      ...
+    # Subtest: flags thin lanes when there are 4+ participants
+    ok 3 - flags thin lanes when there are 4+ participants
+      ---
+      duration_ms: 0.820167
+      type: 'test'
+      ...
+    1..3
+ok 26 - sequence steps
+  ---
+  duration_ms: 1.477167
+  type: 'suite'
+  ...
+# Subtest: box edges and machine events
+    # Subtest: parses edge styles
+    ok 1 - parses edge styles
+      ---
+      duration_ms: 0.202375
+      type: 'test'
+      ...
+    # Subtest: requires a dashed legend
+    ok 2 - requires a dashed legend
+      ---
+      duration_ms: 0.702375
+      type: 'test'
+      ...
+    # Subtest: suggests kebab-case event ids
+    ok 3 - suggests kebab-case event ids
+      ---
+      duration_ms: 0.231958
+      type: 'test'
+      ...
+    # Subtest: validates traces, reachability and screens
+    ok 4 - validates traces, reachability and screens
+      ---
+      duration_ms: 1.133208
+      type: 'test'
+      ...
+    1..4
+ok 27 - box edges and machine events
+  ---
+  duration_ms: 2.3915
+  type: 'suite'
+  ...
+# Subtest: plan structure lints
+    # Subtest: accepts a well-formed claim tree
+    ok 1 - accepts a well-formed claim tree
+      ---
+      duration_ms: 0.832875
+      type: 'test'
+      ...
+    # Subtest: rejects claims outside a tree and bad order
+    ok 2 - rejects claims outside a tree and bad order
+      ---
+      duration_ms: 0.360375
+      type: 'test'
+      ...
+    # Subtest: requires one suggested option
+    ok 3 - requires one suggested option
+      ---
+      duration_ms: 0.103
+      type: 'test'
+      ...
+    # Subtest: checks mockup pins, banned children and terminal wireframes
+    ok 4 - checks mockup pins, banned children and terminal wireframes
+      ---
+      duration_ms: 0.822791
+      type: 'test'
+      ...
+    # Subtest: checks claim refs against call-stack row ids
+    ok 5 - checks claim refs against call-stack row ids
+      ---
+      duration_ms: 0.119875
+      type: 'test'
+      ...
+    # Subtest: checks code-block annotations and file-tree notes
+    ok 6 - checks code-block annotations and file-tree notes
+      ---
+      duration_ms: 1.2055
+      type: 'test'
+      ...
+    1..6
+ok 28 - plan structure lints
+  ---
+  duration_ms: 3.503708
+  type: 'suite'
+  ...
+# Subtest: parseMarkPrefix
+    # Subtest: reads the four marks and defaults to context
+    ok 1 - reads the four marks and defaults to context
+      ---
+      duration_ms: 0.531042
+      type: 'test'
+      ...
+    # Subtest: treats a mark glued to text as plain text
+    ok 2 - treats a mark glued to text as plain text
+      ---
+      duration_ms: 0.046542
+      type: 'test'
+      ...
+    1..2
+ok 29 - parseMarkPrefix
+  ---
+  duration_ms: 0.912958
+  type: 'suite'
+  ...
+# Subtest: parseGridRows
+    # Subtest: parses the string form with all empty-cell tokens
+    ok 1 - parses the string form with all empty-cell tokens
+      ---
+      duration_ms: 0.17425
+      type: 'test'
+      ...
+    # Subtest: parses the array form
+    ok 2 - parses the array form
+      ---
+      duration_ms: 0.043334
+      type: 'test'
+      ...
+    # Subtest: reports a malformed string row with its line
+    ok 3 - reports a malformed string row with its line
+      ---
+      duration_ms: 0.059041
+      type: 'test'
+      ...
+    1..3
+ok 30 - parseGridRows
+  ---
+  duration_ms: 0.419916
+  type: 'suite'
+  ...
+# Subtest: checkGrid
+    # Subtest: accepts a grid where every id sits in exactly one cell
+    ok 1 - accepts a grid where every id sits in exactly one cell
+      ---
+      duration_ms: 0.186541
+      type: 'test'
+      ...
+    # Subtest: reports an unknown id with the row number
+    ok 2 - reports an unknown id with the row number
+      ---
+      duration_ms: 0.167292
+      type: 'test'
+      ...
+    # Subtest: reports a duplicate cell
+    ok 3 - reports a duplicate cell
+      ---
+      duration_ms: 0.045875
+      type: 'test'
+      ...
+    # Subtest: reports a missing cell
+    ok 4 - reports a missing cell
+      ---
+      duration_ms: 0.095
+      type: 'test'
+      ...
+    1..4
+ok 31 - checkGrid
+  ---
+  duration_ms: 0.676292
+  type: 'suite'
+  ...
+# Subtest: collapsed directory chain prefixes only the head row, not its descendants
+ok 32 - collapsed directory chain prefixes only the head row, not its descendants
+  ---
+  duration_ms: 0.538917
+  type: 'test'
+  ...
+# Subtest: plan-spec
+    # Subtest: numbers claims by position and counts descendant decisions
+    ok 1 - numbers claims by position and counts descendant decisions
+      ---
+      duration_ms: 0.616458
+      type: 'test'
+      ...
+    # Subtest: needsOpenSet returns claims 1, 2 and 2.1 (D10)
+    ok 2 - needsOpenSet returns claims 1, 2 and 2.1 (D10)
+      ---
+      duration_ms: 0.124125
+      type: 'test'
+      ...
+    # Subtest: collects decisions in document order with their claim
+    ok 3 - collects decisions in document order with their claim
+      ---
+      duration_ms: 0.110416
+      type: 'test'
+      ...
+    # Subtest: formats decisions as Markdown data (golden)
+    ok 4 - formats decisions as Markdown data (golden)
+      ---
+      duration_ms: 0.120375
+      type: 'test'
+      ...
+    1..4
+ok 33 - plan-spec
+  ---
+  duration_ms: 1.386333
+  type: 'suite'
+  ...
+# Subtest: grid-layout routes
+    # Subtest: routes same row horizontally, same column vertically, else an L
+    ok 1 - routes same row horizontally, same column vertically, else an L
+      ---
+      duration_ms: 0.172125
+      type: 'test'
+      ...
+    # Subtest: separates two-way pairs by ±6px
+    ok 2 - separates two-way pairs by ±6px
+      ---
+      duration_ms: 0.063583
+      type: 'test'
+      ...
+    1..2
+ok 34 - grid-layout routes
+  ---
+  duration_ms: 0.28025
+  type: 'suite'
+  ...
+1..34
+# tests 128
+# suites 33
+# pass 128
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 8489.197083

@@ -61,14 +61,14 @@ describe("plain result records", () => {
   })
 
   test("contract, setup, and bootstrap records", () => {
-    expect(formatPlainRecords({ command: "contract", version: "1.0.0", nodeTypes: ["text", "card"] })).toEqual([
-      "CONTRACT\t1.0.0",
-      "NODE\ttext",
-      "NODE\tcard",
+    expect(formatPlainRecords({ command: "contract", version: "3.0.0", nodeTypes: ["prose", "chapter"] })).toEqual([
+      "CONTRACT\t3.0.0",
+      "NODE\tprose",
+      "NODE\tchapter",
     ])
-    expect(formatPlainRecords({ command: "contract", version: "1.0.0", node: { type: "text" } })).toEqual([
-      "CONTRACT\t1.0.0",
-      "NODE\ttext",
+    expect(formatPlainRecords({ command: "contract", version: "3.0.0", node: { type: "prose" } })).toEqual([
+      "CONTRACT\t3.0.0",
+      "NODE\tprose",
     ])
     expect(formatPlainRecords({
       command: "setup cloudflare",

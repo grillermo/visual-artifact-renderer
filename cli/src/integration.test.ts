@@ -49,8 +49,8 @@ const validSpec = JSON.stringify({
   slug: "test",
   title: "Test",
   nodes: [
-    { type: "text", props: { text: "hi" } },
-    { type: "section", children: [{ type: "text", props: { text: "nested" } }] },
+    { type: "prose", props: { content: "hi" } },
+    { type: "chapter", props: { title: "Section" }, children: [{ type: "prose", props: { content: "nested" } }] },
   ],
 })
 
@@ -58,7 +58,7 @@ const specWithData = JSON.stringify({
   slug: "data-test",
   title: "Data Test",
   data: { sales: [{ month: "Jan", value: 100 }] },
-  nodes: [{ type: "area-chart", props: { dataKey: "sales", xKey: "month", yKey: "value" } }],
+  nodes: [{ type: "trend", props: { dataKey: "sales", x: "month", y: "value", caption: "Sales by month" } }],
 })
 
 async function prepareTemp(): Promise<{ dir: string; artifactsDir: string; outDir: string; stateDir: string }> {
@@ -622,7 +622,7 @@ describe.each(["source", "binary"] as Target[])("CLI integration (%s)", (target)
     await writeFile(join(bundleDir, "artifact.json"), JSON.stringify({
       slug: "artifact-one",
       title: "Artifact One",
-      nodes: [{ type: "text", props: { text: "one" } }],
+      nodes: [{ type: "prose", props: { content: "one" } }],
     }))
     return baseEnv(artifactsDir, outDir, stateDir)
   }

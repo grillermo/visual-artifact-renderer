@@ -105,3 +105,40 @@ export function StatusChip({ value, className }: { value: unknown; className?: s
     </Badge>
   )
 }
+
+type SignalTone = "accent" | "success" | "warning" | "danger" | "neutral" | "default" | undefined
+
+/** Editorial: tone -> signal. Used by editorial adapters only. */
+export function toneSignal(tone: SignalTone): "new" | "risk" | "wait" | "done" {
+  if (tone === "success") return "new"
+  if (tone === "warning" || tone === "danger") return "risk"
+  if (tone === "accent") return "wait"
+
+  return "done"
+}
+
+const SIGNAL_TEXT = {
+  new: "text-signal-new",
+  risk: "text-signal-risk",
+  wait: "text-signal-wait",
+  done: "text-ink-muted",
+} as const
+
+/** Editorial dot + mono label. Legacy nodes use StatusChip (badge). */
+export function SignalChip({ value, className }: { value: unknown; className?: string }) {
+  const text = formatCell(value)
+  const signal = toneSignal(statusTone(text))
+
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 font-mono text-label uppercase tracking-[0.14em]",
+        SIGNAL_TEXT[signal],
+        className
+      )}
+    >
+      <span aria-hidden="true" className="size-1.5 shrink-0 rounded-full bg-current" />
+      {text}
+    </span>
+  )
+}

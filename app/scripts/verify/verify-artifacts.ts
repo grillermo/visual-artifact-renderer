@@ -120,13 +120,13 @@ async function main() {
   }
 
   const expectedNodeTypes = [...ARTIFACT_NODE_TYPES].sort()
+  const expectedManifestTypes = expectedNodeTypes
   const manifestNodeTypes = Object.keys(artifactManifest).sort()
-  if (JSON.stringify(manifestNodeTypes) !== JSON.stringify(expectedNodeTypes)) {
+  if (JSON.stringify(manifestNodeTypes) !== JSON.stringify(expectedManifestTypes)) {
     throw new Error(
-      `Manifest nodeTypes mismatch: expected=[${expectedNodeTypes.join(", ")}] manifest=[${manifestNodeTypes.join(", ")}]`,
+      `Manifest nodeTypes mismatch: expected=[${expectedManifestTypes.join(", ")}] manifest=[${manifestNodeTypes.join(", ")}]`,
     )
   }
-
   // Every manifest example must parse as an ArtifactNode.
   for (const entry of artifactComponentManifest) {
     const result = ArtifactNodeSchema.safeParse(entry.example)
@@ -150,7 +150,7 @@ async function main() {
     title: "Code block contract",
     nodes: [
       {
-        type: "code-block",
+        type: "code",
         props: {
           title: "Example snippet",
           language: "typescript",

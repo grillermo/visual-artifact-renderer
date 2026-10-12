@@ -1,0 +1,825 @@
+{
+  "slug": "code-walkthrough-fixture",
+  "title": "Code walkthrough acceptance",
+  "artifactType": "review",
+  "topics": [
+    "code",
+    "walkthrough"
+  ],
+  "nodes": [
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Copy a command"
+      },
+      "children": [
+        {
+          "type": "code",
+          "props": {
+            "file": "Terminal",
+            "language": "bash",
+            "code": "$ pnpm export:contract\n$ pnpm verify:artifacts"
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Read an explained excerpt"
+      },
+      "children": [
+        {
+          "type": "code",
+          "props": {
+            "file": "src/retry.ts",
+            "language": "typescript",
+            "startLine": 40,
+            "code": "export function retry(job: Job) {\n  const pending = new Map()\n  pending.set(job.id, job)\n  const maxAttempts = 3\n  for (let attempt = 0; attempt < maxAttempts; attempt++) {\n    if (run(job)) return true\n  }\n  pending.delete(job.id)\n  return false\n}",
+            "annotations": [
+              {
+                "line": 41,
+                "end": 43,
+                "title": "Bound pending work",
+                "body": "This state lives only for the job.",
+                "tone": "idea",
+                "text": "new Map()"
+              },
+              {
+                "line": 47,
+                "end": 48,
+                "title": "Release it on failure",
+                "tone": "risk"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Compare two versions"
+      },
+      "children": [
+        {
+          "type": "code",
+          "props": {
+            "file": "src/logger.ts",
+            "title": "One output boundary",
+            "language": "typescript",
+            "before": "const attempts = 10\nconsole.log(message)\nreturn attempts",
+            "after": "const attempts = 3\nlogger.info(message)\nreturn attempts",
+            "diffMode": "split"
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Explain a patch"
+      },
+      "children": [
+        {
+          "type": "code",
+          "props": {
+            "file": "src/logger.ts",
+            "language": "typescript",
+            "diff": true,
+            "code": "@@ -40,3 +40,3 @@\n-const attempts = 10\n-console.log(message)\n+const attempts = 3\n+logger.info(message)\n return attempts",
+            "annotations": [
+              {
+                "line": 40,
+                "end": 41,
+                "title": "One structured sink",
+                "tone": "idea",
+                "side": "new",
+                "text": "3"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Follow a multi-file route"
+      },
+      "children": [
+        {
+          "type": "walkthrough",
+          "props": {
+            "title": "A retry has an end",
+            "files": [
+              {
+                "path": "src/retry.ts",
+                "language": "typescript",
+                "code": "export function retry(job: Job) {\n  const pending = new Map()\n  pending.set(job.id, job)\n  const maxAttempts = 3\n  for (let attempt = 0; attempt < maxAttempts; attempt++) {\n    if (run(job)) return true\n  }\n  pending.delete(job.id)\n  return false\n}"
+              },
+              {
+                "path": "src/cache.ts",
+                "language": "typescript",
+                "code": "export const cache = new Map()\nexport function clear() {\n  cache.clear()\n}"
+              }
+            ],
+            "steps": [
+              {
+                "file": "src/retry.ts",
+                "lines": "2-4",
+                "title": "Give the work a bound",
+                "body": "The attempt budget is explicit.",
+                "text": "new Map()",
+                "tone": "idea"
+              },
+              {
+                "file": "src/retry.ts",
+                "lines": "8-9",
+                "title": "Release failed work",
+                "tone": "risk"
+              },
+              {
+                "file": "src/cache.ts",
+                "lines": "2-4",
+                "title": "Clear shared state",
+                "body": "The request owner ends the lifetime.",
+                "tone": "ok"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Inspect boundary frames"
+      },
+      "children": [
+        {
+          "type": "execution-trace",
+          "props": {
+            "title": "JSON to a trusted adapter",
+            "provenance": {
+              "mode": "simulated",
+              "method": "author-curated",
+              "summary": "Fixture source and values, not a runtime capture.",
+              "confidence": "high"
+            },
+            "events": [
+              {
+                "id": "frame-0",
+                "order": 0,
+                "kind": "call",
+                "phase": "process",
+                "label": "Read the artifact request",
+                "source": {
+                  "content": "export function main(input: unknown) {\n  const parsed = parse(input)\n  const output = render(parsed)\n  return output\n}",
+                  "facts": {
+                    "span": {
+                      "file": "fixture/contract-validation/validate.ts",
+                      "startLine": 2,
+                      "endLine": 2
+                    },
+                    "excerpt": "  const parsed = parse(input)",
+                    "sourceHash": "6f7d8556f4e5baa8cdc20c7da0c62eb0d94db80b5dc8d99e3b64a41cc79fd3b5",
+                    "worktree": "dirty",
+                    "language": "typescript",
+                    "syntaxKind": "call_expression",
+                    "focus": {
+                      "kind": "call",
+                      "text": "parse(input)",
+                      "symbol": "parse"
+                    },
+                    "scope": {
+                      "kind": "function",
+                      "symbol": "main",
+                      "startLine": 1,
+                      "endLine": 5
+                    },
+                    "resolution": "resolved"
+                  }
+                },
+                "evidence": {
+                  "origin": "simulated",
+                  "confidence": "high"
+                },
+                "inputs": [
+                  {
+                    "id": "input-0",
+                    "name": "input",
+                    "staticType": "unknown",
+                    "preview": {
+                      "kind": "scalar",
+                      "text": "{ nodes: [code], title: 'An explained source excerpt' }"
+                    },
+                    "provenance": "simulated"
+                  }
+                ],
+                "outputs": [
+                  {
+                    "id": "out-0",
+                    "name": "parsed",
+                    "staticType": "ArtifactSpec",
+                    "preview": {
+                      "kind": "object",
+                      "text": "Validated artifact with a trusted adapter"
+                    },
+                    "provenance": "simulated"
+                  }
+                ]
+              },
+              {
+                "id": "frame-1",
+                "order": 1,
+                "kind": "call",
+                "phase": "process",
+                "label": "Read the stored bundle",
+                "source": {
+                  "content": "export function main(input: unknown) {\n  const parsed = parse(input)\n  const output = render(parsed)\n  return output\n}",
+                  "facts": {
+                    "span": {
+                      "file": "fixture/contract-validation/validate.ts",
+                      "startLine": 2,
+                      "endLine": 2
+                    },
+                    "excerpt": "  const parsed = parse(input)",
+                    "sourceHash": "6f7d8556f4e5baa8cdc20c7da0c62eb0d94db80b5dc8d99e3b64a41cc79fd3b5",
+                    "worktree": "dirty",
+                    "language": "typescript",
+                    "syntaxKind": "call_expression",
+                    "focus": {
+                      "kind": "call",
+                      "text": "parse(input)",
+                      "symbol": "parse"
+                    },
+                    "scope": {
+                      "kind": "function",
+                      "symbol": "main",
+                      "startLine": 1,
+                      "endLine": 5
+                    },
+                    "resolution": "resolved"
+                  }
+                },
+                "evidence": {
+                  "origin": "simulated",
+                  "confidence": "high"
+                },
+                "inputs": [
+                  {
+                    "id": "input-1",
+                    "name": "input",
+                    "staticType": "unknown",
+                    "preview": {
+                      "kind": "scalar",
+                      "text": "{ nodes: [code], title: 'An explained source excerpt' }"
+                    },
+                    "provenance": "simulated"
+                  }
+                ],
+                "outputs": [
+                  {
+                    "id": "out-1",
+                    "name": "parsed",
+                    "staticType": "ArtifactSpec",
+                    "preview": {
+                      "kind": "object",
+                      "text": "Validated artifact with a trusted adapter"
+                    },
+                    "provenance": "simulated"
+                  }
+                ]
+              },
+              {
+                "id": "frame-2",
+                "order": 2,
+                "kind": "call",
+                "phase": "process",
+                "label": "Parse unknown JSON",
+                "source": {
+                  "content": "export function main(input: unknown) {\n  const parsed = parse(input)\n  const output = render(parsed)\n  return output\n}",
+                  "facts": {
+                    "span": {
+                      "file": "fixture/contract-validation/validate.ts",
+                      "startLine": 2,
+                      "endLine": 2
+                    },
+                    "excerpt": "  const parsed = parse(input)",
+                    "sourceHash": "6f7d8556f4e5baa8cdc20c7da0c62eb0d94db80b5dc8d99e3b64a41cc79fd3b5",
+                    "worktree": "dirty",
+                    "language": "typescript",
+                    "syntaxKind": "call_expression",
+                    "focus": {
+                      "kind": "call",
+                      "text": "parse(input)",
+                      "symbol": "parse"
+                    },
+                    "scope": {
+                      "kind": "function",
+                      "symbol": "main",
+                      "startLine": 1,
+                      "endLine": 5
+                    },
+                    "resolution": "resolved"
+                  }
+                },
+                "evidence": {
+                  "origin": "simulated",
+                  "confidence": "high"
+                },
+                "inputs": [
+                  {
+                    "id": "input-2",
+                    "name": "input",
+                    "staticType": "unknown",
+                    "preview": {
+                      "kind": "scalar",
+                      "text": "{ nodes: [code], title: 'An explained source excerpt' }"
+                    },
+                    "provenance": "simulated"
+                  }
+                ],
+                "outputs": [
+                  {
+                    "id": "out-2",
+                    "name": "parsed",
+                    "staticType": "ArtifactSpec",
+                    "preview": {
+                      "kind": "object",
+                      "text": "Validated artifact with a trusted adapter"
+                    },
+                    "provenance": "simulated"
+                  }
+                ]
+              },
+              {
+                "id": "frame-3",
+                "order": 3,
+                "kind": "boundary",
+                "phase": "process",
+                "label": "Validate the shared contract",
+                "source": {
+                  "content": "export function main(input: unknown) {\n  const parsed = parse(input)\n  const output = render(parsed)\n  return output\n}",
+                  "facts": {
+                    "span": {
+                      "file": "fixture/contract-validation/validate.ts",
+                      "startLine": 2,
+                      "endLine": 2
+                    },
+                    "excerpt": "  const parsed = parse(input)",
+                    "sourceHash": "6f7d8556f4e5baa8cdc20c7da0c62eb0d94db80b5dc8d99e3b64a41cc79fd3b5",
+                    "worktree": "dirty",
+                    "language": "typescript",
+                    "syntaxKind": "call_expression",
+                    "focus": {
+                      "kind": "call",
+                      "text": "parse(input)",
+                      "symbol": "parse"
+                    },
+                    "scope": {
+                      "kind": "function",
+                      "symbol": "main",
+                      "startLine": 1,
+                      "endLine": 5
+                    },
+                    "resolution": "resolved"
+                  }
+                },
+                "evidence": {
+                  "origin": "simulated",
+                  "confidence": "high"
+                },
+                "boundary": {
+                  "kind": "validation",
+                  "from": {
+                    "label": "Parsed JSON",
+                    "system": "cli"
+                  },
+                  "to": {
+                    "label": "Renderer contract",
+                    "system": "renderer"
+                  },
+                  "outcome": "passed"
+                },
+                "inputs": [
+                  {
+                    "id": "input-3",
+                    "name": "input",
+                    "staticType": "unknown",
+                    "preview": {
+                      "kind": "scalar",
+                      "text": "{ nodes: [code], title: 'An explained source excerpt' }"
+                    },
+                    "provenance": "simulated"
+                  }
+                ],
+                "outputs": [
+                  {
+                    "id": "out-3",
+                    "name": "parsed",
+                    "staticType": "ArtifactSpec",
+                    "preview": {
+                      "kind": "object",
+                      "text": "Validated artifact with a trusted adapter"
+                    },
+                    "provenance": "simulated"
+                  }
+                ]
+              },
+              {
+                "id": "frame-4",
+                "order": 4,
+                "kind": "call",
+                "phase": "process",
+                "label": "Choose the trusted adapter",
+                "source": {
+                  "content": "export function main(input: unknown) {\n  const parsed = parse(input)\n  const output = render(parsed)\n  return output\n}",
+                  "facts": {
+                    "span": {
+                      "file": "fixture/contract-validation/validate.ts",
+                      "startLine": 2,
+                      "endLine": 2
+                    },
+                    "excerpt": "  const parsed = parse(input)",
+                    "sourceHash": "6f7d8556f4e5baa8cdc20c7da0c62eb0d94db80b5dc8d99e3b64a41cc79fd3b5",
+                    "worktree": "dirty",
+                    "language": "typescript",
+                    "syntaxKind": "call_expression",
+                    "focus": {
+                      "kind": "call",
+                      "text": "parse(input)",
+                      "symbol": "parse"
+                    },
+                    "scope": {
+                      "kind": "function",
+                      "symbol": "main",
+                      "startLine": 1,
+                      "endLine": 5
+                    },
+                    "resolution": "resolved"
+                  }
+                },
+                "evidence": {
+                  "origin": "simulated",
+                  "confidence": "high"
+                },
+                "inputs": [
+                  {
+                    "id": "input-4",
+                    "name": "input",
+                    "staticType": "unknown",
+                    "preview": {
+                      "kind": "scalar",
+                      "text": "{ nodes: [code], title: 'An explained source excerpt' }"
+                    },
+                    "provenance": "simulated"
+                  }
+                ],
+                "outputs": [
+                  {
+                    "id": "out-4",
+                    "name": "parsed",
+                    "staticType": "ArtifactSpec",
+                    "preview": {
+                      "kind": "object",
+                      "text": "Validated artifact with a trusted adapter"
+                    },
+                    "provenance": "simulated"
+                  }
+                ]
+              },
+              {
+                "id": "frame-5",
+                "order": 5,
+                "kind": "call",
+                "phase": "process",
+                "label": "Normalize the source excerpt",
+                "source": {
+                  "content": "export function main(input: unknown) {\n  const parsed = parse(input)\n  const output = render(parsed)\n  return output\n}",
+                  "facts": {
+                    "span": {
+                      "file": "fixture/contract-validation/validate.ts",
+                      "startLine": 2,
+                      "endLine": 2
+                    },
+                    "excerpt": "  const parsed = parse(input)",
+                    "sourceHash": "6f7d8556f4e5baa8cdc20c7da0c62eb0d94db80b5dc8d99e3b64a41cc79fd3b5",
+                    "worktree": "dirty",
+                    "language": "typescript",
+                    "syntaxKind": "call_expression",
+                    "focus": {
+                      "kind": "call",
+                      "text": "parse(input)",
+                      "symbol": "parse"
+                    },
+                    "scope": {
+                      "kind": "function",
+                      "symbol": "main",
+                      "startLine": 1,
+                      "endLine": 5
+                    },
+                    "resolution": "resolved"
+                  }
+                },
+                "evidence": {
+                  "origin": "simulated",
+                  "confidence": "high"
+                },
+                "inputs": [
+                  {
+                    "id": "input-5",
+                    "name": "input",
+                    "staticType": "unknown",
+                    "preview": {
+                      "kind": "scalar",
+                      "text": "{ nodes: [code], title: 'An explained source excerpt' }"
+                    },
+                    "provenance": "simulated"
+                  }
+                ],
+                "outputs": [
+                  {
+                    "id": "out-5",
+                    "name": "parsed",
+                    "staticType": "ArtifactSpec",
+                    "preview": {
+                      "kind": "object",
+                      "text": "Validated artifact with a trusted adapter"
+                    },
+                    "provenance": "simulated"
+                  }
+                ]
+              },
+              {
+                "id": "frame-6",
+                "order": 6,
+                "kind": "call",
+                "phase": "process",
+                "label": "Render the source rows",
+                "source": {
+                  "content": "export function main(input: unknown) {\n  const parsed = parse(input)\n  const output = render(parsed)\n  return output\n}",
+                  "facts": {
+                    "span": {
+                      "file": "fixture/contract-validation/validate.ts",
+                      "startLine": 2,
+                      "endLine": 2
+                    },
+                    "excerpt": "  const parsed = parse(input)",
+                    "sourceHash": "6f7d8556f4e5baa8cdc20c7da0c62eb0d94db80b5dc8d99e3b64a41cc79fd3b5",
+                    "worktree": "dirty",
+                    "language": "typescript",
+                    "syntaxKind": "call_expression",
+                    "focus": {
+                      "kind": "call",
+                      "text": "parse(input)",
+                      "symbol": "parse"
+                    },
+                    "scope": {
+                      "kind": "function",
+                      "symbol": "main",
+                      "startLine": 1,
+                      "endLine": 5
+                    },
+                    "resolution": "resolved"
+                  }
+                },
+                "evidence": {
+                  "origin": "simulated",
+                  "confidence": "high"
+                },
+                "inputs": [
+                  {
+                    "id": "input-6",
+                    "name": "input",
+                    "staticType": "unknown",
+                    "preview": {
+                      "kind": "scalar",
+                      "text": "{ nodes: [code], title: 'An explained source excerpt' }"
+                    },
+                    "provenance": "simulated"
+                  }
+                ],
+                "outputs": [
+                  {
+                    "id": "out-6",
+                    "name": "parsed",
+                    "staticType": "ArtifactSpec",
+                    "preview": {
+                      "kind": "object",
+                      "text": "Validated artifact with a trusted adapter"
+                    },
+                    "provenance": "simulated"
+                  }
+                ]
+              },
+              {
+                "id": "frame-7",
+                "order": 7,
+                "kind": "call",
+                "phase": "process",
+                "label": "Render notes beside the line range",
+                "source": {
+                  "content": "export function main(input: unknown) {\n  const parsed = parse(input)\n  const output = render(parsed)\n  return output\n}",
+                  "facts": {
+                    "span": {
+                      "file": "fixture/contract-validation/validate.ts",
+                      "startLine": 2,
+                      "endLine": 2
+                    },
+                    "excerpt": "  const parsed = parse(input)",
+                    "sourceHash": "6f7d8556f4e5baa8cdc20c7da0c62eb0d94db80b5dc8d99e3b64a41cc79fd3b5",
+                    "worktree": "dirty",
+                    "language": "typescript",
+                    "syntaxKind": "call_expression",
+                    "focus": {
+                      "kind": "call",
+                      "text": "parse(input)",
+                      "symbol": "parse"
+                    },
+                    "scope": {
+                      "kind": "function",
+                      "symbol": "main",
+                      "startLine": 1,
+                      "endLine": 5
+                    },
+                    "resolution": "resolved"
+                  }
+                },
+                "evidence": {
+                  "origin": "simulated",
+                  "confidence": "high"
+                },
+                "inputs": [
+                  {
+                    "id": "input-7",
+                    "name": "input",
+                    "staticType": "unknown",
+                    "preview": {
+                      "kind": "scalar",
+                      "text": "{ nodes: [code], title: 'An explained source excerpt' }"
+                    },
+                    "provenance": "simulated"
+                  }
+                ],
+                "outputs": [
+                  {
+                    "id": "out-7",
+                    "name": "parsed",
+                    "staticType": "ArtifactSpec",
+                    "preview": {
+                      "kind": "object",
+                      "text": "Validated artifact with a trusted adapter"
+                    },
+                    "provenance": "simulated"
+                  }
+                ]
+              },
+              {
+                "id": "frame-8",
+                "order": 8,
+                "kind": "return",
+                "phase": "process",
+                "label": "Return the rendered artifact",
+                "source": {
+                  "content": "export function main(input: unknown) {\n  const parsed = parse(input)\n  const output = render(parsed)\n  return output\n}",
+                  "facts": {
+                    "span": {
+                      "file": "fixture/contract-validation/validate.ts",
+                      "startLine": 2,
+                      "endLine": 2
+                    },
+                    "excerpt": "  const parsed = parse(input)",
+                    "sourceHash": "6f7d8556f4e5baa8cdc20c7da0c62eb0d94db80b5dc8d99e3b64a41cc79fd3b5",
+                    "worktree": "dirty",
+                    "language": "typescript",
+                    "syntaxKind": "call_expression",
+                    "focus": {
+                      "kind": "call",
+                      "text": "parse(input)",
+                      "symbol": "parse"
+                    },
+                    "scope": {
+                      "kind": "function",
+                      "symbol": "main",
+                      "startLine": 1,
+                      "endLine": 5
+                    },
+                    "resolution": "resolved"
+                  }
+                },
+                "evidence": {
+                  "origin": "simulated",
+                  "confidence": "high"
+                },
+                "inputs": [
+                  {
+                    "id": "input-8",
+                    "name": "input",
+                    "staticType": "unknown",
+                    "preview": {
+                      "kind": "scalar",
+                      "text": "{ nodes: [code], title: 'An explained source excerpt' }"
+                    },
+                    "provenance": "simulated"
+                  }
+                ],
+                "outputs": [
+                  {
+                    "id": "out-8",
+                    "name": "parsed",
+                    "staticType": "ArtifactSpec",
+                    "preview": {
+                      "kind": "object",
+                      "text": "Validated artifact with a trusted adapter"
+                    },
+                    "provenance": "simulated"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Keep long source inside its scroller"
+      },
+      "children": [
+        {
+          "type": "code",
+          "props": {
+            "file": "src/long.ts",
+            "language": "typescript",
+            "code": "const request = { message: 'source needs a local scroll boundary source needs a local scroll boundary source needs a local scroll boundary source needs a local scroll boundary source needs a local scroll boundary ' }\nreturn request",
+            "annotations": [
+              {
+                "line": 1,
+                "title": "A deliberately long source line",
+                "body": "Scroll the code; this note stays beside or below it.",
+                "tone": "info"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Resolve dense note collisions"
+      },
+      "children": [
+        {
+          "type": "code",
+          "props": {
+            "file": "src/dense.ts",
+            "language": "typescript",
+            "code": "export function retry(job: Job) {\n  const pending = new Map()\n  pending.set(job.id, job)\n  const maxAttempts = 3\n  for (let attempt = 0; attempt < maxAttempts; attempt++) {\n    if (run(job)) return true\n  }\n  pending.delete(job.id)\n  return false\n}",
+            "annotations": [
+              {
+                "line": 1,
+                "title": "Decision at line 1",
+                "body": "A longer explanation makes measured notes collide. The connector keeps the numbered pin tied to its source line.",
+                "tone": "idea"
+              },
+              {
+                "line": 2,
+                "title": "Decision at line 2",
+                "body": "A longer explanation makes measured notes collide. The connector keeps the numbered pin tied to its source line.",
+                "tone": "info"
+              },
+              {
+                "line": 3,
+                "title": "Decision at line 3",
+                "body": "A longer explanation makes measured notes collide. The connector keeps the numbered pin tied to its source line.",
+                "tone": "idea"
+              },
+              {
+                "line": 4,
+                "title": "Decision at line 4",
+                "body": "A longer explanation makes measured notes collide. The connector keeps the numbered pin tied to its source line.",
+                "tone": "info"
+              },
+              {
+                "line": 5,
+                "title": "Decision at line 5",
+                "body": "A longer explanation makes measured notes collide. The connector keeps the numbered pin tied to its source line.",
+                "tone": "idea"
+              },
+              {
+                "line": 6,
+                "title": "Decision at line 6",
+                "body": "A longer explanation makes measured notes collide. The connector keeps the numbered pin tied to its source line.",
+                "tone": "info"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

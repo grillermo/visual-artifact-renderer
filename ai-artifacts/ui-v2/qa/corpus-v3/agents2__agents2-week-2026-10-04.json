@@ -1,0 +1,392 @@
+{
+  "slug": "agents2-agents2-week-2026-10-04",
+  "title": "agents2: what changed this week",
+  "description": "4 to 10 October 2026. Six themes, explained with diagrams: how Pi handles long sessions, the agent team, skills reaching every runtime, separate home and work profiles, a more reliable toolchain, and Herdr theming.",
+  "artifactType": "explainer",
+  "topics": [
+    "agents2",
+    "pi",
+    "weekly-report",
+    "agent-setup"
+  ],
+  "data": {
+    "fixes": [
+      {
+        "problem": "Lock names",
+        "what happened": "update wrote -deps locks but the catalog expects -lock, so apply refused to replace them",
+        "fix": "update now uses -lock",
+        "status": "fixed"
+      },
+      {
+        "problem": "Release tags",
+        "what happened": "plannotator was locked as v0.28.10 and stopped matching its npm siblings",
+        "fix": "the v is dropped",
+        "status": "fixed"
+      },
+      {
+        "problem": "Settings",
+        "what happened": "undefined compaction fields were written into settings.json",
+        "fix": "they are dropped first",
+        "status": "fixed"
+      },
+      {
+        "problem": "Doctor",
+        "what happened": "check details were built eagerly",
+        "fix": "they are built only when needed",
+        "status": "fixed"
+      },
+      {
+        "problem": "Pi 1.0.4",
+        "what happened": "new version, new tool-card API",
+        "fix": "pinned and applied",
+        "status": "fixed"
+      }
+    ],
+    "loops": [
+      {
+        "item": "Herdr ui.accent",
+        "status": "warn",
+        "notes": "Remove it from the agents2 base config so apply stops freezing the Mosaic tint."
+      },
+      {
+        "item": "Two Herdr sessions",
+        "status": "warn",
+        "notes": "The default and list sessions overwrite each other's theme keys."
+      },
+      {
+        "item": "agents2 update",
+        "status": "warn",
+        "notes": "Updating git-pinned tools keeps a stale lockfile hash."
+      },
+      {
+        "item": "Follow-up prompt",
+        "status": "pending",
+        "notes": "A draft that predicts your next decision is waiting to go into the personal profile."
+      },
+      {
+        "item": "Picker work",
+        "status": "pending",
+        "notes": "The / and # pickers are uncommitted, and the pi-subagents fork branch isn't pushed."
+      },
+      {
+        "item": "Work Mac",
+        "status": "pending",
+        "notes": "Profile changes haven't been applied or checked on the Work Mac yet."
+      }
+    ],
+    "qa-loops-1-1": [
+      {
+        "item": "Herdr ui.accent",
+        "status": "warn",
+        "notes": "Remove it from the agents2 base config so apply stops freezing the Mosaic tint."
+      },
+      {
+        "item": "Two Herdr sessions",
+        "status": "warn",
+        "notes": "The default and list sessions overwrite each other's theme keys."
+      },
+      {
+        "item": "agents2 update",
+        "status": "warn",
+        "notes": "Updating git-pinned tools keeps a stale lockfile hash."
+      }
+    ],
+    "qa-loops-2-1": [
+      {
+        "item": "Follow-up prompt",
+        "status": "pending",
+        "notes": "A draft that predicts your next decision is waiting to go into the personal profile."
+      },
+      {
+        "item": "Picker work",
+        "status": "pending",
+        "notes": "The / and # pickers are uncommitted, and the pi-subagents fork branch isn't pushed."
+      },
+      {
+        "item": "Work Mac",
+        "status": "pending",
+        "notes": "Profile changes haven't been applied or checked on the Work Mac yet."
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "type": "prose",
+      "props": {
+        "content": "agents2 is the private repo that builds Pi and the other agent tools on each Mac from one set of profiles. This week it moved from *Pi works* to *Pi runs a team*. Long sessions now summarise themselves cheaply and keep their memory. Named agent roles replace the built-in ones. Skills reach Cursor's cloud agents without being copied into every repo. Most of the remaining commits fixed things that had been silently failing."
+      }
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "1. Long sessions that remember",
+        "deck": "Compaction (summarising old conversation to free up space) now uses a cheap model. Memory is saved before anything is thrown away."
+      },
+      "children": [
+        {
+          "type": "sequence",
+          "props": {
+            "caption": "Facts worth keeping are saved before the summary replaces the old messages, so nothing important is lost.",
+            "participants": [
+              {
+                "id": "pi",
+                "label": "Pi session",
+                "kind": "service"
+              },
+              {
+                "id": "mem",
+                "label": "OptMem",
+                "kind": "store"
+              },
+              {
+                "id": "cm",
+                "label": "compaction-model",
+                "kind": "service"
+              },
+              {
+                "id": "haiku",
+                "label": "Haiku 5.5",
+                "kind": "external"
+              }
+            ],
+            "steps": [
+              "note over pi: context reaches 70%",
+              "pi -> mem : save durable facts first",
+              "mem --> pi : saved in background",
+              "pi -> cm : compact these messages",
+              "cm -> cm : drop the memory wake message",
+              "cm -> haiku : summarise, up to 24K tokens",
+              "haiku --> cm : summary",
+              "cm --> pi : replace old messages with summary",
+              "--- next session ---",
+              "mem --> pi : wake view with memories"
+            ]
+          }
+        },
+        {
+          "type": "columns",
+          "props": {
+            "count": 3
+          },
+          "children": [
+            {
+              "type": "prose",
+              "props": {
+                "content": "### Compaction model\n\nEach profile picks the model in `pi.settings.compactionModel`. Personal uses Haiku 5.5. The summary limit was raised so Haiku stops falling back to Opus."
+              }
+            },
+            {
+              "type": "prose",
+              "props": {
+                "content": "### OptMem\n\nLong-term memory is installed and on in both profiles. A single-line memory survives sessions, compactions and model changes."
+              }
+            },
+            {
+              "type": "prose",
+              "props": {
+                "content": "### Follow-up suggestions\n\nThe profile now chooses the model that suggests your next message (`followUpModel`). Personal uses Haiku."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "2. A team of named agents",
+        "deck": "Pi's built-in agents are off. Seven roles live in the repo, and each profile decides which model runs which role."
+      },
+      "children": [
+        {
+          "type": "mermaid",
+          "props": {
+            "code": "flowchart LR\n  prof[\"Profile<br/>personal / work\"]\n  alias[\"Model aliases<br/>sol · opus · luna · astra…\"]\n  roles[\"Agent roles<br/>content/pi/agents\"]\n  lead[\"lead\"]\n  coder[\"coder · qa\"]\n  rev[\"reviewer · oracle\"]\n  wf[\"Workflows<br/>plan · build\"]\n  spawn[\"/spawn-lead<br/>Herdr worktree\"]\n  prof -- \"pi.agentModels\" --> alias\n  alias -- \"resolved at apply\" --> roles\n  roles --> lead\n  roles --> coder\n  roles --> rev\n  wf -- \"build\" --> coder\n  wf -- \"reviews one at a time\" --> rev\n  spawn -- \"one lead per worktree\" --> lead\n  lead -. \"delegates\" .-> coder",
+            "caption": "Agent files never name a model. Swap a profile and the same team runs on different models. Apply stops with a clear message if a role has no alias."
+          }
+        },
+        {
+          "type": "prose",
+          "props": {
+            "content": "Dashed: delegation at run time"
+          }
+        },
+        {
+          "type": "prose",
+          "props": {
+            "tone": "muted",
+            "content": "**Roles:** lead, coder, reviewer, oracle, researcher, scribe, qa. **Workflows:** saved plan and build scripts. An install script copies them, because Pi's workflow loader ignores symlinks. **spawn-lead:** a skill and command that creates a Herdr workspace with one lead agent in its own git worktree. The lead delegates the work."
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "3. Skills that reach every runtime",
+        "deck": "One catalog, many runtimes, including Cursor cloud agents, without copying skills into each repo."
+      },
+      "children": [
+        {
+          "type": "mermaid",
+          "props": {
+            "code": "flowchart LR\n  cat[\"agent-skills<br/>public catalog\"]\n  a2[\"agents2 pin<br/>locked commit\"]\n  pi[\"Pi<br/>~/.pi/agent/skills\"]\n  cur[\"~/.cursor/skills\"]\n  cloud[\"Cursor cloud agents\"]\n  boot[\"bootstrap.sh<br/>other cloud boxes\"]\n  old[\"PR fan-out<br/>removed\"]\n  cat -- \"pin\" --> a2\n  a2 -- \"link\" --> pi\n  a2 -- \"link\" --> cur\n  cur -- \"Cursor skill sync\" --> cloud\n  cat -. \"curl | bash\" .-> boot\n  cat -. \"never ran\" .-> old",
+            "caption": "The old plan opened PRs to copy skills into every repo. It never ran. Now Cursor syncs ~/.cursor/skills to its cloud agents, and bootstrap.sh covers other cloud boxes."
+          }
+        },
+        {
+          "type": "prose",
+          "props": {
+            "content": "Dashed: optional or retired path"
+          }
+        },
+        {
+          "type": "prose",
+          "props": {
+            "content": "**New skills this week:** `tailnet-expose`, `article-explainer`, `work-inventory`, `spawn-lead` and the latest `frontend-design`, plus usage guides for `agent-browser`. **Fixed:** the `visual-artifact` skill never loaded because it lives at `skill/`, not `skills/`."
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "4. Home and work, cleanly separated",
+        "deck": "Both profiles share one setup but differ where they must."
+      },
+      "children": [
+        {
+          "type": "columns",
+          "props": {
+            "count": 2
+          },
+          "children": [
+            {
+              "type": "prose",
+              "props": {
+                "content": "### Personal\n\n- Claude Code models (Haiku for compaction and follow-ups)\n- Cursor cloud agents enabled\n- pi-topology-studio enabled\n- Shared `mcp.json` without work servers"
+              }
+            },
+            {
+              "type": "prose",
+              "props": {
+                "content": "### Work\n\n- Six model aliases matching personal, via GitHub Copilot and Cursor\n- Work-only skills and MCP servers ported from v1\n- Its own `mcp.work.json` override\n- Cloudflare and context7 MCP servers dropped"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "5. A toolchain that stops lying",
+        "deck": "Most of the week's fixes were tools that reported success while silently doing the wrong thing."
+      },
+      "children": [
+        {
+          "type": "prose",
+          "props": {
+            "content": "### How an extension change reaches a running Pi"
+          }
+        },
+        {
+          "type": "steps",
+          "props": {
+            "items": [
+              {
+                "title": "pi-extensions commit",
+                "tag": "push to main",
+                "key": true
+              },
+              {
+                "title": "agents2 pin",
+                "tag": "lock.json + catalog"
+              },
+              {
+                "title": "apply",
+                "tag": "install into tools dir"
+              },
+              {
+                "title": "doctor",
+                "tag": "verify hashes · checks"
+              },
+              {
+                "title": "fresh Pi session",
+                "tag": "live"
+              }
+            ],
+            "caption": "This chain ran about twenty times this week, once for each pi-extensions change."
+          }
+        },
+        {
+          "type": "table",
+          "props": {
+            "dataKey": "fixes",
+            "columns": [
+              "problem",
+              "what happened",
+              "fix",
+              "status"
+            ],
+            "statusKey": "status"
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "6. Herdr themes that stay put",
+        "deck": "Mosaic colours each Herdr space by changing Herdr's theme. agents2 kept undoing it."
+      },
+      "children": [
+        {
+          "type": "mermaid",
+          "props": {
+            "code": "flowchart LR\n  a2[\"agents2 apply\"]\n  cfg[\"herdr config.toml\"]\n  mos[\"Mosaic<br/>tint per space\"]\n  tc[\"[theme.custom]\"]\n  acc[\"ui.accent\"]\n  a2 -- \"merge other keys\" --> cfg\n  mos -- \"owns\" --> tc\n  mos -- \"writes tint\" --> acc\n  a2 -. \"still writes blue\" .-> acc\n  tc --> cfg\n  acc --> cfg",
+            "caption": "Fixed: config.toml is now a merge, and Mosaic owns [theme.custom]. Still open: ui.accent is still set by agents2, so apply can freeze the tint again."
+          }
+        },
+        {
+          "type": "prose",
+          "props": {
+            "content": "Dashed: conflict still open"
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Open loops"
+      },
+      "children": [
+        {
+          "type": "ledger",
+          "props": {
+            "dataKey": "qa-loops-1-1",
+            "titleKey": "item",
+            "bodyKey": "notes",
+            "groupKey": "status",
+            "signals": {
+              "warn": "wait"
+            }
+          }
+        },
+        {
+          "type": "ledger",
+          "props": {
+            "dataKey": "qa-loops-2-1",
+            "titleKey": "item",
+            "bodyKey": "notes",
+            "groupKey": "status",
+            "signals": {
+              "pending": "wait"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

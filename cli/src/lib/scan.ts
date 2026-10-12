@@ -11,13 +11,23 @@ export interface ArtifactMeta {
   topics?: string[]
 }
 
+/** Library signals read from bundle sidecars, never from the spec. */
+export interface ArtifactSignals {
+  /** Count of annotation threads whose status is "open". */
+  openThreads: number
+  /** First message of the newest open thread, trimmed to one line. */
+  openExcerpt?: string
+  /** True when publish.json says the bundle is published. */
+  published: boolean
+}
+
 export interface ProjectIndexEntry {
   name: string
   artifactCount: number
   lastModifiedAt: string
 }
 
-export interface ArtifactIndexEntry {
+export interface ArtifactIndexEntry extends ArtifactSignals {
   slug: string
   title?: string
   description?: string
@@ -27,7 +37,7 @@ export interface ArtifactIndexEntry {
   project: string
 }
 
-export interface ArtifactListEntry {
+export interface ArtifactListEntry extends ArtifactSignals {
   slug: string
   title?: string
   description?: string
@@ -57,6 +67,36 @@ export async function readArtifactMeta(filePath: string): Promise<ArtifactMeta> 
   }
 }
 
+const EXCERPT_MAX = 80
+
+async function readJson(filePath: string): Promise<unknown> {
+  try {
+    return JSON.parse(await readFile(filePath, "utf8"))
+  } catch {
+    return undefined
+  }
+}
+
+/** Open comments and publish state for one bundle. Missing or broken sidecars count as none. */
+export async function readArtifactSignals(bundleDir: string): Promise<ArtifactSignals> {
+  const annotations = await readJson(join(bundleDir, BUNDLE_FILES.annotations))
+  const publish = await readJson(join(bundleDir, BUNDLE_FILES.publish))
+  const threads = annotations && typeof annotations === "object" && Array.isArray((annotations as { threads?: unknown }).threads)
+    ? (annotations as { threads: unknown[] }).threads
+    : []
+  const open = threads.filter((thread): thread is { updatedAt?: unknown; messages?: unknown } =>
+    !!thread && typeof thread === "object" && (thread as { status?: unknown }).status === "open")
+  const newest = [...open].sort((a, b) => String(b.updatedAt ?? "").localeCompare(String(a.updatedAt ?? "")))[0]
+  const firstMessage = newest && Array.isArray(newest.messages) ? newest.messages[0] : undefined
+  const body = firstMessage && typeof firstMessage === "object" ? (firstMessage as { body?: unknown }).body : undefined
+  const line = typeof body === "string" ? body.replace(/\s+/g, " ").trim() : ""
+  return {
+    openThreads: open.length,
+    openExcerpt: line ? (line.length > EXCERPT_MAX ? `${line.slice(0, EXCERPT_MAX - 1)}…` : line) : undefined,
+    published: !!publish && typeof publish === "object" && (publish as { status?: unknown }).status === "published",
+  }
+}
+
 /**
  * List artifacts in a project directory using the bundle layout.
  *
@@ -75,7 +115,9 @@ export async function listProjectArtifacts(projectDir: string): Promise<Artifact
       if (!(await fileExists(artifactJson))) continue
       const stats = await stat(artifactJson)
       const meta = await readArtifactMeta(artifactJson)
+      const signals = await readArtifactSignals(join(projectDir, slug))
       artifacts.push({
+        ...signals,
         slug,
         title: meta.title,
         description: meta.description,

@@ -29,7 +29,7 @@ async function writeArtifact(dir: string, project: string, slug: string): Promis
   await mkdir(bundleDir, { recursive: true })
   await writeFile(
     join(bundleDir, "artifact.json"),
-    JSON.stringify({ slug, title: slug, nodes: [{ type: "text", props: { text: "x" } }] }),
+    JSON.stringify({ slug, title: slug, nodes: [{ type: "prose", props: { content: "x" } }] }),
     "utf8",
   )
   return bundleDir

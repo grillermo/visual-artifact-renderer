@@ -12,7 +12,6 @@ import {
 import { checkGrid, parseGridRows, type TerseError } from "./terse/common.js"
 import { normalizeCallStackRows } from "./terse/call-stack.js"
 import { normalizeSequenceSteps } from "./terse/sequence.js"
-import { normalizeBoxEdges } from "./terse/edges.js"
 import { normalizeMachineEvents } from "./terse/machine.js"
 
 type Ctx = z.RefinementCtx
@@ -34,121 +33,14 @@ const HttpsUrlSchema = z.string().url().regex(/^https:\/\//, "must be an https U
 export const CalloutToneSchema = z.enum(["info", "warn", "risk", "ok", "idea"])
 export type CalloutTone = z.infer<typeof CalloutToneSchema>
 
-export const ChangeStatsPropsSchema = z
-  .object({
-    label: ShortLabel(40).optional(),
-    added: z.number().int().min(0).max(9999),
-    changed: z.number().int().min(0).max(9999),
-    removed: z.number().int().min(0).max(9999),
-    files: z.number().int().min(0).max(9999).optional(),
-    lines: z.object({ add: z.number().int().min(0), del: z.number().int().min(0) }).strict().optional(),
-  })
-  .strict()
-  .superRefine((props, ctx) => {
-    const sum = props.added + props.changed + props.removed
-    if (props.files !== undefined && props.files < sum) {
-      report(ctx, ["files"], `change-stats files (${props.files}) must be at least added + changed + removed (${sum})`)
-    }
-  })
-export type ChangeStatsProps = z.infer<typeof ChangeStatsPropsSchema>
-
 export const QUOTE_SOURCES = ["prompt", "slack", "github", "doc", "email", "meeting", "transcript"] as const
-export const QuotesPropsSchema = z
-  .object({
-    title: ShortLabel(80).optional(),
-    open: z.boolean().optional(),
-    items: z
-      .array(
-        z
-          .object({
-            text: z.string().min(1).max(600),
-            via: z.enum(QUOTE_SOURCES),
-            from: ShortLabel(60).optional(),
-            date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "date must be YYYY-MM-DD").optional(),
-            href: HttpsUrlSchema.optional(),
-          })
-          .strict(),
-      )
-      .min(1)
-      .max(8),
-  })
-  .strict()
-export type QuotesProps = z.infer<typeof QuotesPropsSchema>
 
 // ---------------------------------------------------------------------------
 // code-block (improved)
 // ---------------------------------------------------------------------------
 
-export const CodeAnnotationToneSchema = z.enum(["info", "warn", "risk", "ok"])
-export const CodeBlockPropsSchema = z
-  .object({
-    title: z.string().min(1).optional(),
-    language: z.string().min(1).optional(),
-    code: z.string().min(1),
-    caption: z.string().min(1).optional(),
-    lineNumbers: z.boolean().optional(),
-    startLine: z.number().int().min(1).max(1_000_000).optional(),
-    highlight: z.array(z.union([z.number().int().min(1), z.string().regex(/^\d+-\d+$/)])).max(40).optional(),
-    annotations: z
-      .array(
-        z
-          .object({
-            line: z.number().int().min(1),
-            title: ShortLabel(80),
-            body: ShortLabel(280).optional(),
-            tone: CodeAnnotationToneSchema.optional(),
-          })
-          .strict(),
-      )
-      .max(12)
-      .optional(),
-    diff: z.boolean().optional(),
-    sketch: z.boolean().optional(),
-    src: SourceRefSchema.optional(),
-  })
-  .strict()
-  .superRefine((props, ctx) => {
-    const lines = props.code.replace(/\r\n/g, "\n").replace(/\n$/, "").split("\n")
-    const first = props.startLine ?? 1
-    const last = first + lines.length - 1
-    const inRange = (n: number) => n >= first && n <= last
-    const seen = new Set<number>()
-    props.annotations?.forEach((annotation, index) => {
-      if (!inRange(annotation.line)) {
-        report(ctx, ["annotations", index, "line"], `code-block annotation ${index + 1}: line ${annotation.line} is outside ${first}-${last}`)
-      }
-      if (seen.has(annotation.line)) {
-        report(ctx, ["annotations", index, "line"], `code-block annotation ${index + 1}: line ${annotation.line} already has an annotation`)
-      }
-      seen.add(annotation.line)
-    })
-    props.highlight?.forEach((entry, index) => {
-      const [a, b] = typeof entry === "number" ? [entry, entry] : entry.split("-").map(Number)
-      if (b < a || !inRange(a) || !inRange(b)) {
-        report(ctx, ["highlight", index], `code-block highlight ${index + 1}: "${entry}" is outside ${first}-${last}`)
-      }
-    })
-    if (props.diff) {
-      lines.forEach((line, index) => {
-        if (line === "" || /^[+\- ]/.test(line) || line.startsWith("@@")) return
-        report(ctx, ["code"], `line ${index + 1}: diff lines start with "+ ", "- ", "  " or "@@"`)
-      })
-    }
-  })
-export type CodeBlockProps = z.infer<typeof CodeBlockPropsSchema>
-
-/** True when a code-block uses any structured (annotated) prop. */
-export function codeBlockIsStructured(props: CodeBlockProps): boolean {
-  return Boolean(
-    props.lineNumbers !== undefined ||
-      props.startLine !== undefined ||
-      props.highlight?.length ||
-      props.annotations?.length ||
-      props.diff ||
-      props.sketch ||
-      props.src,
-  )
-}
+export { CodeBlockPropsSchema, CodeAnnotationToneSchema, codeBlockIsStructured, WalkthroughPropsSchema } from "./code-schemas.js"
+export type { CodeBlockProps, WalkthroughProps } from "./code-schemas.js"
 
 // ---------------------------------------------------------------------------
 // call-stack
@@ -214,7 +106,7 @@ export const CallStackPropsSchema = z
   })
 export type CallStackProps = z.infer<typeof CallStackPropsSchema>
 
-/** Row ids declared by a call-stack's object rows (for claim.ref). */
+/** Row ids in historical call objects; used by migration tooling only. */
 export function callStackRowIds(props: { rows: readonly unknown[] }): string[] {
   return props.rows.flatMap((row) =>
     row && typeof row === "object" && typeof (row as { id?: unknown }).id === "string" ? [(row as { id: string }).id] : [],
@@ -240,53 +132,84 @@ const SequenceStepObjectSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("divider"), text: ShortLabel(60) }).strict(),
 ])
 
+const SequenceParticipantsSchema = z
+  .array(
+    z
+      .object({
+        id: PlanIdSchema,
+        label: ShortLabel(28).optional(),
+        kind: z.enum(["actor", "service", "store", "external"]).optional(),
+        mark: ChangeMarkSchema.optional(),
+      })
+      .strict(),
+  )
+  .min(2)
+  .max(8)
+
+const SequenceStepsSchema = z.union([z.string().min(1).max(200), SequenceStepObjectSchema])
+
+function lintSequenceProps(
+  props: { participants: { id: string }[]; steps: (string | Record<string, unknown>)[] },
+  ctx: Ctx,
+) {
+  const ids = new Set<string>()
+  props.participants.forEach((participant, index) => {
+    if (ids.has(participant.id)) report(ctx, ["participants", index, "id"], `participant "${participant.id}" is declared twice`)
+    ids.add(participant.id)
+  })
+  const { steps, errors } = normalizeSequenceSteps(props.steps as Parameters<typeof normalizeSequenceSteps>[0])
+  reportTerse(ctx, "steps", errors)
+  const uses = new Map<string, number>()
+  steps.forEach((step, index) => {
+    const ends = step.kind === "message" ? [step.from, step.to] : step.kind === "note" ? step.over : []
+    for (const end of ends) {
+      if (!ids.has(end)) report(ctx, ["steps", index], `step ${index + 1}: unknown participant "${end}"`)
+    }
+    if (step.kind === "message") {
+      uses.set(step.from, (uses.get(step.from) ?? 0) + 1)
+      if (step.to !== step.from) uses.set(step.to, (uses.get(step.to) ?? 0) + 1)
+    }
+  })
+  if (props.participants.length >= 4 && errors.length === 0) {
+    props.participants.forEach((participant, index) => {
+      if ((uses.get(participant.id) ?? 0) < 2) {
+        report(ctx, ["participants", index], `participant "${participant.id}" appears in one message — fold it into a note or drop it`)
+      }
+    })
+  }
+}
+
 export const SequenceDiagramPropsSchema = z
   .object({
     title: ShortLabel(120).optional(),
     caption: ShortLabel(240),
-    participants: z
-      .array(
-        z
-          .object({
-            id: PlanIdSchema,
-            label: ShortLabel(28).optional(),
-            kind: z.enum(["actor", "service", "store", "external"]).optional(),
-            mark: ChangeMarkSchema.optional(),
-          })
-          .strict(),
-      )
-      .min(2)
-      .max(8),
-    steps: z.array(z.union([z.string().min(1).max(200), SequenceStepObjectSchema])).min(1).max(40),
+    participants: SequenceParticipantsSchema,
+    steps: z.array(SequenceStepsSchema).min(1).max(40),
+  })
+  .strict()
+  .superRefine((props, ctx) => lintSequenceProps(props, ctx))
+
+/** `sequence`: the editorial sequence node. Same props, at most 10 steps, plus `key`: 0-based indices of the message steps to emphasise (dividers and notes are not counted). */
+export const SEQUENCE_MAX_STEPS = 10
+export const SequencePropsSchema = z
+  .object({
+    title: ShortLabel(120).optional(),
+    caption: ShortLabel(240),
+    participants: SequenceParticipantsSchema,
+    steps: z.array(SequenceStepsSchema).min(1).max(SEQUENCE_MAX_STEPS, "Split into two sequences."),
+    key: z.array(z.number().int().min(0)).max(SEQUENCE_MAX_STEPS).optional(),
   })
   .strict()
   .superRefine((props, ctx) => {
-    const ids = new Set<string>()
-    props.participants.forEach((participant, index) => {
-      if (ids.has(participant.id)) report(ctx, ["participants", index, "id"], `participant "${participant.id}" is declared twice`)
-      ids.add(participant.id)
-    })
-    const { steps, errors } = normalizeSequenceSteps(props.steps)
-    reportTerse(ctx, "steps", errors)
-    const uses = new Map<string, number>()
-    steps.forEach((step, index) => {
-      const ends = step.kind === "message" ? [step.from, step.to] : step.kind === "note" ? step.over : []
-      for (const end of ends) {
-        if (!ids.has(end)) report(ctx, ["steps", index], `step ${index + 1}: unknown participant "${end}"`)
-      }
-      if (step.kind === "message") {
-        uses.set(step.from, (uses.get(step.from) ?? 0) + 1)
-        if (step.to !== step.from) uses.set(step.to, (uses.get(step.to) ?? 0) + 1)
+    lintSequenceProps(props, ctx)
+    const messages = normalizeSequenceSteps(props.steps as Parameters<typeof normalizeSequenceSteps>[0]).steps.filter((st) => st.kind === "message").length
+    props.key?.forEach((stepIndex, index) => {
+      if (stepIndex >= messages) {
+        report(ctx, ["key", index], `key step ${stepIndex} is outside the ${messages} message steps (0-based, dividers and notes are not counted)`)
       }
     })
-    if (props.participants.length >= 4 && errors.length === 0) {
-      props.participants.forEach((participant, index) => {
-        if ((uses.get(participant.id) ?? 0) < 2) {
-          report(ctx, ["participants", index], `participant "${participant.id}" appears in one message — fold it into a note or drop it`)
-        }
-      })
-    }
   })
+export type SequenceProps = z.infer<typeof SequencePropsSchema>
 export type SequenceDiagramProps = z.infer<typeof SequenceDiagramPropsSchema>
 
 // ---------------------------------------------------------------------------
@@ -304,77 +227,6 @@ const BoxEdgeObjectSchema = z
     mark: ChangeMarkSchema.optional(),
   })
   .strict()
-
-export const BoxDiagramPropsSchema = z
-  .object({
-    title: ShortLabel(120).optional(),
-    caption: ShortLabel(240).optional(),
-    nodes: z
-      .array(
-        z
-          .object({
-            id: PlanIdSchema,
-            label: ShortLabel(40),
-            sub: ShortLabel(48).optional(),
-            shape: z.enum(["box", "pill", "diamond", "db", "circle", "note", "actor"]).optional(),
-            tone: z.enum(BOX_TONES).optional(),
-            mark: ChangeMarkSchema.optional(),
-            href: z.string().regex(/^#[\w-]+$/, "href must be an in-page anchor like #claim-2-1").optional(),
-          })
-          .strict(),
-      )
-      .min(1)
-      .max(16),
-    edges: z.array(z.union([z.string().min(1).max(200), BoxEdgeObjectSchema])).max(40),
-    grid: z.array(GridRowSchema).min(1).max(6),
-    groups: z.array(z.object({ label: ShortLabel(40), ids: z.array(PlanIdSchema).min(1) }).strict()).max(4).optional(),
-    dashed: ShortLabel(40).optional(),
-  })
-  .strict()
-  .superRefine((props, ctx) => {
-    const ids = new Set<string>()
-    props.nodes.forEach((node, index) => {
-      if (ids.has(node.id)) report(ctx, ["nodes", index, "id"], `box-diagram node "${node.id}" is declared twice`)
-      ids.add(node.id)
-    })
-    const { cells, errors: gridErrors } = parseGridRows(props.grid)
-    reportTerse(ctx, "grid", gridErrors)
-    if (gridErrors.length === 0) {
-      for (const error of checkGrid(cells, ids, "node")) report(ctx, ["grid", error.index], error.message)
-    }
-    const columns = Math.max(0, ...cells.map((row) => row.length))
-    if (columns > 4) report(ctx, ["grid"], `box-diagram grid has ${columns} columns; use at most 4 (3 reads best)`)
-    const { edges, errors } = normalizeBoxEdges(props.edges)
-    reportTerse(ctx, "edges", errors)
-    edges.forEach((edge, index) => {
-      for (const end of [edge.from, edge.to]) {
-        if (!ids.has(end)) report(ctx, ["edges", index], `edge ${index + 1}: unknown node "${end}"`)
-      }
-    })
-    if (edges.some((edge) => edge.style === "dashed") && !props.dashed) {
-      report(ctx, ["dashed"], `box-diagram has dashed edges; set "dashed" to say what a dashed line means`)
-    }
-    const position = new Map<string, [number, number]>()
-    cells.forEach((row, r) => row.forEach((cell, c) => cell && position.set(cell, [r, c])))
-    props.groups?.forEach((group, index) => {
-      const points: [number, number][] = []
-      for (const id of group.ids) {
-        const at = position.get(id)
-        if (!ids.has(id) || !at) {
-          report(ctx, ["groups", index], `group ${index + 1}: unknown node "${id}"`)
-          return
-        }
-        points.push(at)
-      }
-      const rows = points.map((p) => p[0])
-      const cols = points.map((p) => p[1])
-      const area = (Math.max(...rows) - Math.min(...rows) + 1) * (Math.max(...cols) - Math.min(...cols) + 1)
-      if (area !== points.length) {
-        report(ctx, ["groups", index], `group ${index + 1} "${group.label}": its nodes must fill a rectangle in the grid`)
-      }
-    })
-  })
-export type BoxDiagramProps = z.infer<typeof BoxDiagramPropsSchema>
 
 // ---------------------------------------------------------------------------
 // state-machine
@@ -612,7 +464,6 @@ export const ClaimPropsSchema = z
   .object({
     text: ShortLabel(280),
     aux: z.enum(["shared", "scope"]).optional(),
-    ref: PlanIdSchema.optional(),
     open: z.boolean().optional(),
   })
   .strict()
@@ -638,7 +489,7 @@ type Visit = {
   ancestors: LooseNode[]
 }
 
-/** Visits every node, depth first, including tabs/accordion item nodes. */
+/** Visits every node and its children, depth first. */
 export function walkPlanNodes(nodes: readonly LooseNode[], visit: (entry: Visit) => void, path: (string | number)[] = ["nodes"]) {
   const step = (list: readonly LooseNode[], base: (string | number)[], ancestors: LooseNode[]) => {
     list.forEach((node, index) => {
@@ -647,11 +498,7 @@ export function walkPlanNodes(nodes: readonly LooseNode[], visit: (entry: Visit)
       const next = [...ancestors, node]
       if (Array.isArray(node.children)) step(node.children, [...nodePath, "children"], next)
       const props = node.props as { items?: { nodes?: LooseNode[] }[] } | undefined
-      if ((node.type === "tabs" || node.type === "accordion") && Array.isArray(props?.items)) {
-        props.items.forEach((item, itemIndex) => {
-          if (Array.isArray(item.nodes)) step(item.nodes, [...nodePath, "props", "items", itemIndex, "nodes"], next)
-        })
-      }
+
     })
   }
   step(nodes, path, [])
@@ -668,19 +515,13 @@ function collectIds(nodes: readonly LooseNode[]): string[] {
 }
 
 export function lintPlanSpec(nodes: readonly LooseNode[], ctx: Ctx) {
-  const callRowIds = new Set<string>()
   const decisionPaths = new Map<string, string>()
   let decisionCount = 0
   let treeCount = 0
-  const claimRefs: { ref: string; path: (string | number)[] }[] = []
 
   walkPlanNodes(nodes, ({ node, path, parent, ancestors }) => {
     const props = (node.props ?? {}) as Record<string, unknown>
     const where = path.join(".")
-
-    if (node.type === "call-stack" && Array.isArray(props.rows)) {
-      for (const id of callStackRowIds(props as { rows: unknown[] })) callRowIds.add(id)
-    }
 
     if (node.type === "decision" && typeof props.id === "string") {
       decisionCount++
@@ -709,18 +550,17 @@ export function lintPlanSpec(nodes: readonly LooseNode[], ctx: Ctx) {
       const children = node.children ?? []
       const label = typeof props.text === "string" ? `"${props.text.slice(0, 40)}"` : where
       if (children[0] && (children[0].type === "claim" || children[0].type === "decision")) {
-        report(ctx, [...path, "children", 0], `claim ${label}: put the exhibit first, then at most one decision or alert, then child claims`)
+        report(ctx, [...path, "children", 0], `claim ${label}: put the exhibit first, then at most one decision or callout, then child claims`)
       } else {
         let index = 1
-        if (children[index] && (children[index].type === "decision" || children[index].type === "alert")) index++
+        if (children[index] && (children[index].type === "decision" || children[index].type === "callout")) index++
         for (; index < children.length; index++) {
           if (children[index].type !== "claim") {
-            report(ctx, [...path, "children", index], `claim ${label}: put the exhibit first, then at most one decision or alert, then child claims`)
+            report(ctx, [...path, "children", index], `claim ${label}: put the exhibit first, then at most one decision or callout, then child claims`)
             break
           }
         }
       }
-      if (typeof props.ref === "string") claimRefs.push({ ref: props.ref, path: [...path, "props", "ref"] })
     }
 
     if (node.type === "wireframe") {
@@ -782,9 +622,6 @@ export function lintPlanSpec(nodes: readonly LooseNode[], ctx: Ctx) {
     }
   })
 
-  for (const { ref, path } of claimRefs) {
-    if (!callRowIds.has(ref)) report(ctx, path, `claim ref "${ref}" matches no call-stack row id`)
-  }
 }
 
 // ---------------------------------------------------------------------------

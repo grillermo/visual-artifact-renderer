@@ -1,0 +1,197 @@
+{
+  "slug": "project-atlas-spawn-lead-workflow",
+  "title": "The spawn-lead workflow",
+  "description": "One unit of work gets one Herdr workspace, one Git worktree and one lead agent. You talk only to the lead; the lead delegates.",
+  "artifactType": "explainer",
+  "topics": [
+    "spawn-lead",
+    "herdr",
+    "worktrees"
+  ],
+  "nodes": [
+    {
+      "type": "callout",
+      "props": {
+        "tone": "risk",
+        "body": "All workers share one worktree, so two workers editing the same file will collide. The skill's only guard is a rule: give concurrent agents different files, and only the lead commits. Nothing enforces either rule. The workflow also needs `HERDR_ENV=1`; outside Herdr it stops. The skill was added in the latest agents2 work (commit d163bd6) and the text here is its first version.",
+        "title": "Open risks first"
+      }
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "The point",
+        "deck": "A lead agent plans, delegates, reviews and integrates. Workers and subagents do the typing, all inside the lead's worktree."
+      },
+      "children": [
+        {
+          "type": "prose",
+          "props": {
+            "content": "Terms: the **lead** is the Pi agent in tab 1. A **worker** is a Herdr agent in its own tab. A **subagent** is a background Pi agent started with the `Agent` tool. The **shared worktree** is the lead's worktree, used by everyone."
+          }
+        },
+        {
+          "type": "prose",
+          "props": {
+            "content": "### Who talks to whom"
+          }
+        },
+        {
+          "type": "mermaid",
+          "props": {
+            "code": "flowchart LR\n  you[\"You<br/>the only person involved\"]\n  lead[\"Lead (tab 1)<br/>plans, reviews, commits\"]\n  w[\"Worker tabs<br/>ongoing work you may watch\"]\n  sub[\"Subagents<br/>one-off research or checks\"]\n  wt[\"Shared worktree<br/>one branch, one path\"]\n  ws[\"Herdr workspace<br/>groups the tabs\"]\n  you -- \"requests\" --> lead\n  lead -- \"herdr agent prompt\" --> w\n  lead -- \"Agent tool\" --> sub\n  w -- \"edit files\" --> wt\n  sub -- \"read or edit\" --> wt\n  lead -- \"review, verify, commit\" --> wt\n  ws -. \"contains\" .-> lead",
+            "caption": "You speak to the lead only. Solid lines are delegation; the workspace holds everything."
+          }
+        },
+        {
+          "type": "prose",
+          "props": {
+            "content": "Dashed: membership"
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Part 1: bootstrap",
+        "deck": "Run by whoever calls /spawn-lead, requires HERDR_ENV=1."
+      },
+      "children": [
+        {
+          "type": "sequence",
+          "props": {
+            "title": "Creating the lead",
+            "caption": "Seven commands in order; reuse an existing worktree for the same purpose instead.",
+            "participants": [
+              {
+                "id": "c",
+                "label": "Caller",
+                "kind": "actor"
+              },
+              {
+                "id": "h",
+                "label": "Herdr",
+                "kind": "service"
+              },
+              {
+                "id": "l",
+                "label": "Lead (Pi)"
+              }
+            ],
+            "steps": [
+              "c -> h : herdr worktree list, check for reuse",
+              "c -> h : herdr worktree create --branch name --path ~/dev/worktrees/repo/name",
+              "h --> c : workspace_id and root_pane_id",
+              "c -> h : herdr agent start name-lead --kind pi",
+              "h -> l : Pi starts in the root pane",
+              "c -> l : herdr agent prompt with the brief",
+              "note over c, l: caller reports label, path, branch; does not focus"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Part 2: how the lead delegates",
+        "deck": "Pick by whether you would want to watch it happen."
+      },
+      "children": [
+        {
+          "type": "table",
+          "props": {
+            "dataKey": "routing",
+            "columns": [
+              "use",
+              "when",
+              "how"
+            ],
+            "caption": "Source: Part 2 of ~/.pi/agent/skills/spawn-lead/SKILL.md."
+          }
+        },
+        {
+          "type": "prose",
+          "props": {
+            "content": "### Starting a worker"
+          }
+        },
+        {
+          "type": "steps",
+          "props": {
+            "items": [
+              {
+                "title": "herdr tab create in the workspace",
+                "key": true
+              },
+              {
+                "title": "herdr agent start name-task --kind pi"
+              },
+              {
+                "title": "Send a self-contained brief",
+                "body": "goal, owned files, forbidden files, verify steps, do not commit"
+              },
+              {
+                "title": "herdr agent wait until done or blocked"
+              }
+            ],
+            "caption": "Reuse an idle worker for follow-ups on the same topic."
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "The rules that keep it safe",
+        "deck": "The lead edits no code and runs no long jobs."
+      },
+      "children": [
+        {
+          "type": "ledger",
+          "props": {
+            "groups": [
+              {
+                "label": "Definitions",
+                "signal": "none",
+                "rows": [
+                  {
+                    "title": "One writer to git",
+                    "body": "Only the lead commits. Workers leave changes uncommitted."
+                  },
+                  {
+                    "title": "Disjoint files",
+                    "body": "Concurrent agents touch different files. Same files means run them in sequence."
+                  },
+                  {
+                    "title": "Verify last",
+                    "body": "The lead runs full checks after integrating, never while a worker is editing."
+                  },
+                  {
+                    "title": "Ask first",
+                    "body": "Pushing, opening PRs or any external action needs the user's approval. Teardown only on request, and no --force on dirty work without approval."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "data": {
+    "routing": [
+      {
+        "use": "Subagent (Agent tool)",
+        "when": "One-off, self-contained: research, review, a quick check",
+        "how": "Result is all that matters"
+      },
+      {
+        "use": "Herdr worker",
+        "when": "Ongoing or multi-step work the user may steer or follow up",
+        "how": "Own tab in the shared worktree"
+      }
+    ]
+  }
+}

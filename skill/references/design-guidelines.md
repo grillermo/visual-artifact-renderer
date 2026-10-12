@@ -1,123 +1,83 @@
 ---
-description: "Design principles for visual artifacts rendered by Visualizer. How to choose node types, structure information, and avoid generic output."
+description: "Design principles for visual artifacts. How to choose nodes, structure information, and avoid boxes and generic output."
 date created: 2026-06-16
-date modified: 2026-06-17
+date modified: 2026-10-11
 tags: ["visual-artifact", "design", "ui", "guidelines"]
 ---
 
 # Design guidelines for visual artifacts
 
-These guidelines shape artifacts produced by the Visualizer renderer. The renderer turns a constrained JSON spec into a finished page — the design quality depends on the choices made inside that spec.
+The renderer turns a constrained JSON spec into a page. The quality of the page depends on the choices made inside the spec. Treat every artifact as a short publication, not a dump of facts.
 
-Treat every artifact as a small publication, not a dump of facts.
+Get the current node catalog from `visual-artifact contract`. For a shape to copy, see [recipes](./content-types/recipes.md).
 
 ## Information first
 
-Every artifact must be about its topic. Avoid meta-statistics such as node counts, file counts, or spec profile numbers unless they directly answer the user's question. Each heading, stat-card, and table row should move the reader closer to understanding the subject.
+Every heading, number and row must move the reader closer to the topic. Do not count things about the page itself (nodes, sections, files). Say the conclusion first.
 
-## Choosing node types
+## Choosing nodes
 
-Match the content to the right renderer node.
-
-Get the current node catalog from the CLI with `visual-artifact contract`, or read the source manifest in `app/src/lib/contract/artifact-manifest.ts`.
-
-| Content | Preferred node | Why |
+| Content | Node | Why |
 |---|---|---|
-| Dashboard KPIs | `stat-card` inside `grid` | Hero numbers with labels and captions |
-| Health / readiness board | `status-grid` | Built-in status chips and grid layout |
-| Structured evidence | `table`, `data-table`, `comparison-table` | Copy-paste friendly, sortable columns |
-| Flows / handoffs | `flow` | Linear visual pipeline |
-| Architecture topology | `mermaid` | Automatic edge routing |
-| Sequence / state / ER / class diagrams | `mermaid` | Specialized Mermaid syntax |
-| Custom interactive diagrams | `svg-diagram` | When Mermaid cannot express the layout |
-| Timelines | `timeline` | Date/phase markers with status |
-| Long narrative | `prose` | Markdown with lists and links |
-| Short callouts | `text`, `alert`, `card` | One idea at a time |
-| Code examples | `code-block` | Syntax highlighting and copy button |
-| Diff examples | `diff` | Side-by-side change view |
-| File structure | `file-tree` | Collapsible explorer |
-| Tabbed views | `tabs` | Alternate slices of the same data |
-| Secondary detail | `accordion` | Keep primary content visible |
+| A section with one point | `chapter` (kicker, title, deck, takeaway) | Gives the reader a landing point and the conclusion |
+| Narrative | `prose` | Markdown with lists and links |
+| 3 short parallel points | `columns` | Open columns, no boxes |
+| Facts with an owner, status and next step | `ledger` | Grouped by what the reader must do |
+| Work in progress | `checklist` | Open, doing, done, dropped, blocked |
+| 3 or 4 key numbers | `figures` | Large numbers, no tiles |
+| Rows and columns | `table` | `dense`, `onlyDiffs`, `statusKey` |
+| Ordered process | `steps` | 2 to 7 steps, 1 or 2 marked `key` |
+| Parts and links | `map` | 6 nodes and 8 edges at most |
+| A flow that builds up | `story` | Map plus beats shown on scroll |
+| Messages over time | `sequence` | Participants and steps |
+| Before and after, or two options | `compare` | Two columns plus rows and a verdict |
+| Open question | `decision` | Options with consequences, one suggested |
+| One aside | `callout` | Note, risk, or tip; sparingly |
+| Secondary detail | `details` | Closed by default |
+| Code | `code` | Syntax, annotations, diff |
+| Dated events | `timeline` | Spine with dates in the gutter |
 
-### Mermaid guidance
+Use `mermaid` only for diagram types `map` and `sequence` cannot draw (ERD, class). `svg-diagram` is the last resort.
 
-- Prefer `flowchart TD` for complex diagrams. Use `flowchart LR` only for simple 3–4 node linear flows.
-- For state-machine labels that need colons, parentheses, or multi-line text, use `flowchart TD` with quoted edge labels instead of `stateDiagram-v2`.
-- Keep Mermaid diagrams under 10–12 nodes when possible. For larger topologies, use a simple Mermaid overview plus `card`/`grid` detail sections below.
-- Use `svg-diagram` when you need precise layout, clickable nodes, or a hand-rolled visual treatment.
-- If a Mermaid skill is available in your environment, load it before generating or validating Mermaid diagrams.
+## The anti-box rules
 
-## Content-type patterns
+1. No card, tile or bordered container around ordinary content. Whitespace, rules and type carry the structure.
+2. Status is a dot plus a word, never a coloured pill or an emoji.
+3. At most three signal colours on a page: new, risk, wait. Grey for the rest.
+4. At most 4 figures. At most 6 nodes in a map. At most 7 steps.
+5. A chapter has one main exhibit, plus at most one supporting prose, details or callout, and one takeaway.
+6. No two consecutive nodes of the same type, unless they are a `ledger` and its caption.
+7. No uniform grids. If three things are equal, use `columns` with headings or a `ledger`.
+8. Secondary detail goes in `details`.
+9. Diagrams get a caption that says what to look for.
+10. No emoji in headings.
 
-For concrete patterns, see [content types](./content-types/_index.md):
-- [Architecture diagrams](./content-types/architecture-diagrams.md) — topology, text-heavy overviews, hybrid layouts
-- [Dashboards & metrics](./content-types/dashboards.md) — KPIs, status boards, hero numbers
-- [Timelines & roadmaps](./content-types/timelines.md) — phases, milestones, chronological narratives
-- [Data organization](./content-types/data-organization.md) — tables, comparisons, inventories
+## Hierarchy and rhythm
 
-## Layout and hierarchy
-
-- **Lead with the thesis.** A short `text` node at the top should answer "what is this artifact about?" before any dense content.
-- **Hero sections dominate.** The most important metrics or conclusions get `stat-card` tiles, large headings, and full-width placement.
-- **Reference sections stay compact.** File lists, dependency inventories, and decision logs belong in tables or accordions.
-- **Use sections for rhythm.** A `section` node before a dense block gives the reader a landing point.
-- **Do not nest everything in cards.** If a fact fits a stat-card, status-grid item, or table row, use that instead.
-
-## Tables over walls of text
-
-Anytime you are about to render structured rows and columns as bullet points or paragraphs, use a table node instead:
-
-- Feature comparisons → `comparison-table`
-- Evidence lists → `data-table`
-- Status reports → `status-grid` or `table`
-- Configuration matrices → `table`
-- API route inventories → `data-table`
-
-Use the `statusKey` on `comparison-table` and `status-grid` to turn string values into colored chips.
-
-## Prose accents
-
-Use prose sparingly as an accent, not as the primary container:
-
-- **Lead paragraph**: one `text` node with `size: "lg"` to set context.
-- **Pull quote**: a `card` with `tone: "accent"` highlighting one key insight.
-- **Callout box**: an `alert` for warnings, tips, or important notes.
-- **Divider**: a `separator` between major sections.
-
-When writing long-form prose, load the available writing-quality skills for your environment first.
+- Lead with a `prose` paragraph that answers "what is this?" before any dense content.
+- The most important thing gets the most weight: a `figures` row, a `callout`, or a `chapter` takeaway. Everything else is quiet.
+- Alternate prose with one visual per chapter. Do not stack three visuals.
+- Reference sections (inventories, full tables) go in `details`.
 
 ## Anti-patterns
 
-Avoid output that looks AI-generated:
-
-- Generic dark dashboards with neon gradients.
-- Emoji icons in headings or section labels.
-- Perfectly uniform card grids with no visual hierarchy.
-- Dumping entire source files into `code-block` nodes. Show structure and key snippets instead.
-- Padding artifacts with meta-statistics that are not about the topic.
+- A grid of cards with a title, body and chip each.
+- Neon gradients, dark dashboards, emoji icons.
+- Padding with meta-statistics.
+- Dumping whole files into `code`. Show structure and the key excerpt.
+- A diagram for something with 2 nodes.
 
 ## The slop test
 
-Before finishing the artifact spec, ask: **would a developer immediately think an AI generated this page?**
-
-If the answer is yes, change one of these:
-
-- Layout rhythm
-- Information hierarchy
-- Density of tables versus prose
-- Specificity of examples
-
-A distinctive artifact usually needs only one strong structural choice — an asymmetric layout, a clear hierarchy, or concrete evidence — to avoid feeling templated.
+Before finishing: would a developer think an AI generated this? If yes, change one of these: layout rhythm, hierarchy, the ratio of prose to tables, or the specificity of the examples. One strong structural choice, such as a `story` or a grouped `ledger`, usually fixes it.
 
 ## Quality checks
 
-Verify the artifact spec before calling `create_visual_artifact`:
-
 - [ ] The first node answers "what am I looking at?"
-- [ ] Every stat-card, table row, and diagram is about the topic, not the artifact itself.
-- [ ] The most important information has the most visual weight.
-- [ ] Tables are used for any structured comparison or inventory.
-- [ ] Diagrams have captions and do not exceed 12 nodes unless split.
-- [ ] Code blocks show structure or key snippets, not entire files.
-- [ ] Secondary detail lives in `accordion` or lower sections.
-- [ ] No emoji-only section headers.
+- [ ] Every chapter has a takeaway and one main exhibit and at most one supporting prose, details or callout.
+- [ ] No cards, tiles or status pills.
+- [ ] Three signal colours at most.
+- [ ] Structured comparisons are in `table` or `compare`.
+- [ ] Diagrams are captioned and small.
+- [ ] Secondary detail is in `details`.
+- [ ] `visual-artifact validate` passes.

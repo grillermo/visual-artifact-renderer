@@ -1,0 +1,596 @@
+{
+  "slug": "logview-verification-plan-logview-project-recap-2026-09-19",
+  "title": "logview — project recap",
+  "description": "A field-notebook recap of logview's architecture, recent work, delivery state, and cognitive debt over the last two weeks.",
+  "artifactType": "report",
+  "topics": [
+    "android-log-viewer",
+    "typescript",
+    "project-recap",
+    "release-automation"
+  ],
+  "layout": {
+    "type": "default",
+    "columns": 1
+  },
+  "data": {
+    "activityByArea": [
+      {
+        "area": "Engine",
+        "files": 36
+      },
+      {
+        "area": "TUI",
+        "files": 23
+      },
+      {
+        "area": "Core",
+        "files": 18
+      },
+      {
+        "area": "CLI",
+        "files": 8
+      },
+      {
+        "area": "Tests",
+        "files": 27
+      },
+      {
+        "area": "GitHub automation",
+        "files": 5
+      },
+      {
+        "area": "Benchmarks",
+        "files": 3
+      }
+    ],
+    "timeline": [
+      {
+        "marker": "18 Sep",
+        "title": "V1 foundation lands",
+        "description": "Headless core, engine, CLI, recording/replay, fixtures, and quality gates arrive together.",
+        "status": "complete"
+      },
+      {
+        "marker": "18 Sep",
+        "title": "Live-source and terminal boundaries harden",
+        "description": "Fake ADB, sanitized replay fixtures, PTY checks, rendering, and structural benchmark gates expand.",
+        "status": "complete"
+      },
+      {
+        "marker": "18 Sep",
+        "title": "TUI correctness and semantic filtering",
+        "description": "Frame paint, navigation, multiline logs, and TypeSafe Jev-backed filtering receive focused changes.",
+        "status": "complete"
+      },
+      {
+        "marker": "19 Sep",
+        "title": "Visual verification becomes explicit",
+        "description": "Pinned Terminal Control checks, styled baselines, UI scenarios, and failure evidence are added.",
+        "status": "complete"
+      },
+      {
+        "marker": "19 Sep",
+        "title": "Delivery automation added",
+        "description": "CI, Release Please, four standalone binary targets, Dependabot, and GitHub security updates are configured.",
+        "status": "current"
+      }
+    ],
+    "decisions": [
+      {
+        "decision": "Headless in-process session",
+        "why": "It separates functional decisions from effectful storage and keeps tests device-free.",
+        "considered": "TUI-owned state and a worker/process engine.",
+        "status": "adopted"
+      },
+      {
+        "decision": "Direct ANSI TUI at runtime",
+        "why": "The CLI attaches it only for TTY sessions and keeps headless paths free of terminal loading.",
+        "considered": "An OpenTUI adapter described in the original design.",
+        "status": "current"
+      },
+      {
+        "decision": "TypeSafe Jev semantic filter",
+        "why": "Natural-language text filtering layers on local filters while keeping provider calls behind LogClassifier.",
+        "considered": "Local-only filters; unrestricted provider access.",
+        "status": "adopted"
+      },
+      {
+        "decision": "Terminal Control UI verification",
+        "why": "It captures visible text, styled cells, PNGs, and named evidence from the real terminal.",
+        "considered": "OpenTUI renderer, other terminal tools, raw ANSI snapshots.",
+        "status": "adopted"
+      },
+      {
+        "decision": "Manual dependency merges",
+        "why": "Dependabot opens weekly non-breaking Bun updates and immediate security updates without auto-merge.",
+        "considered": "No bot, selective auto-merge, broad auto-merge.",
+        "status": "adopted"
+      }
+    ],
+    "state": [
+      {
+        "component": "Core and engine boundaries",
+        "status": "healthy",
+        "notes": "Public exports, Session, adapters, and package direction are explicit.",
+        "meta": "core → engine → CLI; core ↔ TUI"
+      },
+      {
+        "component": "Headless quality path",
+        "status": "healthy",
+        "notes": "lint, TypeScript, and headless tests are defined as bun run check.",
+        "meta": "30 test files in the repository"
+      },
+      {
+        "component": "UI verification",
+        "status": "ok",
+        "notes": "Dedicated UI workflow has recorded successful historic runs and captures failure evidence.",
+        "meta": "Current branch has no new UI run recorded"
+      },
+      {
+        "component": "Release pipeline",
+        "status": "warn",
+        "notes": "Release Please and four binary targets are configured, but no tag or GitHub release exists.",
+        "meta": "0 tags; 0 GitHub releases"
+      },
+      {
+        "component": "Local runtime alignment",
+        "status": "risk",
+        "notes": "Session evidence shows Bun 1.1.34 failed before lint; CI is pinned to Bun 1.4.2.",
+        "meta": "Resolve before local acceptance claims"
+      },
+      {
+        "component": "Dependency security",
+        "status": "healthy",
+        "notes": "Dependabot alerts and automated security-update PRs are enabled.",
+        "meta": "Version updates group weekly patch/minor changes"
+      }
+    ],
+    "evidence": [
+      {
+        "claim": "Recent activity",
+        "source": "git rev-list, log, and stat since '2 weeks ago'",
+        "detail": "17 commits; recent work spans initial V1, terminal behavior, semantic filtering, verification, and automation."
+      },
+      {
+        "claim": "Architecture",
+        "source": "packages/core/src/index.ts:1–120; packages/engine/src/index.ts:1–122; technical design:779–798",
+        "detail": "Core owns pure functions; engine owns session/adapters; CLI chooses terminal or headless output."
+      },
+      {
+        "claim": "TTY boundary",
+        "source": "packages/cli/src/main.ts:380–405; packages/tui/src/app.ts:576–725",
+        "detail": "TUI loads dynamically only on TTY and writes ANSI frames while owning raw-mode lifecycle."
+      },
+      {
+        "claim": "Delivery",
+        "source": ".github/workflows/ci.yml:15–28; release-assets.yml:10–89; dependabot.yml:1–13",
+        "detail": "CI, release verification/build, and weekly grouped Bun updates are configured."
+      },
+      {
+        "claim": "Delivery evidence",
+        "source": "gh release list; git tag --list; gh run list",
+        "detail": "0 releases and tags; recent successful UI runs exist, but the new release process has no end-to-end run."
+      },
+      {
+        "claim": "Historical caveat",
+        "source": "ai-artifacts/handoffs/2026-09-19-ui-testing.md",
+        "detail": "The handoff describes an earlier stopped and unverified stage. Treat it as historical, not the current implementation status."
+      }
+    ],
+    "qa-state-1-1": [
+      {
+        "component": "Core and engine boundaries",
+        "status": "healthy",
+        "notes": "Public exports, Session, adapters, and package direction are explicit.",
+        "meta": "core → engine → CLI; core ↔ TUI",
+        "qa-ledger-body": "Public exports, Session, adapters, and package direction are explicit.\n\ncore → engine → CLI; core ↔ TUI"
+      },
+      {
+        "component": "Headless quality path",
+        "status": "healthy",
+        "notes": "lint, TypeScript, and headless tests are defined as bun run check.",
+        "meta": "30 test files in the repository",
+        "qa-ledger-body": "lint, TypeScript, and headless tests are defined as bun run check.\n\n30 test files in the repository"
+      }
+    ],
+    "qa-state-2-1": [
+      {
+        "component": "UI verification",
+        "status": "ok",
+        "notes": "Dedicated UI workflow has recorded successful historic runs and captures failure evidence.",
+        "meta": "Current branch has no new UI run recorded",
+        "qa-ledger-body": "Dedicated UI workflow has recorded successful historic runs and captures failure evidence.\n\nCurrent branch has no new UI run recorded"
+      }
+    ],
+    "qa-state-3-1": [
+      {
+        "component": "Release pipeline",
+        "status": "warn",
+        "notes": "Release Please and four binary targets are configured, but no tag or GitHub release exists.",
+        "meta": "0 tags; 0 GitHub releases",
+        "qa-ledger-body": "Release Please and four binary targets are configured, but no tag or GitHub release exists.\n\n0 tags; 0 GitHub releases"
+      }
+    ],
+    "qa-state-4-1": [
+      {
+        "component": "Local runtime alignment",
+        "status": "risk",
+        "notes": "Session evidence shows Bun 1.1.34 failed before lint; CI is pinned to Bun 1.4.2.",
+        "meta": "Resolve before local acceptance claims",
+        "qa-ledger-body": "Session evidence shows Bun 1.1.34 failed before lint; CI is pinned to Bun 1.4.2.\n\nResolve before local acceptance claims"
+      }
+    ],
+    "qa-state-5-1": [
+      {
+        "component": "Dependency security",
+        "status": "healthy",
+        "notes": "Dependabot alerts and automated security-update PRs are enabled.",
+        "meta": "Version updates group weekly patch/minor changes",
+        "qa-ledger-body": "Dependabot alerts and automated security-update PRs are enabled.\n\nVersion updates group weekly patch/minor changes"
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Project identity",
+        "deck": "Current working-tree recap, 19 September 2026 · two-week activity window"
+      },
+      "children": [
+        {
+          "type": "prose",
+          "props": {
+            "content": "**Elevator pitch.** logview is a keyboard-driven Android log viewer for developers who need live capture, recording, replay, inspection, filtering, and headless output through one byte-processing pipeline.\n\nIt is a **private TypeScript/Bun monorepo** at version **0.1.0** with four workspaces: `@logview/core`, `@logview/engine`, `@logview/cli`, and `@logview/tui`. Its direct dependency is Effect 3.22.2; Jev support lives in the engine. A release binary or Bun 1.4+ is the declared runtime path."
+          }
+        },
+        {
+          "type": "figures",
+          "props": {
+            "items": [
+              {
+                "value": 17,
+                "label": "Recent commits",
+                "note": "Two-week window",
+                "signal": "new"
+              },
+              {
+                "value": 44,
+                "label": "Source files",
+                "note": "TypeScript under packages/*/src"
+              },
+              {
+                "value": 30,
+                "label": "Test files",
+                "note": "packages and tests",
+                "signal": "new"
+              },
+              {
+                "value": 0,
+                "label": "Published releases",
+                "note": "No GitHub release or tag yet",
+                "signal": "wait"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Architecture snapshot",
+        "deck": "A headless-first session model with terminal and provider adapters at the edge"
+      },
+      "children": [
+        {
+          "type": "mermaid",
+          "props": {
+            "height": 620,
+            "caption": "The CLI selects a source and mode. Engine Session owns mutable bounded state and publishes snapshots; pure core helpers shape parsing, filtering, navigation, and projection. The TUI is loaded only for TTY use; headless output avoids it.",
+            "code": "flowchart LR\n  Dev[Developer] --> CLI[CLI main]\n  CLI -->|live| ADB[ADB logcat adapter]\n  CLI -->|replay| Replay[JSONL replay adapter]\n  CLI -->|record| Record[Recorder]\n  ADB --> Session[Engine Session]\n  Replay --> Session\n  Session --> Core[Pure core\\nframe · parse · filter\\nnavigation · projection]\n  Core --> Session\n  Session --> History[Bounded history\\n+ visible index]\n  Session --> Snapshot[SessionSnapshot]\n  Snapshot -->|TTY only| TUI[Direct ANSI TUI]\n  Snapshot -->|headless / non-TTY| JSON[HeadlessOutput JSON]\n  CLI -->|semantic enabled| Jev[TypeSafe Jev adapter]\n  Jev --> Session\n  Record --> Disk[Versioned recording file]\n  classDef boundary fill:#d8ece8,stroke:#356b69,color:#1d3130\n  classDef core fill:#e3e8f3,stroke:#4c5f87,color:#1f2840\n  classDef edge fill:#f5e6c5,stroke:#a87322,color:#493613\n  class CLI,Session,History,Snapshot boundary\n  class Core core\n  class ADB,Replay,TUI,Jev,Record,Disk,JSON edge"
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Recent activity",
+        "deck": "The project moved from a V1 foundation to terminal correctness, semantic filtering, visual verification, and delivery automation."
+      },
+      "children": [
+        {
+          "type": "trend",
+          "props": {
+            "dataKey": "activityByArea",
+            "x": "area",
+            "y": "files",
+            "kind": "bar",
+            "caption": "Distinct files touched in the two-week window"
+          }
+        },
+        {
+          "type": "timeline",
+          "props": {
+            "dataKey": "timeline",
+            "caption": "Commit-level milestones from the recent history"
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Decision log",
+        "deck": "Recent decisions connect the codebase's architecture to its current delivery posture."
+      },
+      "children": [
+        {
+          "type": "table",
+          "props": {
+            "dataKey": "decisions",
+            "columns": [
+              {
+                "key": "decision",
+                "label": "Decision"
+              },
+              {
+                "key": "why",
+                "label": "Why"
+              },
+              {
+                "key": "considered",
+                "label": "Alternatives"
+              },
+              {
+                "key": "status",
+                "label": "State"
+              }
+            ],
+            "statusKey": "status",
+            "caption": "Decisions verified in the technical design, source, recent commits, and automation configuration."
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "State of things",
+        "deck": "What is verified in source or GitHub configuration, rather than what is merely intended."
+      },
+      "children": [
+        {
+          "type": "ledger",
+          "props": {
+            "dataKey": "qa-state-1-1",
+            "titleKey": "component",
+            "bodyKey": "qa-ledger-body",
+            "groupKey": "status",
+            "signals": {
+              "healthy": "done"
+            }
+          }
+        },
+        {
+          "type": "ledger",
+          "props": {
+            "dataKey": "qa-state-2-1",
+            "titleKey": "component",
+            "bodyKey": "qa-ledger-body",
+            "groupKey": "status",
+            "signals": {
+              "ok": "done"
+            }
+          }
+        },
+        {
+          "type": "ledger",
+          "props": {
+            "dataKey": "qa-state-3-1",
+            "titleKey": "component",
+            "bodyKey": "qa-ledger-body",
+            "groupKey": "status",
+            "signals": {
+              "warn": "wait"
+            }
+          }
+        },
+        {
+          "type": "ledger",
+          "props": {
+            "dataKey": "qa-state-4-1",
+            "titleKey": "component",
+            "bodyKey": "qa-ledger-body",
+            "groupKey": "status",
+            "signals": {
+              "risk": "risk"
+            }
+          }
+        },
+        {
+          "type": "ledger",
+          "props": {
+            "dataKey": "qa-state-5-1",
+            "titleKey": "component",
+            "bodyKey": "qa-ledger-body",
+            "groupKey": "status",
+            "signals": {
+              "healthy": "done"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Mental model essentials",
+        "deck": "The facts that prevent expensive wrong turns."
+      },
+      "children": [
+        {
+          "type": "prose",
+          "props": {
+            "content": "1. **The `Session` API is the seam.** Drive behavior through it; headless tests must not start ADB or load the TUI.\n2. **Core stays pure.** It has no Bun or terminal imports. Pass inputs in and return decisions or values.\n3. **History and visibility differ.** Retained events stay in bounded history; the visible index carries matching IDs for the active view.\n4. **TTY is a late decision.** `main()` runs headless output for `--headless` or non-TTY stdout; only interactive sessions dynamically import `@logview/tui`.\n5. **The present TUI is direct ANSI, not OpenTUI.** It owns raw mode, alternate-screen escape sequences, resizing, input buffering, and cleanup.\n6. **Semantic filtering is optional and bounded.** It follows local eligibility checks, uses Jev behind `LogClassifier`, and treats invalid or incomplete classification as unclassified rather than hidden.\n7. **Recording/replay share the production byte path.** Replay is not a test-only mock.\n8. **`bun run check` is headless by design.** UI verification is separately exercised with Terminal Control and committed styled baselines.\n9. **Artifacts record different moments.** The UI handoff documents an earlier stopped stage. Read current code and the later commit history before treating it as status.\n10. **Delivery is configured but not proven by a release.** Release assets build only after a published GitHub Release."
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Cognitive debt hotspots",
+        "deck": "Areas where the code is real but the shared mental model or operational proof is incomplete."
+      },
+      "children": [
+        {
+          "type": "columns",
+          "props": {
+            "count": 2
+          },
+          "children": [
+            {
+              "type": "prose",
+              "props": {
+                "content": "### Release path has no proving run\n\nThe release workflow verifies source, cross-compiles four targets, and uploads checksums, yet there are no GitHub releases or tags. Run a controlled first release and inspect the assets before calling this delivery path established."
+              }
+            },
+            {
+              "type": "prose",
+              "props": {
+                "content": "### Runtime mismatch blocks local confidence\n\nThe session observed Bun 1.1.34 fail before Oxlint completed, while README and CI require Bun 1.4.2. Standardize the supported local runtime, then record a clean check result."
+              }
+            }
+          ]
+        },
+        {
+          "type": "columns",
+          "props": {
+            "count": 2
+          },
+          "children": [
+            {
+              "type": "prose",
+              "props": {
+                "content": "### Historical UI handoff conflicts with current code\n\nThe handoff labels UI work stopped and unverified, but later commits added UI scripts, baselines, a workflow, and verification tooling. Mark or replace the stale handoff so it does not misdirect future work."
+              }
+            },
+            {
+              "type": "prose",
+              "props": {
+                "content": "### Direct terminal lifecycle remains concentrated\n\n`packages/tui/src/app.ts` is the hottest source file in the recent window and owns rendering, raw input, resize scheduling, and teardown. Preserve real-PTY scenarios around input bursts, narrow widths, and terminal restoration before refactoring it."
+              }
+            }
+          ]
+        },
+        {
+          "type": "columns",
+          "props": {
+            "count": 2
+          },
+          "children": [
+            {
+              "type": "prose",
+              "props": {
+                "content": "### Branch topology hides the integration path\n\nThe active branch is not `main`; three other local branches are also unmerged, and local `main` is ahead 1 and behind 2 relative to origin. Decide which branch is the integration authority before making release claims."
+              }
+            },
+            {
+              "type": "prose",
+              "props": {
+                "content": "### Semantic quality remains an evaluation question\n\nThe Jev adapter exists, but the design deliberately excludes credentialed evaluation from deterministic CI. Build a redacted, labelled evaluation set before claiming recall, latency, cost, or capacity."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Next steps",
+        "deck": "Ordered to turn configured capability into observed capability."
+      },
+      "children": [
+        {
+          "type": "checklist",
+          "props": {
+            "items": [
+              {
+                "text": "Choose the integration branch",
+                "state": "doing",
+                "note": "current · Resolve the ahead/behind main branch and unmerged local branches before merging delivery work."
+              },
+              {
+                "text": "Run CI from the delivery branch",
+                "state": "todo",
+                "note": "pending · Open or update a pull request and confirm the new CI plus existing UI checks on GitHub."
+              },
+              {
+                "text": "Align the local Bun runtime",
+                "state": "todo",
+                "note": "pending · Use the supported 1.4.x runtime and rerun bun run check, adapters, TUI, and UI verification."
+              },
+              {
+                "text": "Exercise the first release",
+                "state": "todo",
+                "note": "pending · Merge a release PR, inspect all four tarballs and SHA256SUMS, and smoke-test an installed binary."
+              },
+              {
+                "text": "Reconcile project records",
+                "state": "todo",
+                "note": "pending · Archive or annotate the historical UI handoff, then retain current UI verification evidence as the operator reference."
+              },
+              {
+                "text": "Plan Jev evaluation",
+                "state": "todo",
+                "note": "pending · Define a redacted labelled corpus and thresholds before production-quality claims."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Evidence basis",
+        "deck": "The recap uses a bounded fact sheet rather than inferred project history."
+      },
+      "children": [
+        {
+          "type": "table",
+          "props": {
+            "dataKey": "evidence",
+            "columns": [
+              {
+                "key": "claim",
+                "label": "Claim"
+              },
+              {
+                "key": "source",
+                "label": "Source"
+              },
+              {
+                "key": "detail",
+                "label": "Verified fact"
+              }
+            ],
+            "caption": "Sources read before this artifact was generated."
+          }
+        },
+        {
+          "type": "callout",
+          "props": {
+            "tone": "note",
+            "body": "Surf was available but its Gemini image request failed because its active tab reference was invalid. The optional image was skipped; it does not affect this code-derived recap.",
+            "title": "No hero image included"
+          }
+        }
+      ]
+    }
+  ]
+}

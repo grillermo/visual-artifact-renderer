@@ -4,7 +4,6 @@ import { strict as assert } from "node:assert"
 import type { ArtifactNode } from "@/lib/contract/artifact-schema"
 
 import { formatDecisionsMarkdown } from "./format-decisions"
-import { layoutGrid, pairOffsets, routeEdge } from "./grid-layout"
 import { collectDecisions, indexClaims, needsOpenSet, suggestedAnswers } from "./plan-spec"
 
 const decision = (id: string): ArtifactNode =>
@@ -69,36 +68,6 @@ describe("plan-spec", () => {
     assert.equal(
       formatDecisionsMarkdown("Needs fixture", decisions, answers),
       "## Decisions: Needs fixture\n- first (claim 1): Option A (suggested)\n- second (claim 2.1): Option B (changed from suggested: Option A)\n",
-    )
-  })
-})
-
-describe("grid-layout routes", () => {
-  const { boxes } = layoutGrid([
-    ["a", "b"],
-    [null, "c"],
-    ["d", null],
-  ])
-  const get = (id: string) => boxes.get(id)!
-
-  it("routes same row horizontally, same column vertically, else an L", () => {
-    assert.equal(routeEdge(get("a"), get("b")).kind, "row")
-    assert.equal(routeEdge(get("b"), get("c")).kind, "column")
-    const elbow = routeEdge(get("c"), get("d"))
-    assert.equal(elbow.kind, "elbow")
-    assert.equal(elbow.points.length, 3)
-    assert.equal(routeEdge(get("a"), get("a")).kind, "loop")
-    assert.equal(routeEdge(get("b"), get("a"), 0, { backUnder: true }).kind, "back")
-  })
-
-  it("separates two-way pairs by ±6px", () => {
-    assert.deepEqual(
-      pairOffsets([
-        { from: "a", to: "b" },
-        { from: "b", to: "a" },
-        { from: "b", to: "c" },
-      ]),
-      [-6, 6, 0],
     )
   })
 })

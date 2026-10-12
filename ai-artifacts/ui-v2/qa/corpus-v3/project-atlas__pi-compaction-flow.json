@@ -1,0 +1,276 @@
+{
+  "slug": "project-atlas-pi-compaction-flow",
+  "title": "What happens when a long Pi session compacts",
+  "description": "A story of one compaction: memory flush, Haiku summary, decoration, fallback and exit compaction.",
+  "artifactType": "explainer",
+  "topics": [
+    "pi-compaction",
+    "haiku",
+    "pi-optmem"
+  ],
+  "nodes": [
+    {
+      "type": "prose",
+      "props": {
+        "content": "When a Pi session fills its context window, Pi replaces old messages with a summary. Iury's setup changes who writes that summary (Haiku 5.5), saves durable facts to memory first, and falls back to the session model if Haiku fails. **The least certain part: the design notes found no saved session where Haiku wrote a summary. Success is only seen in a test run.**"
+      }
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "kicker": "The story",
+        "title": "One compaction, start to finish",
+        "deck": "Scroll to watch the pieces join in order.",
+        "takeaway": "Facts are saved, then summarised, and a failure never blocks you."
+      },
+      "children": [
+        {
+          "type": "story",
+          "props": {
+            "caption": "Two extensions listen to the same session_before_compact event.",
+            "diagram": {
+              "nodes": [
+                {
+                  "id": "sess",
+                  "label": "Long session",
+                  "kind": "store"
+                },
+                {
+                  "id": "mem",
+                  "label": "pi-optmem",
+                  "sub": "background flush",
+                  "kind": "service"
+                },
+                {
+                  "id": "haiku",
+                  "label": "Haiku 5.5",
+                  "sub": "writes the summary",
+                  "kind": "external",
+                  "signal": "new"
+                },
+                {
+                  "id": "fb",
+                  "label": "Session model",
+                  "sub": "fallback",
+                  "kind": "external",
+                  "signal": "risk"
+                },
+                {
+                  "id": "card",
+                  "label": "Summary and card",
+                  "kind": "file"
+                }
+              ],
+              "edges": [
+                "sess -> mem : spans to compact",
+                "sess -> haiku : same spans",
+                "haiku -> card : summary",
+                "haiku --> fb : on failure",
+                "fb --> card : summary"
+              ],
+              "layout": "row"
+            },
+            "beats": [
+              {
+                "text": "Context use crosses the threshold, you run `/compact`, or the window overflows. Those are the three reasons.",
+                "show": [
+                  "sess"
+                ],
+                "focus": [
+                  "sess"
+                ]
+              },
+              {
+                "text": "pi-optmem acts first. It removes its own wake messages from the input, then starts a detached worker that extracts up to 5 durable memory lines. Compaction does not wait for it.",
+                "show": [
+                  "sess",
+                  "mem"
+                ],
+                "focus": [
+                  "mem"
+                ]
+              },
+              {
+                "text": "compaction-model sends the same spans to Haiku with Pi's prompt, extra instructions and a 24K output budget.",
+                "show": [
+                  "sess",
+                  "mem",
+                  "haiku"
+                ],
+                "focus": [
+                  "haiku"
+                ]
+              },
+              {
+                "text": "If the model is missing, auth fails or the call errors, Pi uses the session model instead and you get a warning.",
+                "show": [
+                  "sess",
+                  "mem",
+                  "haiku",
+                  "fb"
+                ],
+                "focus": [
+                  "fb"
+                ]
+              },
+              {
+                "text": "Either way the summary is wrapped and stored, and a card records what happened.",
+                "show": [
+                  "sess",
+                  "mem",
+                  "haiku",
+                  "fb",
+                  "card"
+                ],
+                "focus": [
+                  "card"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "kicker": "Inside the summary",
+        "title": "What gets added around Haiku's text",
+        "deck": "The extension decorates the result. The model never writes these parts.",
+        "takeaway": "The summary points back to the full evidence."
+      },
+      "children": [
+        {
+          "type": "steps",
+          "props": {
+            "caption": "Our own blocks are stripped from the model output first, so they are never duplicated.",
+            "direction": "column",
+            "items": [
+              {
+                "title": "Session start",
+                "body": "First user message, verbatim, up to 2,000 characters.",
+                "tag": "anchor"
+              },
+              {
+                "title": "Haiku's summary",
+                "body": "Pi's structured sections plus extra notes.",
+                "key": true
+              },
+              {
+                "title": "Summary note",
+                "body": "Reference only. Follow the latest message. Use session_query for exact wording.",
+                "tag": "pointer"
+              }
+            ]
+          }
+        },
+        {
+          "type": "prose",
+          "props": {
+            "content": "The extra instructions ask Haiku to record approaches that failed and why, the last test or build result, unresolved error messages and stated preferences. Paths and identifiers stay verbatim."
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "kicker": "Memory flush",
+        "title": "Facts are saved before the old turns vanish",
+        "deck": "A separate worker and a separate model call. No waiting.",
+        "takeaway": "A short manual compaction is skipped: under about 1,000 tokens is not worth a call."
+      },
+      "children": [
+        {
+          "type": "callout",
+          "props": {
+            "tone": "note",
+            "title": "Guards",
+            "body": "The worker rejects multiline, over-280-byte and recognisably sensitive lines. It skips facts already in the wake view and checks exact duplicates before each write. Semantic duplicates still depend on the model."
+          }
+        },
+        {
+          "type": "prose",
+          "props": {
+            "content": "The wake view is added per request and never saved. Compaction therefore never summarises it, and it reloads on the next turn."
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "kicker": "When it goes wrong",
+        "title": "Fallback, failure and quitting",
+        "deck": "Each path is visible in the session.",
+        "takeaway": "A fallback costs one failed call and nothing more.",
+        "signal": "risk"
+      },
+      "children": [
+        {
+          "type": "ledger",
+          "props": {
+            "groups": [
+              {
+                "label": "Can break something",
+                "signal": "risk",
+                "rows": [
+                  {
+                    "title": "Haiku cannot run",
+                    "body": "Saved fallbacks said `No API provider registered for api: claude-code-cli`. A later commit routes compaction through the model registry.",
+                    "next": "Confirm with a live automatic compaction."
+                  },
+                  {
+                    "title": "Input too big for 200K",
+                    "body": "Observed maximum was about 167K tokens (an estimate). Tool-call arguments are a third of the input and are never truncated.",
+                    "next": "A fit check and argument masking are planned, not built."
+                  },
+                  {
+                    "title": "Summary too short",
+                    "body": "One test gave a 467-token summary from 45K tokens of input.",
+                    "next": "Report summary length beside quality scores in the planned evaluation."
+                  }
+                ]
+              },
+              {
+                "label": "Safe paths",
+                "signal": "done",
+                "rows": [
+                  {
+                    "title": "Fallback",
+                    "body": "A card is recorded and a warning shows if there is a UI."
+                  },
+                  {
+                    "title": "Failed compaction",
+                    "body": "A `failed` entry records the reason. Aborts are not reported."
+                  },
+                  {
+                    "title": "Quit with a big context",
+                    "body": "With `compactOnExitMinTokens` set, a detached RPC process compacts the closed session behind a lock file, with a 10-minute timeout. Reopening early shows a warning."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "kicker": "Decided not to build",
+        "title": "Things the plan rejected",
+        "deck": "Pi or existing tools already cover them.",
+        "takeaway": "Less machinery, same safety."
+      },
+      "children": [
+        {
+          "type": "prose",
+          "props": {
+            "content": "- Clearing stale tool output in normal context. It breaks the prompt cache.\n- Re-injecting `AGENTS.md`. It lives in the system prompt and survives compaction.\n- Re-injecting files or todos, or building a new handoff system."
+          }
+        }
+      ]
+    }
+  ]
+}

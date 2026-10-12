@@ -19,14 +19,14 @@ const baseSpec = VisualArtifactSpecSchema.parse({
   slug: "demo",
   title: "Demo",
   layout: { type: "default" },
-  nodes: [{ type: "text", props: { text: "Hello" } }],
+  nodes: [{ type: "prose", props: { content: "Hello" } }],
 }) satisfies VisualArtifactSpec
 
 const sameSlugSpec = VisualArtifactSpecSchema.parse({
   slug: "demo",
   title: "Same slug, different project",
   layout: { type: "default" },
-  nodes: [{ type: "text", props: { text: "World" } }],
+  nodes: [{ type: "prose", props: { content: "World" } }],
 }) satisfies VisualArtifactSpec
 
 function Harness({ onContext }: { onContext: (ctx: TestAIColabContextValue) => void }) {

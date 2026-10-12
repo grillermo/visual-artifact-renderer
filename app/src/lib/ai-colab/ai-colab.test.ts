@@ -20,13 +20,13 @@ const baseSpec = VisualArtifactSpecSchema.parse({
   layout: { type: "default" },
   nodes: [
     {
-      type: "text",
-      props: { text: "First node", size: "lg" },
+      type: "prose",
+      props: { content: "First node", size: "lead" },
       metadata: { id: "first" },
     },
     {
-      type: "text",
-      props: { text: "Second node" },
+      type: "prose",
+      props: { content: "Second node" },
       metadata: { id: "second" },
     },
   ],

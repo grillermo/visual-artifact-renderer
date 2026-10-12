@@ -1,0 +1,1000 @@
+{
+ "project-atlas/spawn-lead-workflow": {
+  "title": "Spawn lead workflow",
+  "types": [
+   "alert",
+   "definition-list",
+   "flow"
+  ],
+  "captures": {
+   "1440__light": {
+    "before": {
+     "file": "project-atlas__spawn-lead-workflow__before__1440__light.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 2766,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "project-atlas__spawn-lead-workflow__after__1440__light.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 3185,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "1440__dark": {
+    "before": {
+     "file": "project-atlas__spawn-lead-workflow__before__1440__dark.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 2766,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "project-atlas__spawn-lead-workflow__after__1440__dark.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 3185,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "390__light": {
+    "before": {
+     "file": "project-atlas__spawn-lead-workflow__before__390__light.png",
+     "scrollWidth": 390,
+     "scrollHeight": 3932,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "project-atlas__spawn-lead-workflow__after__390__light.png",
+     "scrollWidth": 390,
+     "scrollHeight": 4347,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "390__dark": {
+    "before": {
+     "file": "project-atlas__spawn-lead-workflow__before__390__dark.png",
+     "scrollWidth": 390,
+     "scrollHeight": 3932,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "project-atlas__spawn-lead-workflow__after__390__dark.png",
+     "scrollWidth": 390,
+     "scrollHeight": 4347,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   }
+  }
+ },
+ "project-atlas/diagram-gallery": {
+  "title": "Diagram gallery",
+  "types": [
+   "mermaid",
+   "timeline"
+  ],
+  "captures": {
+   "1440__light": {
+    "before": {
+     "file": "project-atlas__diagram-gallery__before__1440__light.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 957,
+     "invalid": true,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "project-atlas__diagram-gallery__after__1440__light.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 7143,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "1440__dark": {
+    "before": {
+     "file": "project-atlas__diagram-gallery__before__1440__dark.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 957,
+     "invalid": true,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "project-atlas__diagram-gallery__after__1440__dark.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 7143,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "390__light": {
+    "before": {
+     "file": "project-atlas__diagram-gallery__before__390__light.png",
+     "scrollWidth": 390,
+     "scrollHeight": 957,
+     "invalid": true,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "project-atlas__diagram-gallery__after__390__light.png",
+     "scrollWidth": 390,
+     "scrollHeight": 8162,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "390__dark": {
+    "before": {
+     "file": "project-atlas__diagram-gallery__before__390__dark.png",
+     "scrollWidth": 390,
+     "scrollHeight": 957,
+     "invalid": true,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "project-atlas__diagram-gallery__after__390__dark.png",
+     "scrollWidth": 390,
+     "scrollHeight": 8162,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   }
+  }
+ },
+ "project-atlas/pi-compaction-flow": {
+  "title": "Pi compaction flow",
+  "types": [],
+  "captures": {
+   "1440__light": {
+    "before": {
+     "file": "project-atlas__pi-compaction-flow__before__1440__light.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 957,
+     "invalid": true,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "project-atlas__pi-compaction-flow__after__1440__light.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 4540,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "1440__dark": {
+    "before": {
+     "file": "project-atlas__pi-compaction-flow__before__1440__dark.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 957,
+     "invalid": true,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "project-atlas__pi-compaction-flow__after__1440__dark.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 4540,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "390__light": {
+    "before": {
+     "file": "project-atlas__pi-compaction-flow__before__390__light.png",
+     "scrollWidth": 390,
+     "scrollHeight": 957,
+     "invalid": true,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "project-atlas__pi-compaction-flow__after__390__light.png",
+     "scrollWidth": 390,
+     "scrollHeight": 5924,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "390__dark": {
+    "before": {
+     "file": "project-atlas__pi-compaction-flow__before__390__dark.png",
+     "scrollWidth": 390,
+     "scrollHeight": 957,
+     "invalid": true,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "project-atlas__pi-compaction-flow__after__390__dark.png",
+     "scrollWidth": 390,
+     "scrollHeight": 5924,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   }
+  }
+ },
+ "project-atlas/pi-extensions-how-it-works": {
+  "title": "Pi extensions how it works",
+  "types": [],
+  "captures": {
+   "1440__light": {
+    "before": {
+     "file": "project-atlas__pi-extensions-how-it-works__before__1440__light.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 957,
+     "invalid": true,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "project-atlas__pi-extensions-how-it-works__after__1440__light.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 6773,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "1440__dark": {
+    "before": {
+     "file": "project-atlas__pi-extensions-how-it-works__before__1440__dark.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 957,
+     "invalid": true,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "project-atlas__pi-extensions-how-it-works__after__1440__dark.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 6773,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "390__light": {
+    "before": {
+     "file": "project-atlas__pi-extensions-how-it-works__before__390__light.png",
+     "scrollWidth": 390,
+     "scrollHeight": 957,
+     "invalid": true,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "project-atlas__pi-extensions-how-it-works__after__390__light.png",
+     "scrollWidth": 390,
+     "scrollHeight": 8524,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "390__dark": {
+    "before": {
+     "file": "project-atlas__pi-extensions-how-it-works__before__390__dark.png",
+     "scrollWidth": 390,
+     "scrollHeight": 957,
+     "invalid": true,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "project-atlas__pi-extensions-how-it-works__after__390__dark.png",
+     "scrollWidth": 390,
+     "scrollHeight": 8524,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   }
+  }
+ },
+ "node-redesign-proj/after-agents2-implementation-plan": {
+  "title": "agents2 implementation plan",
+  "types": [],
+  "captures": {
+   "1440__light": {
+    "before": {
+     "file": "node-redesign-proj__after-agents2-implementation-plan__before__1440__light.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 957,
+     "invalid": true,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "node-redesign-proj__after-agents2-implementation-plan__after__1440__light.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 7331,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "1440__dark": {
+    "before": {
+     "file": "node-redesign-proj__after-agents2-implementation-plan__before__1440__dark.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 957,
+     "invalid": true,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "node-redesign-proj__after-agents2-implementation-plan__after__1440__dark.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 7331,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "390__light": {
+    "before": {
+     "file": "node-redesign-proj__after-agents2-implementation-plan__before__390__light.png",
+     "scrollWidth": 390,
+     "scrollHeight": 957,
+     "invalid": true,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "node-redesign-proj__after-agents2-implementation-plan__after__390__light.png",
+     "scrollWidth": 390,
+     "scrollHeight": 10816,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "390__dark": {
+    "before": {
+     "file": "node-redesign-proj__after-agents2-implementation-plan__before__390__dark.png",
+     "scrollWidth": 390,
+     "scrollHeight": 957,
+     "invalid": true,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "node-redesign-proj__after-agents2-implementation-plan__after__390__dark.png",
+     "scrollWidth": 390,
+     "scrollHeight": 10816,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   }
+  }
+ },
+ "obsidian-vault/latticehq-multi-tenant-support-copilot": {
+  "title": "LatticeHQ support copilot",
+  "types": [
+   "alert",
+   "comparison-table",
+   "definition-list",
+   "grid",
+   "mermaid",
+   "stat-card",
+   "status-grid"
+  ],
+  "captures": {
+   "1440__light": {
+    "before": {
+     "file": "obsidian-vault__latticehq-multi-tenant-support-copilot__before__1440__light.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 8240,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "obsidian-vault__latticehq-multi-tenant-support-copilot__after__1440__light.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 7173,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "1440__dark": {
+    "before": {
+     "file": "obsidian-vault__latticehq-multi-tenant-support-copilot__before__1440__dark.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 8240,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "obsidian-vault__latticehq-multi-tenant-support-copilot__after__1440__dark.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 7173,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "390__light": {
+    "before": {
+     "file": "obsidian-vault__latticehq-multi-tenant-support-copilot__before__390__light.png",
+     "scrollWidth": 390,
+     "scrollHeight": 14199,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "obsidian-vault__latticehq-multi-tenant-support-copilot__after__390__light.png",
+     "scrollWidth": 390,
+     "scrollHeight": 11394,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "390__dark": {
+    "before": {
+     "file": "obsidian-vault__latticehq-multi-tenant-support-copilot__before__390__dark.png",
+     "scrollWidth": 390,
+     "scrollHeight": 14199,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "obsidian-vault__latticehq-multi-tenant-support-copilot__after__390__dark.png",
+     "scrollWidth": 390,
+     "scrollHeight": 11394,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   }
+  }
+ },
+ "agents/themed-agent-correspondence-now-next": {
+  "title": "Themed agent correspondence",
+  "types": [
+   "accordion",
+   "alert",
+   "comparison-table",
+   "flow",
+   "grid",
+   "mermaid",
+   "stat-card",
+   "status-grid",
+   "stepper"
+  ],
+  "captures": {
+   "1440__light": {
+    "before": {
+     "file": "agents__themed-agent-correspondence-now-next__before__1440__light.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 5091,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "agents__themed-agent-correspondence-now-next__after__1440__light.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 4916,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "1440__dark": {
+    "before": {
+     "file": "agents__themed-agent-correspondence-now-next__before__1440__dark.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 5091,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "agents__themed-agent-correspondence-now-next__after__1440__dark.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 4916,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "390__light": {
+    "before": {
+     "file": "agents__themed-agent-correspondence-now-next__before__390__light.png",
+     "scrollWidth": 390,
+     "scrollHeight": 8878,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "agents__themed-agent-correspondence-now-next__after__390__light.png",
+     "scrollWidth": 390,
+     "scrollHeight": 7706,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "390__dark": {
+    "before": {
+     "file": "agents__themed-agent-correspondence-now-next__before__390__dark.png",
+     "scrollWidth": 390,
+     "scrollHeight": 8878,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "agents__themed-agent-correspondence-now-next__after__390__dark.png",
+     "scrollWidth": 390,
+     "scrollHeight": 7706,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   }
+  }
+ },
+ "logview-verification-plan/logview-project-recap-2026-09-19": {
+  "title": "Logview project recap",
+  "types": [
+   "alert",
+   "card",
+   "comparison-table",
+   "data-table",
+   "grid",
+   "mermaid",
+   "stat-card",
+   "status-grid",
+   "stepper",
+   "timeline"
+  ],
+  "captures": {
+   "1440__light": {
+    "before": {
+     "file": "logview-verification-plan__logview-project-recap-2026-09-19__before__1440__light.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 6518,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "logview-verification-plan__logview-project-recap-2026-09-19__after__1440__light.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 6049,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "1440__dark": {
+    "before": {
+     "file": "logview-verification-plan__logview-project-recap-2026-09-19__before__1440__dark.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 6518,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "logview-verification-plan__logview-project-recap-2026-09-19__after__1440__dark.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 6049,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "390__light": {
+    "before": {
+     "file": "logview-verification-plan__logview-project-recap-2026-09-19__before__390__light.png",
+     "scrollWidth": 390,
+     "scrollHeight": 11799,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "logview-verification-plan__logview-project-recap-2026-09-19__after__390__light.png",
+     "scrollWidth": 390,
+     "scrollHeight": 10800,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "390__dark": {
+    "before": {
+     "file": "logview-verification-plan__logview-project-recap-2026-09-19__before__390__dark.png",
+     "scrollWidth": 390,
+     "scrollHeight": 11799,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "logview-verification-plan__logview-project-recap-2026-09-19__after__390__dark.png",
+     "scrollWidth": 390,
+     "scrollHeight": 10800,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   }
+  }
+ },
+ "project-atlas/var-how-it-works": {
+  "title": "VAR how it works",
+  "types": [
+   "code-block",
+   "comparison-table",
+   "status-grid"
+  ],
+  "captures": {
+   "1440__light": {
+    "before": {
+     "file": "project-atlas__var-how-it-works__before__1440__light.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 3410,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "project-atlas__var-how-it-works__after__1440__light.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 3869,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "1440__dark": {
+    "before": {
+     "file": "project-atlas__var-how-it-works__before__1440__dark.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 3410,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "project-atlas__var-how-it-works__after__1440__dark.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 3869,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "390__light": {
+    "before": {
+     "file": "project-atlas__var-how-it-works__before__390__light.png",
+     "scrollWidth": 390,
+     "scrollHeight": 4653,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "project-atlas__var-how-it-works__after__390__light.png",
+     "scrollWidth": 390,
+     "scrollHeight": 5105,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "390__dark": {
+    "before": {
+     "file": "project-atlas__var-how-it-works__before__390__dark.png",
+     "scrollWidth": 390,
+     "scrollHeight": 4653,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "project-atlas__var-how-it-works__after__390__dark.png",
+     "scrollWidth": 390,
+     "scrollHeight": 5105,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   }
+  }
+ },
+ "agents2/agents2-week-2026-10-04": {
+  "title": "agents2 week 2026-10-04",
+  "types": [
+   "card",
+   "comparison-table",
+   "flow",
+   "grid",
+   "status-grid"
+  ],
+  "captures": {
+   "1440__light": {
+    "before": {
+     "file": "agents2__agents2-week-2026-10-04__before__1440__light.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 4835,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "agents2__agents2-week-2026-10-04__after__1440__light.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 5533,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "1440__dark": {
+    "before": {
+     "file": "agents2__agents2-week-2026-10-04__before__1440__dark.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 4835,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "agents2__agents2-week-2026-10-04__after__1440__dark.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 5533,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "390__light": {
+    "before": {
+     "file": "agents2__agents2-week-2026-10-04__before__390__light.png",
+     "scrollWidth": 390,
+     "scrollHeight": 8801,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "agents2__agents2-week-2026-10-04__after__390__light.png",
+     "scrollWidth": 390,
+     "scrollHeight": 9526,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "390__dark": {
+    "before": {
+     "file": "agents2__agents2-week-2026-10-04__before__390__dark.png",
+     "scrollWidth": 390,
+     "scrollHeight": 8801,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "agents2__agents2-week-2026-10-04__after__390__dark.png",
+     "scrollWidth": 390,
+     "scrollHeight": 9526,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   }
+  }
+ },
+ "nice-mermaid-nvim/nice-mermaid-inline-render-pipeline": {
+  "title": "nice-mermaid inline render pipeline",
+  "types": [
+   "alert",
+   "code-block",
+   "mermaid",
+   "status-grid"
+  ],
+  "captures": {
+   "1440__light": {
+    "before": {
+     "file": "nice-mermaid-nvim__nice-mermaid-inline-render-pipeline__before__1440__light.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 4570,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "nice-mermaid-nvim__nice-mermaid-inline-render-pipeline__after__1440__light.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 4713,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "1440__dark": {
+    "before": {
+     "file": "nice-mermaid-nvim__nice-mermaid-inline-render-pipeline__before__1440__dark.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 4570,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "nice-mermaid-nvim__nice-mermaid-inline-render-pipeline__after__1440__dark.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 4713,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "390__light": {
+    "before": {
+     "file": "nice-mermaid-nvim__nice-mermaid-inline-render-pipeline__before__390__light.png",
+     "scrollWidth": 390,
+     "scrollHeight": 6677,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "nice-mermaid-nvim__nice-mermaid-inline-render-pipeline__after__390__light.png",
+     "scrollWidth": 390,
+     "scrollHeight": 6816,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "390__dark": {
+    "before": {
+     "file": "nice-mermaid-nvim__nice-mermaid-inline-render-pipeline__before__390__dark.png",
+     "scrollWidth": 390,
+     "scrollHeight": 6677,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "nice-mermaid-nvim__nice-mermaid-inline-render-pipeline__after__390__dark.png",
+     "scrollWidth": 390,
+     "scrollHeight": 6816,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   }
+  }
+ },
+ "dotfiles/cloud-agent-box-guided-tour": {
+  "title": "Cloud agent box guided tour",
+  "types": [
+   "accordion",
+   "alert",
+   "code-block",
+   "comparison-table",
+   "definition-list",
+   "flow",
+   "grid",
+   "mermaid",
+   "stat-card",
+   "timeline"
+  ],
+  "captures": {
+   "1440__light": {
+    "before": {
+     "file": "dotfiles__cloud-agent-box-guided-tour__before__1440__light.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 7102,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "dotfiles__cloud-agent-box-guided-tour__after__1440__light.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 6997,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "1440__dark": {
+    "before": {
+     "file": "dotfiles__cloud-agent-box-guided-tour__before__1440__dark.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 7102,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "dotfiles__cloud-agent-box-guided-tour__after__1440__dark.png",
+     "scrollWidth": 1440,
+     "scrollHeight": 6997,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "390__light": {
+    "before": {
+     "file": "dotfiles__cloud-agent-box-guided-tour__before__390__light.png",
+     "scrollWidth": 390,
+     "scrollHeight": 13946,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "dotfiles__cloud-agent-box-guided-tour__after__390__light.png",
+     "scrollWidth": 390,
+     "scrollHeight": 13528,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   },
+   "390__dark": {
+    "before": {
+     "file": "dotfiles__cloud-agent-box-guided-tour__before__390__dark.png",
+     "scrollWidth": 390,
+     "scrollHeight": 13946,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9992
+    },
+    "after": {
+     "file": "dotfiles__cloud-agent-box-guided-tour__after__390__dark.png",
+     "scrollWidth": 390,
+     "scrollHeight": 13528,
+     "invalid": false,
+     "darkApplied": true,
+     "port": 9991
+    }
+   }
+  }
+ }
+}

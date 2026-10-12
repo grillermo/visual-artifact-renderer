@@ -3,10 +3,9 @@
 // claim-tree + claim: numbered, collapsible plan spine with a contents rail.
 // Open state is local to the tree; collapsed bodies use `hidden` so node paths stay stable.
 import { createContext, useCallback, useContext, useMemo, useState, type KeyboardEvent, type ReactNode } from "react"
-import { ChevronRight, MessageSquarePlus } from "lucide-react"
+import { ChevronRight } from "lucide-react"
 
 import type { AdapterArgs } from "@/components/artifact-types"
-import { useOptionalAnnotationContext } from "@/components/annotations"
 import { CopyDecisionsButton } from "@/components/plan/copy-decisions-button"
 import { usePlanContext } from "@/components/plan/decision-answers"
 import type { ClaimInfo } from "@/lib/plan/plan-spec"
@@ -80,6 +79,9 @@ function ClaimTree({ node, children, nodePath }: AdapterArgs<"claim-tree">) {
   const state = useMemo<TreeState>(() => ({ isOpen: (path) => openSet.has(path), toggle, open: openPath }), [openSet, toggle, openPath])
   const mine = [...claims.values()].filter((claim) => claim.nodePath.startsWith(`${nodePath}.`))
   const showContents = node.props?.contents ?? true
+  // A tree nested inside a chapter (or any container) is already named by it: no repeated h2.
+  const nested = nodePath.includes(".children.")
+  const showTitle = !!node.props?.title && !nested
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     const target = event.target as HTMLElement
@@ -129,25 +131,19 @@ function ClaimTree({ node, children, nodePath }: AdapterArgs<"claim-tree">) {
 
   return (
     <ClaimTreeContext.Provider value={state}>
-      <div className={cn("grid gap-6", showContents && "lg:grid-cols-[15rem_minmax(0,1fr)]")} data-claim-tree>
+      <div className="min-w-0 space-y-2" data-claim-tree onKeyDown={onKeyDown}>
         {showContents && (
-          <nav aria-label="Plan contents" className="lg:order-first">
-            <details className="rounded-lg border bg-card px-3 py-2 lg:hidden">
+          <nav aria-label="Plan contents">
+            <details className="border-b border-rule pb-2">
               <summary className="cursor-pointer text-sm font-medium">Contents</summary>
               <div className="mt-2">{contents}</div>
             </details>
-            <div className="sticky top-20 hidden max-h-[calc(100vh-6rem)] overflow-y-auto lg:block">
-              <p className="mb-2 px-1.5 font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Contents</p>
-              {contents}
-            </div>
           </nav>
         )}
-        <div className="min-w-0 space-y-3" onKeyDown={onKeyDown}>
-          {node.props?.title && <h2 className="font-serif text-2xl font-medium tracking-tight">{node.props.title}</h2>}
-          <p className="sr-only">Press [ to collapse all claims and ] to expand all.</p>
-          <div className="divide-y rounded-xl border bg-card">{children}</div>
-          <CopyDecisionsButton />
-        </div>
+        {showTitle && <h2 className="font-serif text-chapter font-medium tracking-[-0.02em] text-ink [text-wrap:balance]">{node.props?.title}</h2>}
+        <p className="sr-only">Press [ to collapse all claims and ] to expand all.</p>
+        <div className="divide-y divide-rule border-y border-rule">{children}</div>
+        <CopyDecisionsButton />
       </div>
     </ClaimTreeContext.Provider>
   )
@@ -160,7 +156,6 @@ export function renderClaim(args: AdapterArgs<"claim">) {
 function Claim({ node, children, nodePath }: AdapterArgs<"claim">) {
   const tree = useContext(ClaimTreeContext)
   const plan = usePlanContext()
-  const annotations = useOptionalAnnotationContext()
   const info = plan?.claims.get(nodePath)
   const label = info?.label ?? "•"
   const anchor = info?.anchor ?? `claim-${nodePath.replace(/\W+/g, "-")}`
@@ -169,22 +164,11 @@ function Claim({ node, children, nodePath }: AdapterArgs<"claim">) {
   const aux = node.props.aux
   const decisions = info?.decisionCount ?? 0
 
-  const comment = () => {
-    if (!annotations) return
-    annotations.openComments()
-    annotations.selectNodeForComment({
-      nodeId: node.metadata?.id,
-      nodePath,
-      nodeType: "claim",
-      textSnippet: `${label} ${node.props.text}`.slice(0, 80),
-    })
-  }
-
   return (
-    <section id={anchor} aria-labelledby={`${anchor}-title`} data-claim={label} data-depth={depth} className={cn(depth > 0 && "border-l border-dashed ml-4 sm:ml-6")}>
+    <section id={anchor} aria-labelledby={`${anchor}-title`} data-claim={label} data-depth={depth} className={cn(depth > 0 && "ml-2 border-l border-rule sm:ml-4")}>
       <div
         className={cn(
-          "flex items-center gap-1 bg-card/95 pr-2 backdrop-blur",
+          "flex items-center gap-1 bg-background/95 pr-2 backdrop-blur",
           open && "sticky z-[5]",
         )}
         style={open ? { top: `calc(3.5rem + ${depth} * var(--claim-sticky-step, 2rem))` } : undefined}
@@ -195,42 +179,23 @@ function Claim({ node, children, nodePath }: AdapterArgs<"claim">) {
           aria-expanded={open}
           aria-controls={`${anchor}-body`}
           onClick={() => tree?.toggle(nodePath)}
-          className="flex min-w-0 flex-1 scroll-mt-20 items-start gap-3 rounded-md px-3 py-3 text-left outline-none hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring"
+          className="flex min-w-0 flex-1 scroll-mt-20 items-start gap-3 rounded-md px-2 py-2 text-left outline-none hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring"
         >
           <ChevronRight aria-hidden="true" className={cn("mt-0.5 size-4 shrink-0 text-muted-foreground transition-transform motion-reduce:transition-none", open && "rotate-90")} />
-          <span className={cn("w-8 shrink-0 font-mono text-sm leading-6 text-muted-foreground", aux && "text-clay-dark dark:text-clay")} aria-label={aux ? (aux === "shared" ? "Shared" : "Out of scope") : `Claim ${label}`}>
+          <span className={cn("w-8 shrink-0 font-mono text-sm leading-6 text-muted-foreground", aux && "text-brand")} aria-label={aux ? (aux === "shared" ? "Shared" : "Out of scope") : `Claim ${label}`}>
             {label}
           </span>
-          <span id={`${anchor}-title`} className={cn("min-w-0 flex-1 leading-6 text-foreground", depth === 0 ? "text-base font-semibold" : "text-[15px] font-medium")}>
+          <span id={`${anchor}-title`} className={cn("min-w-0 flex-1 leading-6 text-foreground", depth === 0 ? "font-serif text-row-title font-medium" : "text-small font-medium")}>
             {node.props.text}
           </span>
           {decisions > 0 && (
-            <span className="shrink-0 rounded-full bg-clay/15 px-2 py-0.5 text-xs font-medium text-clay-dark dark:text-clay">
+            <span className="shrink-0 font-mono text-label uppercase tracking-[0.14em] text-brand">
               {decisions} {decisions === 1 ? "decision" : "decisions"}
             </span>
           )}
         </button>
-        {node.props.ref && (
-          <a
-            href={`#cs-row-${node.props.ref}`}
-            className="hidden shrink-0 rounded px-1.5 py-1 font-mono text-xs text-muted-foreground hover:bg-muted hover:text-foreground sm:inline"
-            aria-label={`Claim ${label} in call stack`}
-          >
-            ↗ call stack
-          </a>
-        )}
-        {annotations && (
-          <button
-            type="button"
-            onClick={comment}
-            aria-label={`Comment on claim ${label}`}
-            className="shrink-0 rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <MessageSquarePlus className="size-4" aria-hidden="true" />
-          </button>
-        )}
       </div>
-      <div id={`${anchor}-body`} hidden={!open} className="space-y-4 pb-4 pl-4 pr-3 sm:pl-12 sm:pr-4">
+      <div id={`${anchor}-body`} hidden={!open} className="space-y-3 pb-3 pl-3 pr-2 sm:pl-9 sm:pr-3">
         {children as ReactNode}
       </div>
     </section>

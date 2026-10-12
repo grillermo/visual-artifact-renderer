@@ -1,7 +1,1 @@
-{
-  "slug": "diff-empty",
-  "title": "Diff has no content",
-  "nodes": [
-    { "type": "diff", "props": { "language": "typescript" } }
-  ]
-}
+{"slug":"diff-empty","title":"Diff has no content","nodes":[{"type":"code","props":{"language":"typescript","diff":true}}]}

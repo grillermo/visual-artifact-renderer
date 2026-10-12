@@ -1,0 +1,308 @@
+{
+  "slug": "nice-mermaid-nvim-nice-mermaid-inline-render-pipeline",
+  "title": "How nice-mermaid draws diagrams inside the real Markdown buffer",
+  "description": "Render pipeline for the feat/inline-render branch: from a buffer change to styled diagram rows on screen, with no change to buffer text.",
+  "artifactType": "explainer",
+  "topics": [
+    "neovim",
+    "mermaid",
+    "extmarks",
+    "render-pipeline"
+  ],
+  "nodes": [
+    {
+      "type": "callout",
+      "props": {
+        "tone": "note",
+        "body": "This describes branch feat/inline-render at commit a886b09. The test suite currently crashes in about 5 of 8 runs, and several review fixes are still open.",
+        "title": "Work in progress"
+      }
+    },
+    {
+      "type": "prose",
+      "props": {
+        "content": "**The idea in one line:** you stay in your normal Markdown file. The plugin hides each Mermaid fence and draws the diagram on top of it. It never changes the text.\n\nThe old version opened a separate read-only `mermaid://` copy of the file. That broke `gf`, Marksman and editing. The new version uses *extmarks*: decorations that Neovim attaches to buffer positions without changing the text."
+      }
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "The pipeline",
+        "deck": "One pass, from an edit to what you see on screen."
+      },
+      "children": [
+        {
+          "type": "mermaid",
+          "props": {
+            "caption": "Each edit runs through 7 stages. Cache hits skip Node. A failed fence stays as plain source.",
+            "height": 760,
+            "code": "flowchart TD\n  A[\"1. Buffer change<br/>TextChanged, FileType, BufWinEnter\"] --> B[\"Debounce 150 ms<br/>skip if changedtick unchanged\"]\n  B --> C[\"2. Tree-sitter fence detection<br/>document_blocks: closed mermaid fences only\"]\n  C --> D{\"3. Cache check<br/>every fence source cached?\"}\n  D -- yes --> G\n  D -- no --> E[\"4. Node bridge<br/>vim.system node render.mjs<br/>stdin: JSON list of sources<br/>timeout 10 s\"]\n  E --> F{\"decode_diagrams<br/>valid rows of spans?\"}\n  F -- \"invalid / failed\" --> X[\"Fence stays as plain source\"]\n  F -- ok --> G[\"5. Span to highlight<br/>span.cls to highlight group\"]\n  G --> H[\"6. Extmark placement<br/>plan_marks + draw\"]\n  H --> I[\"Conceal extmark<br/>conceal_lines over fence rows\"]\n  H --> J[\"Virtual-lines extmark<br/>on the anchor row\"]\n  I --> K[\"7. Screen output<br/>conceallevel raised to 2 in that window\"]\n  J --> K"
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Stage by stage"
+      },
+      "children": [
+        {
+          "type": "prose",
+          "props": {
+            "content": "**1. Buffer change.** Events in Markdown buffers start a render, debounced by 150 ms. If the buffer's `changedtick` (an edit counter) hasn't changed, nothing happens.\n\n**2. Fence detection.** `document_blocks` walks the Markdown Tree-sitter tree. It collects fenced code blocks tagged `mermaid` that have a closing fence. An unclosed fence is ignored, so you never lose its last line.\n\n**3. Cache check.** Results are cached by fence source. If every fence is cached, Node is skipped. On any miss, all fences go to Node for now. The review flagged this, and sending only changed fences is still to do.\n\n**4. Node bridge.** `bridge/render.mjs` gets a JSON list of sources on stdin. It returns one entry per fence: rows of `{text, cls}` spans, or `false` if that fence can't render. The process is killed after 10 seconds.\n\n**5. Span to highlight.** Each span's class maps to a highlight group, unchanged from before.\n\n**6. Extmark placement.** Each rendered fence gets 2 extmarks, covered in the next section.\n\n**7. Screen output.** `conceal_lines` only hides rows when the window's `conceallevel` is 2 or higher. The plugin raises it only in windows showing a drawn diagram, and puts your old value back afterwards."
+          }
+        },
+        {
+          "type": "code",
+          "props": {
+            "title": "Highlight mapping (span.cls → group)",
+            "language": "lua",
+            "code": "local highlights = {\n\tborder = \"Comment\",\n\ttext = \"Normal\",\n\tedge = \"Special\",\n\tedgeLabel = \"Comment\",\n\ttitle = \"Title\",\n\tnone = \"Normal\",\n}"
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "The two extmarks per fence",
+        "deck": "Why there are 2 marks instead of 1."
+      },
+      "children": [
+        {
+          "type": "prose",
+          "props": {
+            "content": "Neovim won't draw virtual lines on a concealed row. Tree-sitter also hides the fence's backtick rows. So the diagram can't sit on the fence itself. It hangs off an **anchor row**:\n\n- the visible row **above** the fence, with the diagram drawn below that row\n- otherwise, the visible row **below** the fence, with the diagram drawn above it\n- if neither exists, the fence stays as source rather than disappearing"
+          }
+        },
+        {
+          "type": "code",
+          "props": {
+            "title": "draw() — simplified",
+            "language": "lua",
+            "code": "-- 1. Hide the fence rows. Text is untouched.\nvim.api.nvim_buf_set_extmark(buf, ns, plan.first, 0, {\n\tend_row = plan.last,\n\tend_col = #last_line,\n\tconceal_lines = \"\",\n})\n\n-- 2. Draw the diagram as virtual rows on the anchor row.\nvim.api.nvim_buf_set_extmark(buf, ns, plan.anchor, 0, {\n\tvirt_lines = plan.lines, -- { { {text, hl_group}, ... }, ... }\n\tvirt_lines_above = plan.above,\n\tvirt_lines_overflow = \"scroll\",\n})"
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Events that keep it live"
+      },
+      "children": [
+        {
+          "type": "ledger",
+          "props": {
+            "dataKey": "qa-events-1-1",
+            "titleKey": "event",
+            "bodyKey": "qa-ledger-body",
+            "groupKey": "status",
+            "signals": {
+              "ok": "done"
+            }
+          }
+        },
+        {
+          "type": "ledger",
+          "props": {
+            "dataKey": "qa-events-2-1",
+            "titleKey": "event",
+            "bodyKey": "qa-ledger-body",
+            "groupKey": "status",
+            "signals": {
+              "warn": "wait"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Commands"
+      },
+      "children": [
+        {
+          "type": "prose",
+          "props": {
+            "content": "- `:Mermaid toggle`: hides or shows the diagrams for the buffer.\n- `:Mermaid render`: re-renders now. It still uses the cache for now, and making it a true forced render is an open fix.\n- `:Mermaid source` / `:Mermaid clear`: removes every extmark and shows plain source.\n\nNone of these touch the text, `changedtick` or the modified flag."
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Known limitations and open items"
+      },
+      "children": [
+        {
+          "type": "ledger",
+          "props": {
+            "dataKey": "qa-limits-1-1",
+            "titleKey": "item",
+            "bodyKey": "detail",
+            "groupKey": "status",
+            "signals": {
+              "fail": "risk"
+            }
+          }
+        },
+        {
+          "type": "ledger",
+          "props": {
+            "dataKey": "qa-limits-2-1",
+            "titleKey": "item",
+            "bodyKey": "detail",
+            "groupKey": "status",
+            "signals": {
+              "warn": "wait"
+            }
+          }
+        },
+        {
+          "type": "ledger",
+          "props": {
+            "dataKey": "qa-limits-3-1",
+            "titleKey": "item",
+            "bodyKey": "detail",
+            "groupKey": "status",
+            "signals": {
+              "risk": "risk"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "data": {
+    "events": [
+      {
+        "event": "Cursor enters a fence",
+        "status": "ok",
+        "what": "That fence's marks are dropped so the source shows and can be edited. They come back when the cursor leaves. This also works while a re-render is pending.",
+        "autocmds": "CursorMoved, CursorMovedI, ModeChanged, WinEnter"
+      },
+      {
+        "event": "Text edited",
+        "status": "ok",
+        "what": "Debounced re-render. An invalid diagram falls back to plain source.",
+        "autocmds": "TextChanged, TextChangedI, TextChangedP"
+      },
+      {
+        "event": "Window opened or switched",
+        "status": "ok",
+        "what": "conceallevel is synced so only windows showing a drawn diagram are raised, and the user's value is restored elsewhere.",
+        "autocmds": "WinNew, WinEnter, BufWinEnter, TabNewEntered, BufWinLeave, WinClosed"
+      },
+      {
+        "event": "Window resized",
+        "status": "warn",
+        "what": "No re-render. The bridge takes no width, so nothing would change. This is a deliberate departure from the brief.",
+        "autocmds": "(none)"
+      }
+    ],
+    "limits": [
+      {
+        "item": "Test suite crashes",
+        "status": "fail",
+        "detail": "Neovim segfaults in the split-window test in about 5 of 8 full runs. The worker is isolating that test in its own process."
+      },
+      {
+        "item": "Wide diagrams",
+        "status": "warn",
+        "detail": "Clipped at the window edge. They only scroll sideways in windows with nowrap."
+      },
+      {
+        "item": "render-markdown insert mode",
+        "status": "warn",
+        "detail": "render-markdown sets conceallevel to 0 in insert mode, so source and diagram show together. A config snippet is still being found."
+      },
+      {
+        "item": "Failed render",
+        "status": "warn",
+        "detail": "After a timeout or crash, old diagrams can stay next to plain source. The fix is to clear all marks on failure."
+      },
+      {
+        "item": "Timeout message",
+        "status": "warn",
+        "detail": "Shows 'Renderer failed:' with no reason. To be reworded."
+      },
+      {
+        "item": "Plugin-made splits",
+        "status": "risk",
+        "detail": "Windows opened with nvim_open_win and enter=false can keep conceallevel 2. Rare, so it will be recorded as a known limitation."
+      }
+    ],
+    "qa-events-1-1": [
+      {
+        "event": "Cursor enters a fence",
+        "status": "ok",
+        "what": "That fence's marks are dropped so the source shows and can be edited. They come back when the cursor leaves. This also works while a re-render is pending.",
+        "autocmds": "CursorMoved, CursorMovedI, ModeChanged, WinEnter",
+        "qa-ledger-body": "That fence's marks are dropped so the source shows and can be edited. They come back when the cursor leaves. This also works while a re-render is pending.\n\nCursorMoved, CursorMovedI, ModeChanged, WinEnter"
+      },
+      {
+        "event": "Text edited",
+        "status": "ok",
+        "what": "Debounced re-render. An invalid diagram falls back to plain source.",
+        "autocmds": "TextChanged, TextChangedI, TextChangedP",
+        "qa-ledger-body": "Debounced re-render. An invalid diagram falls back to plain source.\n\nTextChanged, TextChangedI, TextChangedP"
+      },
+      {
+        "event": "Window opened or switched",
+        "status": "ok",
+        "what": "conceallevel is synced so only windows showing a drawn diagram are raised, and the user's value is restored elsewhere.",
+        "autocmds": "WinNew, WinEnter, BufWinEnter, TabNewEntered, BufWinLeave, WinClosed",
+        "qa-ledger-body": "conceallevel is synced so only windows showing a drawn diagram are raised, and the user's value is restored elsewhere.\n\nWinNew, WinEnter, BufWinEnter, TabNewEntered, BufWinLeave, WinClosed"
+      }
+    ],
+    "qa-events-2-1": [
+      {
+        "event": "Window resized",
+        "status": "warn",
+        "what": "No re-render. The bridge takes no width, so nothing would change. This is a deliberate departure from the brief.",
+        "autocmds": "(none)",
+        "qa-ledger-body": "No re-render. The bridge takes no width, so nothing would change. This is a deliberate departure from the brief.\n\n(none)"
+      }
+    ],
+    "qa-limits-1-1": [
+      {
+        "item": "Test suite crashes",
+        "status": "fail",
+        "detail": "Neovim segfaults in the split-window test in about 5 of 8 full runs. The worker is isolating that test in its own process."
+      }
+    ],
+    "qa-limits-2-1": [
+      {
+        "item": "Wide diagrams",
+        "status": "warn",
+        "detail": "Clipped at the window edge. They only scroll sideways in windows with nowrap."
+      },
+      {
+        "item": "render-markdown insert mode",
+        "status": "warn",
+        "detail": "render-markdown sets conceallevel to 0 in insert mode, so source and diagram show together. A config snippet is still being found."
+      },
+      {
+        "item": "Failed render",
+        "status": "warn",
+        "detail": "After a timeout or crash, old diagrams can stay next to plain source. The fix is to clear all marks on failure."
+      },
+      {
+        "item": "Timeout message",
+        "status": "warn",
+        "detail": "Shows 'Renderer failed:' with no reason. To be reworded."
+      }
+    ],
+    "qa-limits-3-1": [
+      {
+        "item": "Plugin-made splits",
+        "status": "risk",
+        "detail": "Windows opened with nvim_open_win and enter=false can keep conceallevel 2. Rare, so it will be recorded as a known limitation."
+      }
+    ]
+  }
+}

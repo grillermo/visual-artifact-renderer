@@ -75,3 +75,12 @@ ai-artifacts/validation-script.sh
 report/
 tmp-jscpd.json/
 example-artifact.json
+
+# node-redesign local evidence (screenshots, baseline export, logs)
+/ai-artifacts/node-redesign/baseline-app/
+/ai-artifacts/node-redesign/dev.log
+/ai-artifacts/node-redesign/before/
+/ai-artifacts/node-redesign/after/
+/ai-artifacts/node-redesign/wip/
+/ai-artifacts/node-redesign/review/*.png
+/ai-artifacts/node-redesign/store-before/

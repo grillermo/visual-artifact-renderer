@@ -1,0 +1,2 @@
+$ tsx scripts/verify/verify-artifacts.ts
+Verified 6 artifact spec(s) (6 bundles), 48 manifest entries, manifest examples, contract sync, limits, and code-block contract.

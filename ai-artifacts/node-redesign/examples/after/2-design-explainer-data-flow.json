@@ -1,0 +1,542 @@
+{
+  "slug": "after-compaction-design",
+  "title": "Pi compaction: keep working state, reduce summarizer cost",
+  "description": "Draft design from 8 October 2026, corrected by the oracle review.",
+  "artifactType": "explainer",
+  "topics": [
+    "pi",
+    "compaction",
+    "memory"
+  ],
+  "layout": {
+    "type": "default"
+  },
+  "data": {
+    "stages": [
+      {
+        "stage": "Pi preparation",
+        "input": "Session entries, previous summary, file operations, settings",
+        "output": "Messages to summarize, recent prefix, metadata"
+      },
+      {
+        "stage": "OptMem pre-compact hook",
+        "input": "Mutable preparation and prior wake messages",
+        "output": "Durable memory saved; wake messages removed from summary input"
+      },
+      {
+        "stage": "Fit estimator (proposed)",
+        "input": "Serialized messages, prior summary, prompt allowance",
+        "output": "Estimated input tokens and fit result"
+      },
+      {
+        "stage": "Model selection",
+        "input": "Profile model ID and provider registration",
+        "output": "Resolved model, or the existing fallback"
+      },
+      {
+        "stage": "compact()",
+        "input": "Prepared messages, prior summary, customInstructions",
+        "output": "Summary text and usage metadata"
+      },
+      {
+        "stage": "Pi compaction",
+        "input": "Summary text and original session state",
+        "output": "Old span replaced; recent messages stay"
+      },
+      {
+        "stage": "OptMem context hook",
+        "input": "Saved memory store",
+        "output": "Current wake view added to a later request"
+      }
+    ],
+    "evidence": [
+      {
+        "finding": "Real Haiku RPC success",
+        "value": "45K input → 467-token summary in 3.1 seconds",
+        "qualification": "After 798a2e1; /tmp test was missed by the initial session-file search"
+      },
+      {
+        "finding": "Input estimate distribution",
+        "value": "55K median; 114K p90; 167K max",
+        "qualification": "927 rebuilt records; four above 150K, none above 180K"
+      },
+      {
+        "finding": "Input composition",
+        "value": "54% tool results; 33% call arguments; 7% text; 6% thinking",
+        "qualification": "Estimated after tool-result truncation"
+      },
+      {
+        "finding": "Estimator uncertainty",
+        "value": "About ±20%",
+        "qualification": "4 characters per token; ignores context_edit projection and tokenizer differences"
+      },
+      {
+        "finding": "Output allowance",
+        "value": "13,107 tokens at current reserve",
+        "qualification": "min(floor(0.8 × reserveTokens), model.maxTokens); Haiku model max 32K"
+      }
+    ],
+    "verification": [
+      {
+        "check": "Haiku RPC call",
+        "group": "Done",
+        "detail": "One real success is already recorded; 103K session context produced 45K input."
+      },
+      {
+        "check": "Automatic compaction",
+        "group": "Waiting on you",
+        "detail": "A live automatic compaction still needs a smoke test.",
+        "next": "Run one live compaction."
+      },
+      {
+        "check": "Quality evaluation",
+        "group": "Waiting on you",
+        "detail": "Compare 15 spans with six grounded probes per span; report baseline model and summary length.",
+        "next": "Run Phase 2."
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "type": "prose",
+      "props": {
+        "content": "Compaction should hand over *working state*, not just a shorter chat."
+      }
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "kicker": "Flow",
+        "title": "How a summary gets made",
+        "deck": "Facts are saved before the old text is replaced.",
+        "takeaway": "The summary is only as good as the facts saved before it."
+      },
+      "children": [
+        {
+          "type": "story",
+          "props": {
+            "caption": "From a full session to a summary that replaces the old messages.",
+            "diagram": {
+              "layout": "row",
+              "nodes": [
+                {
+                  "id": "pi",
+                  "label": "Pi",
+                  "sub": "context past threshold",
+                  "kind": "service"
+                },
+                {
+                  "id": "mem",
+                  "label": "OptMem",
+                  "sub": "saves and removes wake",
+                  "kind": "store",
+                  "signal": "new"
+                },
+                {
+                  "id": "fit",
+                  "label": "Fit check",
+                  "sub": "proposed",
+                  "kind": "service",
+                  "signal": "new"
+                },
+                {
+                  "id": "haiku",
+                  "label": "Haiku 5.5",
+                  "sub": "200K window",
+                  "kind": "external"
+                },
+                {
+                  "id": "sum",
+                  "label": "Summary",
+                  "sub": "replaces old span",
+                  "kind": "file"
+                }
+              ],
+              "edges": [
+                "pi -> mem : save facts first",
+                "mem -> fit : clean input",
+                "fit -> haiku : if it fits",
+                "fit --> pi : too large, use session model",
+                "haiku -> sum : writes",
+                "sum -> pi : replaces old messages"
+              ]
+            },
+            "beats": [
+              {
+                "text": "**Trigger.** Pi prepares a compaction when context passes its threshold, and picks the span to summarise.",
+                "show": [
+                  "pi"
+                ],
+                "focus": [
+                  "pi"
+                ]
+              },
+              {
+                "text": "**Memory first.** OptMem saves durable facts, then removes its wake message so the summary never contains it. The compaction extension must run after OptMem.",
+                "show": [
+                  "pi",
+                  "mem"
+                ],
+                "focus": [
+                  "mem"
+                ]
+              },
+              {
+                "text": "**Fit check (proposed).** Estimate input as characters divided by four, add the prior summary and about 1.5K of prompt. Skip Haiku if the estimate times 1.2 plus the output budget passes 200K.",
+                "show": [
+                  "pi",
+                  "mem",
+                  "fit"
+                ],
+                "focus": [
+                  "fit"
+                ]
+              },
+              {
+                "text": "**Summarise.** Haiku gets Pi's own structured prompt plus a few supplemental instructions, then writes the summary.",
+                "show": [
+                  "pi",
+                  "mem",
+                  "fit",
+                  "haiku",
+                  "sum"
+                ],
+                "focus": [
+                  "haiku",
+                  "sum"
+                ]
+              },
+              {
+                "text": "**Replace.** Pi swaps the old span for the summary and keeps the recent tail. A later session gets the memory wake view.",
+                "show": [
+                  "pi",
+                  "mem",
+                  "fit",
+                  "haiku",
+                  "sum"
+                ],
+                "focus": [
+                  "sum",
+                  "pi"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "details",
+          "props": {
+            "summary": "What each stage passes, and the proposed fit policy"
+          },
+          "children": [
+            {
+              "type": "table",
+              "props": {
+                "dataKey": "stages",
+                "columns": [
+                  "stage",
+                  "input",
+                  "output"
+                ],
+                "dense": true,
+                "caption": "File operations contribute path lists, not file contents; summary input truncates tool results to 2,000 characters."
+              }
+            },
+            {
+              "type": "code",
+              "props": {
+                "title": "Proposed fit policy",
+                "language": "text",
+                "code": "estimatedInputTokens = serializedMessageCharacters / 4\n                     + priorSummaryTokens\n                     + approximately 1500 prompt tokens\noutputBudget = min(floor(0.8 * reserveTokens), model.maxTokens)\ntoo_large = estimatedInputTokens * 1.2 + outputBudget > model.contextWindow",
+                "caption": "The estimator is a proposed safeguard, not a verified exact tokenizer."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Most inputs fit; a few come close",
+        "deck": "A rebuilt estimate across 927 saved compactions shows how big the summariser input really is.",
+        "takeaway": "No input passed 180K, but four passed 150K, so the guard earns its place."
+      },
+      "children": [
+        {
+          "type": "figures",
+          "props": {
+            "items": [
+              {
+                "value": "200K",
+                "label": "Haiku context window",
+                "note": "Check summariser input, not the session model's window.",
+                "signal": "risk"
+              },
+              {
+                "value": "55K",
+                "label": "Median estimated input",
+                "note": "Across 927 rebuilt records"
+              },
+              {
+                "value": "114K",
+                "label": "90th percentile input",
+                "note": "Largest was about 167K"
+              }
+            ]
+          }
+        },
+        {
+          "type": "callout",
+          "props": {
+            "tone": "note",
+            "title": "Not yet verified",
+            "body": "A live automatic compaction and the quality evaluation have not run. One real Haiku RPC success is recorded."
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Evidence and remaining checks",
+        "deck": "Where each number comes from, and what is still to run."
+      },
+      "children": [
+        {
+          "type": "details",
+          "props": {
+            "summary": "All evidence and remaining checks"
+          },
+          "children": [
+            {
+              "type": "table",
+              "props": {
+                "dataKey": "evidence",
+                "columns": [
+                  "finding",
+                  "value",
+                  "qualification"
+                ],
+                "dense": true,
+                "caption": "Where the numbers come from and how much to trust them."
+              }
+            },
+            {
+              "type": "ledger",
+              "props": {
+                "dataKey": "verification",
+                "titleKey": "check",
+                "bodyKey": "detail",
+                "groupKey": "group",
+                "nextKey": "next",
+                "groupOrder": [
+                  "Waiting on you",
+                  "Done"
+                ],
+                "signals": {
+                  "Waiting on you": "wait",
+                  "Done": "done"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Haiku can be silently skipped",
+        "deck": "The current summary cap and the extension load order both matter.",
+        "takeaway": "Run compaction-model after pi-optmem so wake text stays out of the summary.",
+        "signal": "risk"
+      },
+      "children": [
+        {
+          "type": "callout",
+          "props": {
+            "tone": "risk",
+            "title": "Two ways it fails",
+            "body": "The current output allowance is 13,107 tokens at the present reserve, and flipping the extension load order would put OptMem wake text into the summary."
+          }
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "Four phases, each only if the last one needs it",
+        "deck": "Prove Haiku works, add small safeguards, measure quality, and only then consider bigger changes."
+      },
+      "children": [
+        {
+          "type": "steps",
+          "props": {
+            "caption": "Mask old write/edit bodies only if evaluation finds misses or frequent fit failures.",
+            "items": [
+              {
+                "title": "Phase 0: prove Haiku works",
+                "body": "Run /compact-model and /compact; verify details.compactedBy and an automatic case.",
+                "key": true
+              },
+              {
+                "title": "Phase 1: small safeguards",
+                "body": "Fit tests, supplemental instructions, telemetry and explicit extension ordering."
+              },
+              {
+                "title": "Phase 2: offline evaluation",
+                "body": "15 spans, six probes each, blind 0 to 2 grading; Iury reviews ten items."
+              },
+              {
+                "title": "Phase 3: conditional changes",
+                "body": "Mask old write/edit bodies or change summariser only if evaluation finds a problem.",
+                "tag": "Conditional"
+              }
+            ]
+          }
+        },
+        {
+          "type": "details",
+          "props": {
+            "summary": "Evaluation acceptance and privacy"
+          },
+          "children": [
+            {
+              "type": "prose",
+              "props": {
+                "content": "Keep the saved prior summary fixed across arms. Original pass bar: Haiku scores at least 90% of baseline, and no category scores zero on three or more spans. Report results by baseline model and include summary length. Keep raw session spans local and out of git."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "What to do and what to skip",
+        "deck": "The review limits the work to small changes."
+      },
+      "children": [
+        {
+          "type": "ledger",
+          "props": {
+            "groups": [
+              {
+                "label": "Do",
+                "signal": "new",
+                "hint": "Small and cheap.",
+                "rows": [
+                  {
+                    "title": "Keep Haiku 5.5 as the candidate",
+                    "body": "Verify one real successful call first.",
+                    "next": "Run /compact-model, then /compact."
+                  },
+                  {
+                    "title": "Append a few instructions",
+                    "body": "Ask for failed approaches, last test result, exact errors and stated preferences. Keep Pi's prompt."
+                  },
+                  {
+                    "title": "Add a fit check",
+                    "body": "Haiku's window is 200K.",
+                    "next": "Log real sizes first if the check grows."
+                  }
+                ]
+              },
+              {
+                "label": "Do not",
+                "signal": "none",
+                "hint": "Not worth it until measured.",
+                "rows": [
+                  {
+                    "title": "Mask normal context",
+                    "body": "Cache misses and history mismatch outweigh unproven savings."
+                  },
+                  {
+                    "title": "Re-inject files, AGENTS.md or todos",
+                    "body": "The agent can reread files, AGENTS.md stays in the system prompt, and no todo tool is installed."
+                  },
+                  {
+                    "title": "Use a 1M-window trigger with Haiku",
+                    "body": "A 100K reserve makes inputs too big for a 200K summariser."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "details",
+          "props": {
+            "summary": "Scope limits and review correction"
+          },
+          "children": [
+            {
+              "type": "prose",
+              "props": {
+                "content": "Do not build normal-context masking, file or todo re-injection, or a new handoff system. Keep Pi's iterative structured prompt. The review allows logging actual sizes first if the fit check grows. On a Claude CLI subscription, the practical gain is speed and usage-limit headroom, not dollar savings."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "chapter",
+      "props": {
+        "title": "What could go wrong",
+        "deck": "Four risks are recorded in the plan."
+      },
+      "children": [
+        {
+          "type": "ledger",
+          "props": {
+            "groups": [
+              {
+                "label": "Can break something",
+                "signal": "risk",
+                "rows": [
+                  {
+                    "title": "Fit estimate undercounts",
+                    "body": "Dense code or JSON can run past the 4-characters-per-token rule.",
+                    "next": "Use the 1.2× margin and record real estimates."
+                  },
+                  {
+                    "title": "Losses build up",
+                    "body": "Each repeated compaction can lose a little more.",
+                    "next": "Sample repeated spans in the evaluation."
+                  },
+                  {
+                    "title": "Wake text in the summary",
+                    "body": "A flipped extension order lets OptMem wake text into the input.",
+                    "next": "Document load order after pi-optmem."
+                  },
+                  {
+                    "title": "Session data leaves the machine",
+                    "body": "The evaluation sends real spans to API providers.",
+                    "next": "Keep raw data local and out of git."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "details",
+      "props": {
+        "summary": "Source"
+      },
+      "children": [
+        {
+          "type": "prose",
+          "props": {
+            "content": "`ai-artifacts/node-redesign/sources/2-design-explainer-data-flow.md`, summarising the four compaction-design documents listed there. The candidate plan is a draft for Iury's approval."
+          }
+        }
+      ]
+    }
+  ]
+}

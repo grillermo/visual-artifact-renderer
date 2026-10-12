@@ -17,3 +17,7 @@ parsers, layout and rendering are original code in this repository.
 Licence note: the claude-plugins-community repository is Apache-2.0, while the
 html-plan plugin.json declares MIT. Because no code was copied, this note is
 given as attribution under either licence.
+
+Code line and word comparisons use jsdiff (diff), BSD-3-Clause.
+Copyright (c) 2009-2015, Kevin Decker <kpdecker@gmail.com>.
+https://github.com/kpdecker/jsdiff

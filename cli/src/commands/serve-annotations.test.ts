@@ -13,7 +13,7 @@ async function writeArtifact(dir: string): Promise<string> {
   await mkdir(bundleDir, { recursive: true })
   await writeFile(
     join(bundleDir, "artifact.json"),
-    JSON.stringify({ slug: "example-artifact", title: "Example", nodes: [{ type: "text", props: { text: "x" } }] }),
+    JSON.stringify({ slug: "example-artifact", title: "Example", nodes: [{ type: "prose", props: { content: "x" } }] }),
     "utf8",
   )
   return bundleDir

@@ -1,0 +1,102 @@
+{
+  "weekly-report-light-desktop.png": {
+    "width": 1440,
+    "height": 4835,
+    "bytes": 663657
+  },
+  "weekly-report-light-mobile.png": {
+    "width": 390,
+    "height": 8801,
+    "bytes": 654628
+  },
+  "weekly-report-dark-desktop.png": {
+    "width": 1440,
+    "height": 4835,
+    "bytes": 678163
+  },
+  "weekly-report-dark-mobile.png": {
+    "width": 390,
+    "height": 8801,
+    "bytes": 673572
+  },
+  "2-design-explainer-data-flow-light-desktop.png": {
+    "width": 1440,
+    "height": 3546,
+    "bytes": 450772
+  },
+  "2-design-explainer-data-flow-light-mobile.png": {
+    "width": 390,
+    "height": 6704,
+    "bytes": 460792
+  },
+  "2-design-explainer-data-flow-dark-desktop.png": {
+    "width": 1440,
+    "height": 3546,
+    "bytes": 463774
+  },
+  "2-design-explainer-data-flow-dark-mobile.png": {
+    "width": 390,
+    "height": 6704,
+    "bytes": 477211
+  },
+  "3-implementation-plan-light-desktop.png": {
+    "width": 1440,
+    "height": 5458,
+    "bytes": 809852
+  },
+  "3-implementation-plan-light-mobile.png": {
+    "width": 390,
+    "height": 10000,
+    "bytes": 745540
+  },
+  "3-implementation-plan-dark-desktop.png": {
+    "width": 1440,
+    "height": 5458,
+    "bytes": 843028
+  },
+  "3-implementation-plan-dark-mobile.png": {
+    "width": 390,
+    "height": 10000,
+    "bytes": 782928
+  },
+  "4-decision-comparison-light-desktop.png": {
+    "width": 1440,
+    "height": 3524,
+    "bytes": 444437
+  },
+  "4-decision-comparison-light-mobile.png": {
+    "width": 390,
+    "height": 7021,
+    "bytes": 479175
+  },
+  "4-decision-comparison-dark-desktop.png": {
+    "width": 1440,
+    "height": 3524,
+    "bytes": 452768
+  },
+  "4-decision-comparison-dark-mobile.png": {
+    "width": 390,
+    "height": 7021,
+    "bytes": 490101
+  },
+  "5-status-open-loops-light-desktop.png": {
+    "width": 1440,
+    "height": 3231,
+    "bytes": 448325
+  },
+  "5-status-open-loops-light-mobile.png": {
+    "width": 390,
+    "height": 9960,
+    "bytes": 563924
+  },
+  "5-status-open-loops-dark-desktop.png": {
+    "width": 1440,
+    "height": 3231,
+    "bytes": 461696
+  },
+  "5-status-open-loops-dark-mobile.png": {
+    "width": 390,
+    "height": 9960,
+    "bytes": 574454
+  }
+}

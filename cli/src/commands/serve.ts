@@ -313,7 +313,7 @@ export async function serveData(stripped: string, artifactsDir: string, dataPath
     const body = JSON.stringify({
       projects,
       recent: artifacts.slice(0, 3),
-      artifacts: artifacts.slice(0, 100),
+      artifacts,
     }, null, 2)
     return jsonResponse(body)
   }

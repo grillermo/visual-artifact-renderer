@@ -1,0 +1,67 @@
+{
+  "slug": "before-compaction-design",
+  "title": "Pi compaction: keep working state, reduce summarizer cost",
+  "description": "Draft design from 8 October 2026, corrected by the oracle review. Persistent memory stays separate from the working-state summary.",
+  "artifactType": "explainer",
+  "topics": ["pi", "compaction", "memory"],
+  "layout": { "type": "default" },
+  "data": {
+    "handoffs": [
+      { "stage": "Pi preparation", "input": "Session entries, prior summary, file operations, settings", "output": "Summarized span, recent prefix, metadata" },
+      { "stage": "OptMem pre-compact hook", "input": "Mutable preparation and prior wake messages", "output": "Durable facts saved; old wake messages removed" },
+      { "stage": "Fit estimator, proposed", "input": "Serialized messages, prior summary, prompt allowance", "output": "Estimated input tokens and fit result" },
+      { "stage": "Model selection", "input": "Profile model ID and provider registration", "output": "Resolved model or existing fallback" },
+      { "stage": "Native compact()", "input": "Prepared messages, prior summary, custom instructions", "output": "Structured summary and usage metadata" },
+      { "stage": "Pi replacement", "input": "Summary and original session state", "output": "Old span replaced; recent messages retained" },
+      { "stage": "OptMem context hook", "input": "Saved memory store", "output": "Current wake view on a later request" }
+    ],
+    "evidence": [
+      { "finding": "Real Haiku RPC success", "value": "45K input → 467-token summary in 3.1 seconds", "qualification": "After 798a2e1; /tmp test was missed by the initial session-file search" },
+      { "finding": "Input estimate distribution", "value": "55K median; 114K p90; 167K max", "qualification": "927 rebuilt records; four above 150K, none above 180K" },
+      { "finding": "Input composition", "value": "54% tool results; 33% call arguments; 7% text; 6% thinking", "qualification": "Estimated after tool-result truncation" },
+      { "finding": "Estimator uncertainty", "value": "About ±20%", "qualification": "4 characters per token; ignores context_edit projection and tokenizer differences" },
+      { "finding": "Output allowance", "value": "13,107 tokens at current reserve", "qualification": "min(floor(0.8 × reserveTokens), model.maxTokens); Haiku model max 32K" }
+    ],
+    "verification": [
+      { "check": "Haiku RPC call", "status": "pass", "detail": "One real success is already recorded; 103K session context produced 45K input." },
+      { "check": "Automatic compaction", "status": "pending", "detail": "A live automatic compaction still needs a smoke test." },
+      { "check": "Quality evaluation", "status": "pending", "detail": "Compare 15 spans with six grounded probes per span; report baseline model and summary length." }
+    ]
+  },
+  "nodes": [
+    { "type": "text", "props": { "text": "Keep Pi's structured summary and recent tail, keep persistent memory separate, and use Haiku 5.5 only when its input fits.", "size": "lg" } },
+    { "type": "grid", "props": { "columns": 3 }, "children": [
+      { "type": "stat-card", "props": { "label": "Haiku context window", "value": "200K", "caption": "Check summarizer input, not the session model's window.", "tone": "accent" } },
+      { "type": "stat-card", "props": { "label": "Median estimated input", "value": "55K", "caption": "Across 927 rebuilt compaction records." } },
+      { "type": "stat-card", "props": { "label": "90th percentile input", "value": "114K", "caption": "Largest observed estimate was about 167K." } }
+    ] },
+    { "type": "section", "props": { "title": "Memory and compaction take separate paths", "description": "Run the compaction-model extension after pi-optmem so wake text stays out of the summary." }, "children": [
+      { "type": "mermaid", "props": { "height": 700, "caption": "Pi keeps its recent tail and uses the proposed fit guard before selecting a summarizer; OptMem supplies persistent memory separately.", "code": "flowchart TD\n  trigger[\"Pi reaches configured threshold\"] --> prep[\"Prepare span, recent tail and prior summary\"]\n  prep --> clean[\"OptMem saves facts and removes old wake text\"]\n  clean --> estimate[\"Estimate input plus output budget\"]\n  estimate --> guard{\"Fits Haiku with 1.2x margin?\"}\n  guard -->|Yes| haiku[\"Haiku with native prompt and short instructions\"]\n  guard -->|No| fallback[\"Session model with explained fallback\"]\n  haiku --> replace[\"Replace old span, retain recent tail\"]\n  fallback --> replace\n  clean --> memory[\"Persistent memory store\"]\n  memory --> wake[\"Wake view on later request\"]" } }
+    ] },
+    { "type": "code-block", "props": { "title": "Proposed fit policy", "language": "text", "code": "estimatedInputTokens = serializedMessageCharacters / 4\n                     + priorSummaryTokens\n                     + approximately 1500 prompt tokens\noutputBudget = min(floor(0.8 * reserveTokens), model.maxTokens)\ntoo_large = estimatedInputTokens * 1.2 + outputBudget > model.contextWindow", "caption": "The estimator is a proposed safeguard, not a verified exact tokenizer.", "sketch": true } },
+    { "type": "section", "props": { "title": "What each boundary passes" }, "children": [
+      { "type": "data-table", "props": { "dataKey": "handoffs", "columns": ["stage", "input", "output"], "caption": "File operations contribute path lists, not file contents; summary input truncates tool results to 2,000 characters." } }
+    ] },
+    { "type": "section", "props": { "title": "Evidence and remaining checks" }, "children": [
+      { "type": "status-grid", "props": { "dataKey": "verification", "titleKey": "check", "statusKey": "status", "descriptionKey": "detail", "columns": 3 } },
+      { "type": "comparison-table", "props": { "dataKey": "evidence", "columns": ["finding", "value", "qualification"] } }
+    ] },
+    { "type": "flow", "props": { "title": "Expand the design only after evidence", "caption": "Mask old write/edit bodies only if evaluation finds misses or frequent fit failures.", "items": [
+      { "title": "Prove Haiku works", "label": "Phase 0", "description": "Run /compact-model and /compact; verify details.compactedBy and an automatic case." },
+      { "title": "Small safeguards", "label": "Phase 1", "description": "Fit tests, supplemental instructions, telemetry and explicit extension ordering." },
+      { "title": "Offline evaluation", "label": "Phase 2", "description": "15 spans, six probes each, blind 0–2 grading; Iury reviews ten items." },
+      { "title": "Conditional changes", "label": "Phase 3", "description": "Mask old write/edit bodies or change summarizer only if evaluation finds a problem." }
+    ] } },
+    { "type": "accordion", "props": { "items": [
+      { "title": "Evaluation acceptance and privacy", "nodes": [
+        { "type": "text", "props": { "text": "Keep the saved prior summary fixed across arms. Original pass bar: Haiku scores at least 90% of baseline, and no category scores zero on three or more spans. Report results by baseline model and include summary length. Keep raw session spans local and out of git." } }
+      ] },
+      { "title": "Scope limits and review correction", "nodes": [
+        { "type": "text", "props": { "text": "Do not build normal-context masking, file or todo re-injection, or a new handoff system. Keep Pi's iterative structured prompt. The review allows logging actual sizes first if the fit check grows. On a Claude CLI subscription, the practical gain is speed and usage-limit headroom, not dollar savings." } }
+      ] },
+      { "title": "Source", "nodes": [
+        { "type": "text", "props": { "text": "ai-artifacts/node-redesign/sources/2-design-explainer-data-flow.md, summarizing the four compaction-design documents listed there. Candidate plan is draft for Iury's approval." } }
+      ] }
+    ] } }
+  ]
+}

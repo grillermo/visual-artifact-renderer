@@ -27,9 +27,7 @@ function walk(nodes: readonly ArtifactNode[] | undefined, prefix: string, claimP
     visit(node, nodePath, claimPath)
     const nextClaim = node.type === "claim" ? nodePath : claimPath
     if ("children" in node && Array.isArray(node.children)) walk(node.children, `${nodePath}.children`, nextClaim, visit)
-    if (node.type === "tabs" || node.type === "accordion") {
-      node.props.items.forEach((item, itemIndex) => walk(item.nodes, `${nodePath}.props.items.${itemIndex}.nodes`, nextClaim, visit))
-    }
+
   })
 }
 

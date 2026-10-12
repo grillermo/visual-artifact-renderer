@@ -106,8 +106,8 @@ describe("plan adapters (DOM)", () => {
             traces: [{ name: "happy", events: ["start", "finish"] }],
           },
           children: [
-            { type: "text", props: { text: "idle screen" }, metadata: { id: "s-idle" } },
-            { type: "text", props: { text: "busy screen" }, metadata: { id: "s-busy" } },
+            { type: "prose", props: { content: "idle screen" }, metadata: { id: "s-idle" } },
+            { type: "prose", props: { content: "busy screen" }, metadata: { id: "s-busy" } },
           ],
         } as ArtifactNode,
       ],
@@ -122,5 +122,18 @@ describe("plan adapters (DOM)", () => {
     await act(async () => trace.click())
     await act(async () => trace.click())
     assert.equal(container.querySelector('[data-state="busy"]')?.getAttribute("aria-pressed"), "true", "trace step 2 is busy")
+  })
+
+  it("sequence renders bare without the discontinued DIAGRAM frame", async () => {
+    const props = {
+      title: "Flow",
+      caption: "Flow from A to B",
+      participants: [{ id: "a", label: "A" }, { id: "b", label: "B" }],
+      steps: [{ kind: "message", from: "a", to: "b", text: "hi" }],
+    }
+    await render({ title: "t", nodes: [{ type: "sequence", props } as unknown as ArtifactNode] })
+    const bare = container.querySelector("[data-sequence-diagram]")!
+    assert.ok(!bare.className.includes("border") && !bare.className.includes("rounded"), "editorial node has no frame")
+    assert.ok(!/diagram/i.test(bare.firstElementChild?.textContent ?? ""), "no DIAGRAM header chip")
   })
 })

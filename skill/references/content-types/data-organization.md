@@ -1,44 +1,33 @@
 ---
-description: "Organize structured evidence with tables, comparisons, and inventories."
-date created: 2026-06-17
-date modified: 2026-06-28
+description: "Organize structured evidence with table, compare and ledger."
 tags: ["visual-artifact", "tables", "comparisons", "data"]
 ---
 
 # Data organization
 
-Use tables and comparison nodes whenever information naturally has rows and columns.
-
-## When to use
-
-- feature comparisons
-- config matrices
-- API route inventories
-- dependency lists
-- status reports
-- requirement audits
-- evidence summaries
+Use rows and columns only when the information has them.
 
 ## Node selection
 
 | Content | Node |
 |---|---|
-| Simple rows/columns | `table` |
-| Richer evidence table | `data-table` |
-| Feature/option comparison | `comparison-table` |
-| Pass/fail/warning board | `status-grid` |
-| Multi-level grouping | `accordion` containing tables |
+| Facts with columns | `table` |
+| Same table, compact | `table` with `dense: true` |
+| Options against criteria | `table` with `onlyDiffs: true` (3 or more options), `compare` (2) |
+| Status per row | `table` with `statusKey` (dot plus word) |
+| An item with a sentence each | `ledger` |
+| A term and its meaning | `ledger` row |
 
 ## Spec guidance
 
-- Put rows in `data` and reference them by `dataKey`.
-- Use `columns` to control order and labels.
-- Use `statusKey` on `comparison-table` and `status-grid` for chips.
-- Keep cells compact; long prose belongs in `prose` or detail sections.
+- Put rows in `data` and reference them with `dataKey`.
+- Use `columns` for order and labels. Aim for 2 to 5 columns.
+- Use `onlyDiffs` so identical columns drop out.
+- Keep cells short. A cell longer than a sentence belongs in a `ledger` row.
 
 ## Anti-patterns
 
-- Bullet lists that should be tables.
-- Wide prose paragraphs inside cells.
-- Emoji-only status indicators.
-- Tables that repeat the same sentence in every row.
+- Bullet lists that should be a table.
+- A table with 7 columns. Group the rows with a `ledger` instead.
+- Every row saying the same word.
+- Emoji or coloured pills as status.

@@ -44,7 +44,7 @@ const proseComponents: Components = {
 
 export function Prose({ children, className }: { children: string; className?: string }) {
   return (
-    <div className={`prose max-w-none break-words ${className || ""}`}>
+    <div className={`prose max-w-none break-words [text-wrap:pretty] ${className || ""}`}>
       <ReactMarkdown remarkPlugins={[remarkGfm]} components={proseComponents}>
         {children}
       </ReactMarkdown>

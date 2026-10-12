@@ -2,8 +2,6 @@ import type { ArtifactNode, VisualArtifactSpec } from "@/lib/contract/artifact-s
 import {
   buildNodePath,
   childrenNodePath,
-  tabItemNodePath,
-  accordionItemNodePath,
   resolveNodePath,
 } from "@/lib/artifacts/node-paths"
 import type { AIColabComment, AIColabFormatOptions } from "./types"
@@ -66,6 +64,7 @@ export function formatArtifactForAI(
       const start = range?.start ?? 1
       const end = range?.end ?? 1
       lines.push(`${n++}. (lines ${start}-${end}) Feedback on: "${escapeQuote(label)}"`)
+      lines.push(`Node path: ${path}`)
       lines.push("")
       lines.push(...prefixLines(comment.body))
       lines.push("")
@@ -78,6 +77,7 @@ export function formatArtifactForAI(
         ? comment.target.label ?? comment.target.nodeType ?? comment.target.nodePath ?? "unknown"
         : "unknown"
     lines.push(`${n++}. (lines 1-1) Feedback on: "${escapeQuote(label)}"`)
+    if (comment.target.kind === "node") lines.push(`Node path: ${comment.target.nodePath ?? "unresolved"}`)
     lines.push("")
     lines.push(...prefixLines(comment.body))
     lines.push("")
@@ -120,29 +120,12 @@ function collectNodePathsInOrder(spec: VisualArtifactSpec): string[] {
       const nodePath = buildNodePath(prefix, i)
       paths.push(nodePath)
 
-      if (node.type === "card" || node.type === "grid" || node.type === "section") {
+      if ("children" in node) {
         if (node.children) {
           walk(node.children, childrenNodePath(nodePath))
         }
       }
 
-      if (node.type === "tabs") {
-        const items = (node.props as { items?: { nodes: ArtifactNode[] }[] }).items
-        if (items) {
-          for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
-            walk(items[itemIndex].nodes, tabItemNodePath(nodePath, itemIndex))
-          }
-        }
-      }
-
-      if (node.type === "accordion") {
-        const items = (node.props as { items?: { nodes: ArtifactNode[] }[] }).items
-        if (items) {
-          for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
-            walk(items[itemIndex].nodes, accordionItemNodePath(nodePath, itemIndex))
-          }
-        }
-      }
     }
   }
 
@@ -306,21 +289,12 @@ function inferLabel(node: ArtifactNode): string {
       candidate = props.alt
       break
     case "table":
-    case "data-table":
-    case "comparison-table":
       candidate = props.caption ?? props.dataKey
       break
-    case "code-block":
+    case "code":
     case "mermaid":
     case "svg-diagram":
       candidate = props.title
-      break
-    case "section":
-      candidate = props.title
-      break
-    case "metric":
-    case "stat-card":
-      candidate = props.label
       break
     default:
       candidate = props.title ?? props.text ?? props.label ?? props.content
@@ -342,29 +316,12 @@ function buildNodeIdIndex(spec: VisualArtifactSpec): Map<string, string> {
         index.set(node.metadata.id, nodePath)
       }
 
-      if (node.type === "card" || node.type === "grid" || node.type === "section") {
+      if ("children" in node) {
         if (node.children) {
           walk(node.children, childrenNodePath(nodePath))
         }
       }
 
-      if (node.type === "tabs") {
-        const items = (node.props as { items?: { nodes: ArtifactNode[] }[] }).items
-        if (items) {
-          for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
-            walk(items[itemIndex].nodes, tabItemNodePath(nodePath, itemIndex))
-          }
-        }
-      }
-
-      if (node.type === "accordion") {
-        const items = (node.props as { items?: { nodes: ArtifactNode[] }[] }).items
-        if (items) {
-          for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
-            walk(items[itemIndex].nodes, accordionItemNodePath(nodePath, itemIndex))
-          }
-        }
-      }
     }
   }
 
