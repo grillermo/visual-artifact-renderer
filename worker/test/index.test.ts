@@ -5,7 +5,7 @@ import { LOCAL_ANONYMOUS_AUTHOR } from "../src/annotations.ts"
 
 function mockR2Bucket(
   objects: Map<string, { body: string; uploaded: Date }>,
-  options: { alwaysConflict?: boolean } = {},
+  options: { alwaysConflict?: boolean; pageSize?: number } = {},
 ): R2Bucket {
   const versions = new Map(Array.from(objects.keys(), (key) => [key, 1]))
 
@@ -29,11 +29,15 @@ function mockR2Bucket(
   }
 
   return {
-    list: async ({ prefix }: { prefix?: string } = {}) => {
+    list: async ({ prefix, cursor }: { prefix?: string; cursor?: string } = {}) => {
       const matching = Array.from(objects.keys())
         .filter((key) => prefix === undefined || key.startsWith(prefix))
         .map((key) => metadata(key)!)
-      return { objects: matching, truncated: false, cursor: undefined, delimitedPrefixes: [] }
+      const start = cursor ? Number(cursor) : 0
+      const end = options.pageSize === undefined ? matching.length : start + options.pageSize
+      const page = matching.slice(start, end)
+      const truncated = end < matching.length
+      return { objects: page, truncated, cursor: truncated ? String(end) : undefined, delimitedPrefixes: [] }
     },
     head: async (key: string) => metadata(key),
     get: async (key: string) => {
@@ -103,7 +107,7 @@ function mockAssets(): Fetcher {
 
 function envWithObjects(
   objects: Map<string, { body: string; uploaded: Date }>,
-  options?: { alwaysConflict?: boolean },
+  options?: { alwaysConflict?: boolean; pageSize?: number },
 ): Env {
   return { BUCKET: mockR2Bucket(objects, options), ASSETS: mockAssets() }
 }
@@ -171,7 +175,7 @@ describe("Worker routes", () => {
     expect(response.status).toBe(404)
   })
 
-  test("generates a one-hundred-item home index with discovery metadata", async () => {
+  test("generates a home index for every artifact, with discovery metadata", async () => {
     const objects = new Map<string, { body: string; uploaded: Date }>()
     for (let index = 0; index < 105; index++) {
       objects.set(`artifacts/demo/artifact-${index}/artifact.json`, {
@@ -196,12 +200,27 @@ describe("Worker routes", () => {
     expect(body.projects[0].name).toBe("demo")
     expect(body.projects[0].artifactCount).toBe(105)
     expect(body.recent).toHaveLength(6)
-    expect(body.artifacts).toHaveLength(100)
+    expect(body.artifacts).toHaveLength(105)
     expect(body.artifacts[0]).toMatchObject({
       title: "Artifact 104",
       artifactType: "report",
       topics: ["release"],
     })
+  })
+
+  test("follows R2 list cursors so a paged bucket still returns every artifact", async () => {
+    const objects = new Map<string, { body: string; uploaded: Date }>()
+    for (let index = 0; index < 3; index++) {
+      objects.set(`artifacts/demo/item-${index}/artifact.json`, {
+        body: JSON.stringify({ title: `Item ${index}` }),
+        uploaded: new Date(Date.UTC(2026, 1, index + 1)),
+      })
+    }
+    const env = envWithObjects(objects, { pageSize: 1 })
+    const response = await handleRequest(new Request("https://example.com/data/artifacts/index.json"), env, {} as ExecutionContext)
+    const body = (await response.json()) as { projects: Array<{ artifactCount: number }>; artifacts: unknown[] }
+    expect(body.projects[0].artifactCount).toBe(3)
+    expect(body.artifacts).toHaveLength(3)
   })
 
   test("generates project index from R2 list", async () => {
