@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/iurysza/visual-artifact-renderer/compare/v1.0.0...v1.0.1) (2026-10-12)
+
+
+### Bug Fixes
+
+* **ci:** install CLI deps before the Cloudflare cloud build ([#58](https://github.com/iurysza/visual-artifact-renderer/issues/58)) ([df49e4e](https://github.com/iurysza/visual-artifact-renderer/commit/df49e4e819c814c631096165e2a2228f5936c509))
+
 ## [1.0.0](https://github.com/iurysza/visual-artifact-renderer/compare/v0.10.1...v1.0.0) (2026-10-12)
 
 
