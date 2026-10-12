@@ -54,6 +54,11 @@ jobs:
       - name: Install app dependencies
         run: cd app && pnpm install --frozen-lockfile
 
+      # build:cloud typechecks dev-api.ts, which imports CLI source.
+      # That source resolves @agents/visual-artifact-annotations from cli/node_modules.
+      - name: Install CLI dependencies
+        run: cd cli && bun install --frozen-lockfile
+
       - name: Build cloud renderer
         run: cd app && pnpm build:cloud
 
