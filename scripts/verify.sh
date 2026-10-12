@@ -165,7 +165,7 @@ XDG_STATE_HOME="$STATE_DIR" \
 {
   "slug": "$HEALTH_SLUG",
   "title": "Health Check Artifact",
-  "nodes": [{ "type": "text", "props": { "text": "Hello from health check" } }]
+  "nodes": [{ "type": "prose", "props": { "content": "Hello from health check" } }]
 }
 EOF
 
