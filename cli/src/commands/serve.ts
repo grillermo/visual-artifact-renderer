@@ -24,6 +24,9 @@ import {
 import type { Logger, ResultData } from "../logger.ts"
 import { dirExists, fileExists } from "../util.ts"
 import type { Config } from "../types.ts"
+import type { AuthServer } from "../server/auth.ts"
+import { AuthConfigError, authEnv, createAuthServer, gateRequest } from "../server/gate.ts"
+import { MCP_BODY_MAX_BYTES } from "../server/mcp.ts"
 
 const MIME_TYPES: Record<string, string> = {
   ".html": "text/html; charset=utf-8",
@@ -76,6 +79,8 @@ export interface ServeOpts {
   artifactsDir?: string
   dataPath?: string
   allowRemote?: boolean
+  /** Slack OTP sign-in for every page, OAuth-guarded MCP at /mcp. */
+  auth?: boolean
 }
 
 export async function serve(opts: ServeOpts, log: Logger): Promise<number> {
@@ -125,6 +130,20 @@ export async function serve(opts: ServeOpts, log: Logger): Promise<number> {
   }
 
   const shutdownPath = "/api/shutdown"
+
+  let auth: AuthServer | null = null
+  if (opts.auth || process.env.VISUAL_ARTIFACT_AUTH === "1") {
+    try {
+      auth = createAuthServer(authEnv())
+    } catch (error) {
+      if (error instanceof AuthConfigError) {
+        log.error(error.message)
+        return 2
+      }
+      throw error
+    }
+  }
+  const mcpContext = { artifactsDir, publicUrl: auth?.publicUrl ?? localBaseUrl(config), contractPath: config.contractPath }
   const shutdownToken = generateShutdownToken()
   const state = createServerState(config, shutdownToken)
   const statePath = serverStatePath(config)
@@ -142,9 +161,15 @@ export async function serve(opts: ServeOpts, log: Logger): Promise<number> {
       // enough for one opted-in remote client to force a large parse and disk
       // write. The same cap is enforced again in serveApi so the API returns
       // JSON 413 when the handler actually reads the body.
-      maxRequestBodySize: ANNOTATION_MUTATION_MAX_BYTES,
+      // With --auth, MCP create calls carry a whole spec (up to 2 MiB).
+      maxRequestBodySize: auth ? MCP_BODY_MAX_BYTES : ANNOTATION_MUTATION_MAX_BYTES,
       async fetch(req) {
         const url = new URL(req.url)
+        if (auth) {
+          // The shutdown API keeps its own bearer token, for `serve stop`.
+          const gated = await gateRequest(auth, req, url, mcpContext, [shutdownPath])
+          if (gated) return gated
+        }
         const pathname = decodeURIComponent(url.pathname)
         const stripped = pathname
 
@@ -223,7 +248,7 @@ export async function serve(opts: ServeOpts, log: Logger): Promise<number> {
   process.once("SIGTERM", signalHandler)
 
   const localUrl = localBaseUrl(config)
-  log.result({ command: "serve", url: localUrl })
+  log.result({ command: "serve", url: localUrl, ...(auth ? { auth: true, publicUrl: auth.publicUrl } : {}) })
 
   if (config.open) {
     openBrowser(localUrl)

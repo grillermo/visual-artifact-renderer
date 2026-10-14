@@ -28,7 +28,7 @@ function formatSpecConstraints(spec: ArtifactContract["spec"]): string[] {
   return lines
 }
 
-function printSummary(contract: ArtifactContract): string {
+export function printSummary(contract: ArtifactContract): string {
   const lines = [
     `Visualizer artifact contract v${contract.version}`,
     "",

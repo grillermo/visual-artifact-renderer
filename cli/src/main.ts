@@ -148,6 +148,11 @@ const serveCmd = program
   .option("--data-path <path>", "Data API path")
   .option("--open", "Open browser on start")
   .option("--no-open", "Do not open browser")
+  .option(
+    "--auth",
+    "Require Slack OTP sign-in for every page and serve an OAuth-guarded MCP at /mcp " +
+      "(needs VISUAL_ARTIFACT_PUBLIC_URL and VISUAL_ARTIFACT_SLACK_OTP_WEBHOOK_URL)",
+  )
   .action(async (opts) => {
     const globalOpts = globalOptsFromProgram()
     await runAction("serve", (log) => serve({ ...opts, allowRemote: globalOpts.allowRemote }, log))

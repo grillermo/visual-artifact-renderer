@@ -178,6 +178,26 @@ Published artifacts use R2 for artifact bundles and a Worker for the static rend
 
 First-time deployment requires a cloned repo. Setup and deployment: [`ai-artifacts/docs/publishing.md`](./ai-artifacts/docs/publishing.md).
 
+### Self-hosted, behind sign-in (`serve --auth`)
+
+To serve the renderer on your own public hostname (a reverse proxy or tunnel in front of the loopback port), start it with `--auth`:
+
+```bash
+VISUAL_ARTIFACT_PUBLIC_URL=https://var.example.com \
+VISUAL_ARTIFACT_SLACK_OTP_WEBHOOK_URL=https://hooks.slack.com/services/... \
+visual-artifact serve --auth --no-open
+```
+
+- **Every page and data endpoint needs a signed-in browser.** `/login` posts a 6-digit code to the Slack incoming webhook; entering it sets a 30-day session cookie. One user, so there is no username.
+- **`/mcp` is a remote MCP server** (Streamable HTTP) guarded by OAuth 2.1: protected-resource and authorization-server metadata, dynamic client registration (loopback and claude.ai callbacks only), PKCE S256, rotating refresh tokens. Approving a client goes through the same Slack sign-in. Tools: `get_authoring_guide`, `get_artifact_contract`, `validate_visual_artifact`, `create_visual_artifact`, `get_visual_artifact`, `list_visual_artifacts`. Remote specs must inline content; `src` paths are refused.
+- Clients, codes, tokens and sessions live hashed in SQLite at `VISUAL_ARTIFACT_AUTH_DB` (default `~/.local/share/visual-artifact/auth.sqlite`).
+
+Add it to Claude Code with:
+
+```bash
+claude mcp add --transport http --scope user visual-artifact https://var.example.com/mcp
+```
+
 ## CLI
 
 Common commands:

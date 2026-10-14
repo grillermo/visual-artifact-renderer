@@ -12,6 +12,11 @@ export const ROOT_RESERVED_SEGMENTS = [
   "_next",
   "shell-artifact",
   "shell-project",
+  // Auth + MCP routes of `visual-artifact serve --auth`.
+  "mcp",
+  "oauth",
+  "login",
+  "logout",
 ] as const
 
 /** True when `segment` is reserved for a runtime namespace and cannot be a project or slug. */
