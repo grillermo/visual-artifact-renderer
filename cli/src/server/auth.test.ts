@@ -314,6 +314,7 @@ describe("MCP", () => {
       "validate_visual_artifact",
       "create_visual_artifact",
       "get_visual_artifact",
+      "export_visual_artifact",
       "list_visual_artifacts",
     ])
   })

@@ -152,6 +152,12 @@ export class AuthServer {
     return `${this.issuer}${MCP_PATH}`
   }
 
+  /** A short-lived renderer session for server-side captures; call the cleanup when done. */
+  temporarySession(): [string, () => void] {
+    const session = this.store.createSession()
+    return [session, () => this.store.deleteSession(session)]
+  }
+
   sessionValid(req: Request): boolean {
     const session = cookieValue(req, SESSION_COOKIE)
     return !!session && this.store.sessionValid(session)

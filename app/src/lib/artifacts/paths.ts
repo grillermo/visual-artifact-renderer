@@ -27,6 +27,7 @@ export const ROOT_RESERVED_SEGMENTS = [
   "oauth",
   "login",
   "logout",
+  "exports",
 ] as const
 
 /** True when `segment` is reserved for a runtime namespace and cannot be a project or slug. */

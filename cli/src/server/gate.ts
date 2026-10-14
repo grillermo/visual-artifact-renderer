@@ -2,6 +2,7 @@ import { homedir } from "node:os"
 import { resolve } from "node:path"
 import { AuthServer, MCP_PATH, slackOtpSender } from "./auth.ts"
 import { AuthStore } from "./auth-store.ts"
+import type { Exporter } from "./export.ts"
 import { handleMcp, type McpContext } from "./mcp.ts"
 
 /**
@@ -15,9 +16,14 @@ export async function gateRequest(
   url: URL,
   mcp: McpContext,
   passthroughPaths: readonly string[] = [],
+  exporter?: Exporter,
 ): Promise<Response | null> {
   const authResponse = await auth.handle(req, url)
   if (authResponse) return authResponse
+
+  // Exported files are reached by their unguessable link, without a session.
+  const exportResponse = exporter ? await exporter.serve(url.pathname) : null
+  if (exportResponse) return exportResponse
 
   if (url.pathname === MCP_PATH) {
     if (!auth.bearerValid(req)) return auth.mcpUnauthorized()

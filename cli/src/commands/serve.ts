@@ -1,4 +1,4 @@
-import { resolve, join } from "node:path"
+import { dirname, resolve, join } from "node:path"
 import { spawn } from "node:child_process"
 import { annotationMutationRequestRejection } from "@agents/visual-artifact-annotations"
 import { ConfigValidationError, loadConfig, localBaseUrl } from "../config.ts"
@@ -24,8 +24,9 @@ import {
 import type { Logger, ResultData } from "../logger.ts"
 import { dirExists, fileExists } from "../util.ts"
 import type { Config } from "../types.ts"
-import type { AuthServer } from "../server/auth.ts"
+import { SESSION_COOKIE, type AuthServer } from "../server/auth.ts"
 import { AuthConfigError, authEnv, createAuthServer, gateRequest } from "../server/gate.ts"
+import { Exporter, exporterFromEnv } from "../server/export.ts"
 import { MCP_BODY_MAX_BYTES } from "../server/mcp.ts"
 
 const MIME_TYPES: Record<string, string> = {
@@ -132,9 +133,23 @@ export async function serve(opts: ServeOpts, log: Logger): Promise<number> {
   const shutdownPath = "/api/shutdown"
 
   let auth: AuthServer | null = null
+  let exporter: Exporter | undefined
   if (opts.auth || process.env.VISUAL_ARTIFACT_AUTH === "1") {
     try {
-      auth = createAuthServer(authEnv())
+      const settings = authEnv()
+      const signedIn = createAuthServer(settings)
+      auth = signedIn
+      const tools = exporterFromEnv()
+      if (tools) {
+        exporter = new Exporter({
+          ...tools,
+          exportsDir: join(dirname(settings.dbPath), "exports"),
+          localOrigin: `http://${config.host.includes(":") ? `[${config.host}]` : config.host}:${config.port}`,
+          publicUrl: signedIn.publicUrl,
+          session: () => signedIn.temporarySession(),
+          sessionCookie: SESSION_COOKIE,
+        })
+      }
     } catch (error) {
       if (error instanceof AuthConfigError) {
         log.error(error.message)
@@ -143,7 +158,7 @@ export async function serve(opts: ServeOpts, log: Logger): Promise<number> {
       throw error
     }
   }
-  const mcpContext = { artifactsDir, publicUrl: auth?.publicUrl ?? localBaseUrl(config), contractPath: config.contractPath }
+  const mcpContext = { artifactsDir, publicUrl: auth?.publicUrl ?? localBaseUrl(config), contractPath: config.contractPath, exporter }
   const shutdownToken = generateShutdownToken()
   const state = createServerState(config, shutdownToken)
   const statePath = serverStatePath(config)
@@ -167,7 +182,7 @@ export async function serve(opts: ServeOpts, log: Logger): Promise<number> {
         const url = new URL(req.url)
         if (auth) {
           // The shutdown API keeps its own bearer token, for `serve stop`.
-          const gated = await gateRequest(auth, req, url, mcpContext, [shutdownPath])
+          const gated = await gateRequest(auth, req, url, mcpContext, [shutdownPath], exporter)
           if (gated) return gated
         }
         const pathname = decodeURIComponent(url.pathname)

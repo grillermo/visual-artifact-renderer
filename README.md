@@ -189,7 +189,8 @@ visual-artifact serve --auth --no-open
 ```
 
 - **Every page and data endpoint needs a signed-in browser.** `/login` posts a 6-digit code to the Slack incoming webhook; entering it sets a 30-day session cookie. One user, so there is no username.
-- **`/mcp` is a remote MCP server** (Streamable HTTP) guarded by OAuth 2.1: protected-resource and authorization-server metadata, dynamic client registration (loopback and claude.ai callbacks only), PKCE S256, rotating refresh tokens. Approving a client goes through the same Slack sign-in. Tools: `get_authoring_guide`, `get_artifact_contract`, `validate_visual_artifact`, `create_visual_artifact`, `get_visual_artifact`, `list_visual_artifacts`. Remote specs must inline content; `src` paths are refused.
+- **`/mcp` is a remote MCP server** (Streamable HTTP) guarded by OAuth 2.1: protected-resource and authorization-server metadata, dynamic client registration (loopback and claude.ai callbacks only), PKCE S256, rotating refresh tokens. Approving a client goes through the same Slack sign-in. Tools: `get_authoring_guide`, `get_artifact_contract`, `validate_visual_artifact`, `create_visual_artifact`, `get_visual_artifact`, `export_visual_artifact`, `list_visual_artifacts`. Remote specs must inline content; `src` paths are refused.
+- **`export_visual_artifact`** turns a saved artifact into one self-contained HTML file (a static snapshot: CSS, fonts and images inlined, scripts and the site header removed) and returns a download link that works without sign-in for 15 minutes, for sharing on any file host. It needs [SingleFile CLI](https://github.com/gildas-lormeau/single-file-cli) and a Chrome/Chromium: set `VISUAL_ARTIFACT_SINGLEFILE` and `VISUAL_ARTIFACT_CHROME` to their paths.
 - Clients, codes, tokens and sessions live hashed in SQLite at `VISUAL_ARTIFACT_AUTH_DB` (default `~/.local/share/visual-artifact/auth.sqlite`).
 
 Add it to Claude Code with:

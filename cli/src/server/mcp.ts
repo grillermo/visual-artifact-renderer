@@ -8,6 +8,7 @@ import { listProjectArtifacts, scanArtifacts } from "../lib/scan.ts"
 import { validateMermaidNodes } from "../mermaid.ts"
 import { ensureDir, fileExists } from "../util.ts"
 import { validateSpec, ValidationError } from "../validate.ts"
+import { EXPORT_TTL_MS, ExportError, type Exporter } from "./export.ts"
 import authoringGuide from "../../../skill/SKILL.md" with { type: "text" }
 
 /**
@@ -32,6 +33,8 @@ export interface McpContext {
   artifactsDir: string
   publicUrl: string
   contractPath?: string
+  /** Present when the server can snapshot pages (SingleFile + Chrome configured). */
+  exporter?: Exporter
 }
 
 interface JsonRpcRequest {
@@ -101,6 +104,24 @@ const TOOLS = [
     name: "get_visual_artifact",
     title: "Get artifact",
     description: "Read back the saved spec of an artifact, e.g. to revise and re-create it.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        project: { type: "string", description: "kebab-case project name" },
+        slug: { type: "string", description: "kebab-case artifact slug" },
+      },
+      required: ["project", "slug"],
+      additionalProperties: false,
+    },
+    annotations: { readOnlyHint: true },
+  },
+  {
+    name: "export_visual_artifact",
+    title: "Export artifact as one HTML file",
+    description:
+      "Render a saved artifact into a single self-contained HTML file (CSS, fonts and images inlined; a static " +
+      `snapshot without scripts) and return a download URL that works without sign-in for ${EXPORT_TTL_MS / 60000} minutes. ` +
+      "Download it (e.g. curl -fsSL -o page.html URL) to share it elsewhere. Takes 5-60 seconds.",
     inputSchema: {
       type: "object",
       properties: {
@@ -246,6 +267,23 @@ async function callTool(name: string, args: Record<string, unknown>, ctx: McpCon
         throw new ToolError(`No artifact ${route.project}/${route.slug}`)
       }
       return textResult(await readFile(filePath, "utf8"))
+    }
+
+    case "export_visual_artifact": {
+      if (!ctx.exporter) throw new ToolError("This server has no exporter configured (VISUAL_ARTIFACT_SINGLEFILE and VISUAL_ARTIFACT_CHROME)")
+      const route = parseBundleRoute(stringArg(args, "project"), stringArg(args, "slug"))
+      if (!route) throw new ToolError("project and slug must be kebab-case names")
+      const filePath = artifactJsonPath(ctx.artifactsDir, route.project, route.slug)
+      if (!isInsideArtifactsDir(filePath, ctx.artifactsDir) || !(await fileExists(filePath))) {
+        throw new ToolError(`No artifact ${route.project}/${route.slug}`)
+      }
+      try {
+        const result = await ctx.exporter.export(route.project, route.slug)
+        return textResult(`Download within ${EXPORT_TTL_MS / 60000} minutes: ${result.url} (${result.bytes} bytes)`, { ok: true, ...result })
+      } catch (error) {
+        if (error instanceof ExportError) throw new ToolError(error.message)
+        throw error
+      }
     }
 
     case "list_visual_artifacts": {
