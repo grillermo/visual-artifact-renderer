@@ -22,10 +22,11 @@ const EXPORT_FILE = /^[A-Za-z0-9_-]{43}\.html$/
 // to the signed-in site, comment and theme buttons that do nothing offline).
 // SingleFile only fires its hooks for user scripts that announce themselves.
 const STRIP_CHROME_SCRIPT = `
-dispatchEvent(new CustomEvent("single-file-user-script-init"))
+// SingleFile appends its own code right after this one, hence the semicolons.
+dispatchEvent(new CustomEvent("single-file-user-script-init"));
 addEventListener("single-file-on-before-capture-request", () => {
-  document.querySelectorAll('[data-slot="site-header"]').forEach((el) => el.remove())
-})
+  document.querySelectorAll('[data-slot="site-header"]').forEach((el) => el.remove());
+});
 `
 
 export interface ExporterOptions {
@@ -87,8 +88,10 @@ export class Exporter {
           `--browser-executable-path=${this.options.chromePath}`,
           `--browser-cookie=${this.options.sessionCookie},${cookie},${host},/`,
           `--browser-script=${scriptPath}`,
-          "--browser-wait-until=networkidle2",
-          "--browser-wait-delay=1000",
+          // The page never goes network-idle (that would wait the full 60s
+          // timeout); it draws within a second of load, diagrams included.
+          "--browser-wait-until=load",
+          "--browser-wait-delay=2500",
           "--browser-width=1280",
           "--browser-height=900",
           `${this.options.localOrigin}/${project}/${slug}/`,
